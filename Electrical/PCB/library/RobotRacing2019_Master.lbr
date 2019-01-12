@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mil"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="yes"/>
@@ -2119,6 +2119,23 @@ type U15</description>
 <pin name="GND" x="10.16" y="-5.08" visible="pin" length="short" direction="pwr" rot="R180"/>
 <pin name="ID" x="10.16" y="-2.54" visible="pin" length="short" rot="R180"/>
 </symbol>
+<symbol name="S-1011AA0">
+<description>Schematic for S-1011AA0: https://www.digikey.ca/product-detail/en/ablic-u-s-a-inc/S-1011AA0-M6T1U4/1662-2884-1-ND/8022016
+
+Datasheet: https://www.ablic.com/en/doc/datasheet/voltage_detector/S1011_E.pdf</description>
+<pin name="VDD" x="-10.16" y="5.08" length="middle" direction="pas"/>
+<pin name="NC" x="-10.16" y="2.54" length="middle" direction="pas"/>
+<pin name="OUT" x="-10.16" y="0" length="middle" direction="pas"/>
+<pin name="CP" x="-10.16" y="-2.54" length="middle" direction="pas"/>
+<pin name="VSS" x="-10.16" y="-5.08" length="middle" direction="pas"/>
+<pin name="CN" x="-10.16" y="-7.62" length="middle" direction="pas"/>
+<wire x1="-5.08" y1="7.62" x2="-5.08" y2="-10.16" width="0.1524" layer="94"/>
+<wire x1="-5.08" y1="-10.16" x2="5.08" y2="-10.16" width="0.1524" layer="94"/>
+<wire x1="5.08" y1="-10.16" x2="5.08" y2="7.62" width="0.1524" layer="94"/>
+<wire x1="5.08" y1="7.62" x2="-5.08" y2="7.62" width="0.1524" layer="94"/>
+<text x="-5.08" y="8.89" size="1.778" layer="95">&gt;Name</text>
+<text x="-5.08" y="-12.7" size="1.778" layer="96">&gt;Value</text>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="MKE14F512LL16" prefix="U">
@@ -2676,6 +2693,29 @@ U15</description>
 <connect gate="G$1" pin="GND" pad="5 GND1 GND2"/>
 <connect gate="G$1" pin="ID" pad="4"/>
 <connect gate="G$1" pin="VBUS" pad="1"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="S-1011AA0">
+<description>https://www.digikey.ca/product-detail/en/ablic-u-s-a-inc/S-1011AA0-M6T1U4/1662-2884-1-ND/8022016
+
+https://www.ablic.com/en/doc/datasheet/voltage_detector/S1011_E.pdf</description>
+<gates>
+<gate name="G$1" symbol="S-1011AA0" x="0" y="0"/>
+</gates>
+<devices>
+<device name="SOT" package="SOT23-6">
+<connects>
+<connect gate="G$1" pin="CN" pad="6"/>
+<connect gate="G$1" pin="CP" pad="4"/>
+<connect gate="G$1" pin="NC" pad="2"/>
+<connect gate="G$1" pin="OUT" pad="3"/>
+<connect gate="G$1" pin="VDD" pad="1"/>
+<connect gate="G$1" pin="VSS" pad="5"/>
 </connects>
 <technologies>
 <technology name=""/>
