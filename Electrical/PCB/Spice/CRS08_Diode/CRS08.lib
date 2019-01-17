@@ -1,0 +1,56 @@
+*********************************************************************
+*  (C)  Copyright  TOSHIBA CORPORATION  2016
+*  Date                 :26/08/2016
+*  File Name            :CRS08.lib
+*  Part Number          :CRS08
+*  Parameter Ver.       :Ver.1
+*  Simulator            :PSpice
+*  Model Call Name      :CRS08
+*  TNOM                 :25 degree
+*  Pin Assign           :1=Anode 2=Cathode
+*
+* This PSpice model is provided with OLB file. The symbol is
+* simplified for PSpice simulation. It is different from original
+* device. Please check the technical data sheet or Toshiba website.
+*********************************************************************
+.SUBCKT CRS08 1 2
+D1 1 2 CRS08
+D2 1 2 PDIODE1
+D3 1 2 PDIODE2
+.MODEL CRS08 D (
++ IS = 1.3827e-005
++ N = 1.0382
++ RS = 0.24519
++ BV = 30
++ IBV = 1E-10
++ CJO = 4.7995e-10
++ M = 0.48186
++ VJ = 0.32607
++ TT = 0
++ TNOM = 25
++ XTI = -14.9618 )
+.MODEL PDIODE1 D (
++ IS = 7e-009
++ N = 0.6374
++ RS = 0.078588
++ BV = 30
++ IBV = 1E-10
++ CJO = 0
++ M = 0.5
++ VJ = 1
++ TT = 0
++ TNOM = 25
++ XTI = -13.3823 )
+.MODEL PDIODE2 D (
++ IS = 8e-009
++ N = 0.71641
++ RS = 0.089008
++ BV = 30
++ IBV = 1E-10
++ CJO = 0
++ M = 0.5
++ VJ = 1
++ TT = 0
++ TNOM = 25
++ XTI = -35.229 )
+.ENDS
