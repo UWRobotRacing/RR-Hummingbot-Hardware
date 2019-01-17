@@ -1,0 +1,95 @@
+* PSpice Model Editor - Version 16.2.0
+*$
+* LM2940-N_5P0
+*****************************************************************************
+* (C) Copyright 2015 Texas Instruments Incorporated. All rights reserved.
+*****************************************************************************
+** This model is designed as an aid for customers of Texas Instruments.
+** TI and its licensors and suppliers make no warranties, either expressed
+** or implied, with respect to this model, including the warranties of
+** merchantability or fitness for a particular purpose. The model is
+** provided solely on an "as is" basis. The entire risk as to its quality
+** and performance is with the customer.
+*****************************************************************************
+*
+** Released by: WEBENCH Design Center, Texas Instruments Inc.
+* Part: LM2940-N_5P0
+* Date: 19JAN2015 
+* Model Type: TRANSIENT
+* Simulator: PSPICE
+* Simulator Version: 16.2.0.p001
+* EVM Order Number:
+* EVM Users Guide:
+* Datasheet:SNVS769J–MARCH 2000–REVISED DECEMBER 2014
+*
+* Model Version: Final 1.00
+*
+*****************************************************************************
+*
+* Updates:
+*
+* Final 1.00
+* Release to Web
+*
+*****************************************************************************
+.SUBCKT LM2940-N_5P0_TRANS IN OUT GND_0 GND_1
+R_R2         N222934 FB  2.7k  
+R_R1         FB OUT  7.888k  
+R_R6         N242982 VYY  10 TC=0,0 
+R_Rgnd1         N222934 GND_1  100m TC=0,0 
+C_U1_C2         0 U1_N05382  1n  
+E_U1_ABM4         U1_N09035 0 VALUE { V(U1_N05348)  
++ * (ABS(V(OUT)) + 1e-6)  
++ / (ABS(V(U1_N05390)) + 1e-6)  }
+V_U1_V6         U1_N23387 0 30.25
+C_U1_C1         0 U1_N05348  {1e-6*SQRT(TTRN)} IC=0 
+C_U1_C4         0 U1_N05390  1n  
+R_U1_R1         N222934 U1_N05348  1G  
+X_U1_U3         U1_N23687 U1_OVSD INV_BASIC_GEN PARAMS: VDD=1 VSS=0
++  VTHRESH=500E-3
+E_U1_ABM7         U1_N08164 0 VALUE { IF(V(U1_OVSD)>0.5, {VREF}, 0)    }
+R_U1_R6         FB U1_N05390  1 TC=0,0 
+R_U1_R5         U1_N09745 N222524  10 TC=0,0 
+R_U1_R3         U1_N08164 U1_N05348  {3.333e5*SQRT(TTRN)} TC=0,0 
+X_U1_U4         IN U1_N23387 U1_N233213 U1_N23687 COMPHYS_BASIC_GEN PARAMS:
++  VDD=1 VSS=0 VTHRESH=0.5
+C_U1_C3         0 N222524  1n  
+R_U1_R2         N222934 U1_N05382  1G  
+E_U1_ABM5         U1_N09745 0 VALUE { MIN(V(U1_N05382),  
++ MAX(V(IN) - {DROP}, 0))   }
+R_U1_R4         U1_N09035 U1_N05382  10 TC=0,0 
+V_U1_V5         U1_N233213 0 500m
+C_C3         0 VYY  1n  
+R_R5         VZZ VYY  {ROUT}  
+E_ABM1         N242982 0 VALUE { MIN(V(VXX), (V(Vzz)+(ILIM*ROUT)))    }
+R_R11         VXX IN  {RINP}  
+X_F1    VZZ OUT IN VYY LM2940-N_5P0_F1 
+R_R22         N222524 VXX  {PSRR*RINP}  
+C_C1         VXX IN  {1/(6.28*RINP*POLE)}  
+C_C2         VXX N222524  {1/(6.28*PSRR*RINP*ZERO)}  
+R_Rgnd0         N222934 GND_0  100m TC=0,0 
+.PARAM  psrr=1.77e-4 ilim=1.9 pole=20k zero=80k rinp=1e7 ttrn=1e-4 rout=15m
++  vref=1.275 drop=0.5
+.ENDS LM2940-N_5P0_TRANS
+*$
+.SUBCKT LM2940-N_5P0_F1 1 2 3 4  
+F_F1         3 4 VF_F1 1
+VF_F1         1 2 0V
+.ENDS LM2940-N_5P0_F1
+*$
+.SUBCKT COMPHYS_BASIC_GEN INP INM HYS OUT PARAMS: VDD=1 VSS=0 VTHRESH=0.5	
+EIN INP1 INM1 INP INM 1 
+EHYS INP1 INP2 VALUE { IF( V(1) > {VTHRESH},-V(HYS),0) }
+EOUT OUT 0 VALUE { IF( V(INP2)>V(INM1), {VDD} ,{VSS}) }
+R1 OUT 1 1
+C1 1 0 5n
+RINP1 INP1 0 1K
+.ENDS COMPHYS_BASIC_GEN
+*$
+.SUBCKT INV_BASIC_GEN A  Y PARAMS: VDD=1 VSS=0 VTHRESH=0.5 
+E_ABMGATE    YINT 0 VALUE {{IF(V(A) > {VTHRESH} , 
++ {VSS},{VDD})}}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS INV_BASIC_GEN
+*$
