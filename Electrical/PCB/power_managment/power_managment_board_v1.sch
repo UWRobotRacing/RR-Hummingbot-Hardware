@@ -187,6 +187,18 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/346131962AD8067_a.pdf</d
 <rectangle x1="0.7" y1="0.775" x2="1.2" y2="1.425" layer="51"/>
 <rectangle x1="-1.2" y1="0.775" x2="-0.7" y2="1.425" layer="51"/>
 </package>
+<package name="0603SMT">
+<wire x1="0.725" y1="-0.35" x2="-0.725" y2="-0.35" width="0.1016" layer="51"/>
+<smd name="1" x="-0.875" y="0" dx="1.05" dy="1.08" layer="1"/>
+<smd name="2" x="0.875" y="0" dx="1.05" dy="1.08" layer="1"/>
+<text x="-0.8" y="0.65" size="1.016" layer="25">&gt;NAME</text>
+<text x="-0.8" y="-1.65" size="1.016" layer="27">&gt;VALUE</text>
+<rectangle x1="-0.8" y1="-0.4" x2="-0.45" y2="0.4" layer="51"/>
+<rectangle x1="0.45" y1="-0.4" x2="0.8" y2="0.4" layer="51"/>
+<wire x1="-0.725" y1="0.35" x2="0.725" y2="0.35" width="0.1016" layer="51"/>
+<wire x1="-0.25" y1="0.358" x2="0.25" y2="0.358" width="0.1016" layer="21"/>
+<wire x1="-0.25" y1="-0.342" x2="0.25" y2="-0.342" width="0.1016" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="LMR64010">
@@ -203,6 +215,50 @@ http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
 <wire x1="10.16" y1="5.08" x2="10.16" y2="-5.08" width="0.254" layer="94"/>
 <text x="-10.16" y="7.62" size="1.778" layer="95">&gt;Name</text>
 <text x="-10.16" y="-10.16" size="1.778" layer="96">&gt;Value</text>
+</symbol>
+<symbol name="CAP0603">
+<wire x1="-2.54" y1="1.27" x2="2.54" y2="1.27" width="0.254" layer="94"/>
+<text x="1.016" y="3.175" size="1.778" layer="95">&gt;NAME</text>
+<text x="1.016" y="-4.191" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="2" x="0" y="-3.81" visible="off" length="short" direction="pas" swaplevel="1" rot="R90"/>
+<wire x1="-2.54" y1="-1.27" x2="2.54" y2="-1.27" width="0.254" layer="94"/>
+<pin name="1" x="0" y="3.81" visible="off" length="short" direction="pas" swaplevel="1" rot="R270"/>
+</symbol>
+<symbol name="RES0603">
+<wire x1="-2.54" y1="0" x2="-2.159" y2="1.016" width="0.2032" layer="94"/>
+<wire x1="-2.159" y1="1.016" x2="-1.524" y2="-1.016" width="0.2032" layer="94"/>
+<wire x1="-1.524" y1="-1.016" x2="-0.889" y2="1.016" width="0.2032" layer="94"/>
+<wire x1="-0.889" y1="1.016" x2="-0.254" y2="-1.016" width="0.2032" layer="94"/>
+<wire x1="-0.254" y1="-1.016" x2="0.381" y2="1.016" width="0.2032" layer="94"/>
+<wire x1="0.381" y1="1.016" x2="1.016" y2="-1.016" width="0.2032" layer="94"/>
+<wire x1="1.016" y1="-1.016" x2="1.651" y2="1.016" width="0.2032" layer="94"/>
+<wire x1="1.651" y1="1.016" x2="2.286" y2="-1.016" width="0.2032" layer="94"/>
+<wire x1="2.286" y1="-1.016" x2="2.54" y2="0" width="0.2032" layer="94"/>
+<text x="-3.81" y="1.4986" size="1.778" layer="95">&gt;NAME</text>
+<text x="-3.81" y="-3.302" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
+<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
+</symbol>
+<symbol name="GND">
+<wire x1="-1.27" y1="0" x2="1.27" y2="0" width="0.254" layer="94"/>
+<wire x1="1.27" y1="0" x2="0" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="0" y1="-1.27" x2="-1.27" y2="0" width="0.254" layer="94"/>
+<text x="-1.905" y="-3.175" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="GND" x="0" y="2.54" visible="off" length="short" direction="sup" rot="R270"/>
+</symbol>
+<symbol name="INDUCTOR">
+<wire x1="0" y1="5.08" x2="1.27" y2="3.81" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="3.81" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="0" x2="1.27" y2="1.27" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="-2.54" x2="1.27" y2="-1.27" width="0.254" layer="94" curve="90" cap="flat"/>
+<wire x1="0" y1="-2.54" x2="1.27" y2="-3.81" width="0.254" layer="94" curve="-90" cap="flat"/>
+<wire x1="0" y1="-5.08" x2="1.27" y2="-3.81" width="0.254" layer="94" curve="90" cap="flat"/>
+<text x="2.54" y="6.35" size="1.778" layer="95">&gt;NAME</text>
+<text x="2.54" y="-6.35" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="1" x="0" y="7.62" visible="off" length="short" direction="pas" swaplevel="1" rot="R270"/>
+<pin name="2" x="0" y="-7.62" visible="off" length="short" direction="pas" swaplevel="1" rot="R90"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -226,6 +282,136 @@ http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="CAP0603" prefix="C" uservalue="yes">
+<gates>
+<gate name="G$1" symbol="CAP0603" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="0603SMT">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="RES0603" prefix="R" uservalue="yes">
+<gates>
+<gate name="G$1" symbol="RES0603" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="0603SMT">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="GND" prefix="SUPPLY">
+<description>&lt;b&gt;SUPPLY SYMBOL&lt;/b&gt;</description>
+<gates>
+<gate name="GND" symbol="GND" x="0" y="0"/>
+</gates>
+<devices>
+<device name="">
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="IND0603" prefix="L" uservalue="yes">
+<gates>
+<gate name="G$1" symbol="INDUCTOR" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="0603SMT">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
+<library name="SamacSys_Parts">
+<description>&lt;b&gt;https://componentsearchengine.com&lt;/b&gt;&lt;p&gt;
+&lt;author&gt;Created by SamacSys&lt;/author&gt;</description>
+<packages>
+<package name="SODFL3516X108N">
+<description>&lt;b&gt;3-2A1A_1&lt;/b&gt;&lt;br&gt;
+</description>
+<smd name="1" x="-1.5" y="0" dx="1.14" dy="1.04" layer="1"/>
+<smd name="2" x="1.5" y="0" dx="1.14" dy="1.04" layer="1"/>
+<text x="0" y="0" size="1.27" layer="25" align="center">&gt;NAME</text>
+<text x="0" y="0" size="1.27" layer="27" align="center">&gt;VALUE</text>
+<wire x1="-2.22" y1="1.05" x2="2.22" y2="1.05" width="0.05" layer="51"/>
+<wire x1="2.22" y1="1.05" x2="2.22" y2="-1.05" width="0.05" layer="51"/>
+<wire x1="2.22" y1="-1.05" x2="-2.22" y2="-1.05" width="0.05" layer="51"/>
+<wire x1="-2.22" y1="-1.05" x2="-2.22" y2="1.05" width="0.05" layer="51"/>
+<wire x1="-1.3" y1="0.825" x2="1.3" y2="0.825" width="0.1" layer="51"/>
+<wire x1="1.3" y1="0.825" x2="1.3" y2="-0.825" width="0.1" layer="51"/>
+<wire x1="1.3" y1="-0.825" x2="-1.3" y2="-0.825" width="0.1" layer="51"/>
+<wire x1="-1.3" y1="-0.825" x2="-1.3" y2="0.825" width="0.1" layer="51"/>
+<wire x1="-1.3" y1="0.255" x2="-0.73" y2="0.825" width="0.1" layer="51"/>
+<wire x1="-2.07" y1="0.825" x2="1.3" y2="0.825" width="0.2" layer="21"/>
+<wire x1="-1.3" y1="-0.825" x2="1.3" y2="-0.825" width="0.2" layer="21"/>
+</package>
+</packages>
+<symbols>
+<symbol name="CRS08(TE85L,Q,M)">
+<wire x1="7.62" y1="0" x2="12.7" y2="2.54" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-2.54" x2="12.7" y2="2.54" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-2.54" x2="7.62" y2="0" width="0.254" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="7.62" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="7.62" y1="2.54" x2="8.636" y2="2.54" width="0.254" layer="94"/>
+<wire x1="8.636" y1="1.524" x2="8.636" y2="2.54" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-2.54" x2="6.604" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="6.604" y1="-1.524" x2="6.604" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="0" x2="7.62" y2="0" width="0.254" layer="94"/>
+<wire x1="12.7" y1="0" x2="15.24" y2="0" width="0.254" layer="94"/>
+<text x="12.7" y="8.89" size="1.778" layer="95" align="center-left">&gt;NAME</text>
+<text x="12.7" y="6.35" size="1.778" layer="96" align="center-left">&gt;VALUE</text>
+<pin name="K" x="2.54" y="0" visible="pad" length="short"/>
+<pin name="A" x="17.78" y="0" visible="pad" length="short" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="CRS08(TE85L,Q,M)" prefix="D">
+<description>&lt;b&gt;Schottky Rectifier 30V 1.5A 0.36V S-FLAT&lt;/b&gt;&lt;p&gt;
+Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/CRS08(TE85L,Q,M).pdf"&gt; Datasheet &lt;/a&gt;</description>
+<gates>
+<gate name="G$1" symbol="CRS08(TE85L,Q,M)" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SODFL3516X108N">
+<connects>
+<connect gate="G$1" pin="A" pad="2"/>
+<connect gate="G$1" pin="K" pad="1"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="DESCRIPTION" value="Schottky Rectifier 30V 1.5A 0.36V S-FLAT" constant="no"/>
+<attribute name="HEIGHT" value="1.08mm" constant="no"/>
+<attribute name="MANUFACTURER_NAME" value="Toshiba" constant="no"/>
+<attribute name="MANUFACTURER_PART_NUMBER" value="CRS08(TE85L,Q,M)" constant="no"/>
+<attribute name="MOUSER_PART_NUMBER" value="757-CRS08TE85LQM" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -239,6 +425,15 @@ http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
 </classes>
 <parts>
 <part name="U$1" library="RobotRacing2019_Master" deviceset="LMR64010" device="SOT"/>
+<part name="C1" library="RobotRacing2019_Master" deviceset="CAP0603" device=""/>
+<part name="C2" library="RobotRacing2019_Master" deviceset="CAP0603" device=""/>
+<part name="C3" library="RobotRacing2019_Master" deviceset="CAP0603" device=""/>
+<part name="R2" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="R3" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="R4" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="SUPPLY1" library="RobotRacing2019_Master" deviceset="GND" device=""/>
+<part name="L1" library="RobotRacing2019_Master" deviceset="IND0603" device=""/>
+<part name="D1" library="SamacSys_Parts" deviceset="CRS08(TE85L,Q,M)" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -249,10 +444,132 @@ http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
 <attribute name="NAME" x="-10.16" y="7.62" size="1.778" layer="95"/>
 <attribute name="VALUE" x="-10.16" y="-10.16" size="1.778" layer="96"/>
 </instance>
+<instance part="C1" gate="G$1" x="-43.18" y="-2.54" smashed="yes">
+<attribute name="NAME" x="-42.164" y="0.635" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-42.164" y="-6.731" size="1.778" layer="96"/>
+</instance>
+<instance part="C2" gate="G$1" x="33.02" y="-10.16" smashed="yes">
+<attribute name="NAME" x="34.036" y="-6.985" size="1.778" layer="95"/>
+<attribute name="VALUE" x="34.036" y="-14.351" size="1.778" layer="96"/>
+</instance>
+<instance part="C3" gate="G$1" x="25.4" y="-2.54" smashed="yes" rot="R90">
+<attribute name="NAME" x="22.225" y="-1.524" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="29.591" y="-1.524" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="R2" gate="G$1" x="25.4" y="2.54" smashed="yes" rot="R180">
+<attribute name="NAME" x="29.21" y="1.0414" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="29.21" y="5.842" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="R3" gate="G$1" x="17.78" y="-10.16" smashed="yes" rot="R270">
+<attribute name="NAME" x="19.2786" y="-6.35" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="14.478" y="-6.35" size="1.778" layer="96" rot="R270"/>
+</instance>
+<instance part="R4" gate="G$1" x="-27.94" y="-2.54" smashed="yes" rot="R270">
+<attribute name="NAME" x="-26.4414" y="1.27" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="-31.242" y="1.27" size="1.778" layer="96" rot="R270"/>
+</instance>
+<instance part="SUPPLY1" gate="GND" x="7.62" y="-20.32" smashed="yes">
+<attribute name="VALUE" x="5.715" y="-23.495" size="1.778" layer="96"/>
+</instance>
+<instance part="L1" gate="G$1" x="0" y="15.24" smashed="yes" rot="R90">
+<attribute name="NAME" x="-6.35" y="17.78" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="6.35" y="17.78" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="D1" gate="G$1" x="35.56" y="15.24" smashed="yes" rot="R180">
+<attribute name="NAME" x="22.86" y="6.35" size="1.778" layer="95" rot="R180" align="center-left"/>
+<attribute name="VALUE" x="22.86" y="8.89" size="1.778" layer="96" rot="R180" align="center-left"/>
+</instance>
 </instances>
 <busses>
 </busses>
 <nets>
+<net name="N$1" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="VIN"/>
+<pinref part="R4" gate="G$1" pin="1"/>
+<wire x1="-15.24" y1="2.54" x2="-17.78" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="C1" gate="G$1" pin="1"/>
+<wire x1="-43.18" y1="1.27" x2="-43.18" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="-43.18" y1="2.54" x2="-27.94" y2="2.54" width="0.1524" layer="91"/>
+<junction x="-27.94" y="2.54"/>
+<wire x1="-27.94" y1="2.54" x2="-17.78" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="-17.78" y1="2.54" x2="-17.78" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="L1" gate="G$1" pin="1"/>
+<wire x1="-17.78" y1="15.24" x2="-7.62" y2="15.24" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="GND" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="GND"/>
+<pinref part="SUPPLY1" gate="GND" pin="GND"/>
+<wire x1="15.24" y1="-2.54" x2="15.24" y2="-17.78" width="0.1524" layer="91"/>
+<wire x1="15.24" y1="-17.78" x2="7.62" y2="-17.78" width="0.1524" layer="91"/>
+<wire x1="15.24" y1="-17.78" x2="17.78" y2="-17.78" width="0.1524" layer="91"/>
+<junction x="15.24" y="-17.78"/>
+<pinref part="R3" gate="G$1" pin="2"/>
+<wire x1="17.78" y1="-17.78" x2="17.78" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="R4" gate="G$1" pin="2"/>
+<wire x1="-27.94" y1="-7.62" x2="-17.78" y2="-7.62" width="0.1524" layer="91"/>
+<wire x1="-17.78" y1="-7.62" x2="-17.78" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="!SHDN"/>
+<wire x1="-17.78" y1="-2.54" x2="-15.24" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="C1" gate="G$1" pin="2"/>
+<wire x1="-43.18" y1="-6.35" x2="-43.18" y2="-10.16" width="0.1524" layer="91"/>
+<wire x1="-43.18" y1="-10.16" x2="-27.94" y2="-10.16" width="0.1524" layer="91"/>
+<wire x1="-27.94" y1="-10.16" x2="-27.94" y2="-7.62" width="0.1524" layer="91"/>
+<junction x="-27.94" y="-7.62"/>
+<wire x1="-27.94" y1="-10.16" x2="-27.94" y2="-17.78" width="0.1524" layer="91"/>
+<junction x="-27.94" y="-10.16"/>
+<wire x1="-27.94" y1="-17.78" x2="7.62" y2="-17.78" width="0.1524" layer="91"/>
+<junction x="7.62" y="-17.78"/>
+<pinref part="C2" gate="G$1" pin="2"/>
+<wire x1="17.78" y1="-17.78" x2="33.02" y2="-17.78" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="-17.78" x2="33.02" y2="-13.97" width="0.1524" layer="91"/>
+<junction x="17.78" y="-17.78"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="C3" gate="G$1" pin="2"/>
+<pinref part="C2" gate="G$1" pin="1"/>
+<wire x1="29.21" y1="-2.54" x2="33.02" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="-2.54" x2="33.02" y2="-6.35" width="0.1524" layer="91"/>
+<pinref part="R2" gate="G$1" pin="1"/>
+<wire x1="30.48" y1="2.54" x2="33.02" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="33.02" y1="2.54" x2="33.02" y2="-2.54" width="0.1524" layer="91"/>
+<junction x="33.02" y="-2.54"/>
+<pinref part="D1" gate="G$1" pin="K"/>
+<wire x1="33.02" y1="15.24" x2="33.02" y2="2.54" width="0.1524" layer="91"/>
+<junction x="33.02" y="2.54"/>
+</segment>
+</net>
+<net name="N$3" class="0">
+<segment>
+<pinref part="R3" gate="G$1" pin="1"/>
+<wire x1="17.78" y1="-5.08" x2="17.78" y2="-2.54" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="FB"/>
+<wire x1="17.78" y1="-2.54" x2="17.78" y2="0" width="0.1524" layer="91"/>
+<wire x1="17.78" y1="0" x2="15.24" y2="0" width="0.1524" layer="91"/>
+<pinref part="C3" gate="G$1" pin="1"/>
+<wire x1="21.59" y1="-2.54" x2="17.78" y2="-2.54" width="0.1524" layer="91"/>
+<junction x="17.78" y="-2.54"/>
+<pinref part="R2" gate="G$1" pin="2"/>
+<wire x1="20.32" y1="2.54" x2="17.78" y2="2.54" width="0.1524" layer="91"/>
+<wire x1="17.78" y1="2.54" x2="17.78" y2="0" width="0.1524" layer="91"/>
+<junction x="17.78" y="0"/>
+</segment>
+</net>
+<net name="N$4" class="0">
+<segment>
+<pinref part="L1" gate="G$1" pin="2"/>
+<pinref part="U$1" gate="G$1" pin="SW"/>
+<wire x1="7.62" y1="15.24" x2="15.24" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="15.24" y1="15.24" x2="15.24" y2="2.54" width="0.1524" layer="91"/>
+<pinref part="D1" gate="G$1" pin="A"/>
+<wire x1="15.24" y1="15.24" x2="17.78" y2="15.24" width="0.1524" layer="91"/>
+<junction x="15.24" y="15.24"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
