@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="yes"/>
@@ -2356,6 +2356,8 @@ http://rohmfs.rohm.com/en/products/databook/datasheet/ic/power/voltage_detector/
 <text x="25.1206" y="6.5786" size="2.0828" layer="96" ratio="6" rot="SR0">&gt;Value</text>
 </symbol>
 <symbol name="LMR64010">
+<description>Datasheet:
+http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
 <pin name="VIN" x="-15.24" y="2.54" length="middle" direction="pas"/>
 <pin name="!SHDN" x="-15.24" y="-2.54" length="middle" direction="pas"/>
 <pin name="SW" x="15.24" y="2.54" length="middle" direction="pas" rot="R180"/>
@@ -3034,6 +3036,26 @@ https://www.digikey.ca/product-detail/en/rohm-semiconductor/BD4860G-TR/BD4860GDK
 <attribute name="MANUFACTURER_PART_NUMBER" value="LM2623AMMNOPB" constant="no"/>
 <attribute name="VENDOR" value="Texas Instruments" constant="no"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="LMR64010">
+<description>Datasheet: http://www.ti.com/lit/ds/symlink/lmr64010.pdf</description>
+<gates>
+<gate name="G$1" symbol="LMR64010" x="0" y="0"/>
+</gates>
+<devices>
+<device name="SOT" package="SOT23-5">
+<connects>
+<connect gate="G$1" pin="!SHDN" pad="4"/>
+<connect gate="G$1" pin="FB" pad="3"/>
+<connect gate="G$1" pin="GND" pad="2"/>
+<connect gate="G$1" pin="SW" pad="1"/>
+<connect gate="G$1" pin="VIN" pad="5"/>
+</connects>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
