@@ -1953,23 +1953,6 @@ Source: http://cds.linear.com/docs/Datasheet/623012fb.pdf</description>
 <smd name="24" x="-1" y="1.545" dx="0.64" dy="0.22" layer="1" roundness="25" rot="R270"/>
 <smd name="25" x="0" y="0" dx="1.54" dy="1.7" layer="1" rot="R90" cream="no"/>
 </package>
-<package name="PSOP-8">
-<wire x1="-1" y1="-1.03" x2="1" y2="-1.03" width="0.08" layer="21"/>
-<wire x1="1" y1="-1.03" x2="1" y2="1.04" width="0.08" layer="21"/>
-<wire x1="1" y1="1.04" x2="-1" y2="1.04" width="0.08" layer="21"/>
-<wire x1="-1" y1="1.04" x2="-1" y2="-1.03" width="0.08" layer="21"/>
-<circle x="-0.66" y="-0.67" radius="0.1923" width="0.08" layer="21"/>
-<text x="-0.855" y="2.33" size="0.4" layer="25">&gt;NAME</text>
-<text x="-0.855" y="-2.32" size="0.4" layer="27" align="top-left">&gt;VALUE</text>
-<smd name="1" x="-0.73" y="-1.37" dx="0.25" dy="0.5" layer="1"/>
-<smd name="2" x="-0.23" y="-1.37" dx="0.25" dy="0.5" layer="1"/>
-<smd name="3" x="0.27" y="-1.37" dx="0.25" dy="0.5" layer="1"/>
-<smd name="4" x="0.77" y="-1.37" dx="0.25" dy="0.5" layer="1"/>
-<smd name="8" x="-0.73" y="1.38" dx="0.25" dy="0.5" layer="1"/>
-<smd name="7" x="-0.23" y="1.38" dx="0.25" dy="0.5" layer="1"/>
-<smd name="6" x="0.27" y="1.38" dx="0.25" dy="0.5" layer="1"/>
-<smd name="5" x="0.77" y="1.38" dx="0.25" dy="0.5" layer="1"/>
-</package>
 </packages>
 <packages3d>
 <package3d name="R0603" urn="urn:adsk.eagle:package:23555/2" locally_modified="yes" type="model">
@@ -2634,24 +2617,6 @@ http://rohmfs.rohm.com/en/products/databook/datasheet/ic/power/voltage_detector/
 <pin name="NCS" x="-20.32" y="-7.62" length="middle" direction="in"/>
 <pin name="SDA/SDI" x="-20.32" y="-5.08" length="middle"/>
 <pin name="AUX_CL" x="-20.32" y="5.08" length="middle" direction="in" function="clk"/>
-</symbol>
-<symbol name="PCA9306">
-<wire x1="-10.16" y1="-5.08" x2="10.16" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="10.16" y1="-5.08" x2="10.16" y2="10.16" width="0.254" layer="94"/>
-<wire x1="10.16" y1="10.16" x2="-10.16" y2="10.16" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="10.16" x2="-10.16" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="2.54" x2="1.778" y2="2.54" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="0" x2="1.778" y2="0" width="0.254" layer="94"/>
-<text x="-10.1726" y="10.9355" size="1.7802" layer="95">&gt;NAME</text>
-<text x="-10.1714" y="-7.62855" size="1.779990625" layer="96">&gt;VALUE</text>
-<pin name="SDA1" x="-15.24" y="0" length="middle"/>
-<pin name="SCL1" x="-15.24" y="2.54" length="middle"/>
-<pin name="EN" x="15.24" y="7.62" length="middle" rot="R180"/>
-<pin name="VREF1" x="-15.24" y="5.08" length="middle"/>
-<pin name="VREF2" x="15.24" y="5.08" length="middle" rot="R180"/>
-<pin name="SCL2" x="15.24" y="2.54" length="middle" rot="R180"/>
-<pin name="SDA2" x="15.24" y="0" length="middle" rot="R180"/>
-<pin name="GND" x="-15.24" y="-2.54" length="middle"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -3452,37 +3417,6 @@ https://www.digikey.ca/product-detail/en/rohm-semiconductor/BD4860G-TR/BD4860GDK
 <attribute name="MF" value="TDK InvenSense"/>
 <attribute name="MP" value="ICM-20948"/>
 <attribute name="PACKAGE" value="QFN-24 InvenSense"/>
-<attribute name="PRICE" value="None"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="PCA9306" prefix="U">
-<description>Bidirectional I2C level shifter.&lt;br&gt;
-NOT compatible with all available part number pinout schemes- DOUBLE CHECK!!!</description>
-<gates>
-<gate name="G$1" symbol="PCA9306" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="PSOP-8">
-<connects>
-<connect gate="G$1" pin="EN" pad="8"/>
-<connect gate="G$1" pin="GND" pad="4"/>
-<connect gate="G$1" pin="SCL1" pad="2"/>
-<connect gate="G$1" pin="SCL2" pad="6"/>
-<connect gate="G$1" pin="SDA1" pad="3"/>
-<connect gate="G$1" pin="SDA2" pad="5"/>
-<connect gate="G$1" pin="VREF1" pad="1"/>
-<connect gate="G$1" pin="VREF2" pad="7"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="AVAILABILITY" value="Unavailable"/>
-<attribute name="DESCRIPTION" value=" Dual Bi-Directional I2C-Bus and SMBus Voltage Level-Translator "/>
-<attribute name="MF" value="Texas Instruments"/>
-<attribute name="MP" value="PCA9306"/>
-<attribute name="PACKAGE" value="SSOP-8 Texas Instruments"/>
 <attribute name="PRICE" value="None"/>
 </technology>
 </technologies>
