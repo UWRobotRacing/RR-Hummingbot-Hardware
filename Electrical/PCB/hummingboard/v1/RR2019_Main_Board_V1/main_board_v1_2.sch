@@ -3359,7 +3359,7 @@ distributor RS Components</description>
 <part name="R10" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10K"/>
 <part name="J2" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="REAR_ENCODER"/>
 <part name="J3" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="FRONT_ENCODER"/>
-<part name="J4" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="I2C_3V3_1"/>
+<part name="J4" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="I2C_1V8_1"/>
 <part name="J5" library="RobotRacing2019_Master" deviceset="PINHEAD-6-VERTICAL" device="" value="SPI_2"/>
 <part name="J6" library="RobotRacing2019_Master" deviceset="PINHEAD-6-VERTICAL" device="" value="WIRELESS_MODULE"/>
 <part name="J7" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="UART_0"/>
