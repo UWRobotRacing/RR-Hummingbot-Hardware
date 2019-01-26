@@ -3422,7 +3422,6 @@ distributor RS Components</description>
 <part name="U$19" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="U$26" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="U$28" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
-<part name="U$29" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 <part name="U$30" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="U$31" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="SUPPLY39" library="RobotRacing2019_Master" deviceset="GND" device=""/>
@@ -3623,6 +3622,7 @@ distributor RS Components</description>
 <part name="U$7" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="U$23" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="U$24" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
+<part name="U$21" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -5886,9 +5886,9 @@ VDD = MOS_OFF</text>
 <plain>
 <text x="-195.58" y="-15.24" size="1.778" layer="120">if AD0 -&gt; GND, i2c address = 1101000
 if AD0 -&gt; VDD, i2c address = 1101001</text>
-<text x="-99.06" y="20.32" size="2.54" layer="119">MPU9250 in I2C config</text>
-<text x="-132.08" y="-45.72" size="1.778" layer="117">TP / VIA</text>
-<text x="-119.38" y="-45.72" size="1.778" layer="117">TP / VIA</text>
+<text x="-99.06" y="20.32" size="2.54" layer="119">ICM-20948 in I2C config</text>
+<text x="-132.08" y="-53.34" size="1.778" layer="117">TP / VIA</text>
+<text x="-119.38" y="-53.34" size="1.778" layer="117">TP / VIA</text>
 </plain>
 <instances>
 <instance part="C11" gate="G$1" x="-55.88" y="17.78" smashed="yes">
@@ -6182,23 +6182,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <label x="-124.46" y="-20.32" size="1.778" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
-<net name="I2C_1.8_SDA" class="0">
-<segment>
-<pinref part="U4" gate="G$1" pin="SDA1"/>
-<wire x1="76.2" y1="0" x2="48.26" y2="0" width="0.1524" layer="91"/>
-<pinref part="R47" gate="G$1" pin="1"/>
-<wire x1="48.26" y1="0" x2="48.26" y2="5.08" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="0" x2="48.26" y2="-10.16" width="0.1524" layer="91"/>
-<junction x="48.26" y="0"/>
-<label x="48.26" y="-10.16" size="1.778" layer="95" rot="R270" xref="yes"/>
-</segment>
-<segment>
-<pinref part="U3" gate="G$1" pin="SDA/SDI"/>
-<wire x1="-101.6" y1="-10.16" x2="-119.38" y2="-10.16" width="0.1524" layer="91"/>
-<wire x1="-119.38" y1="-10.16" x2="-119.38" y2="-20.32" width="0.1524" layer="91"/>
-<label x="-119.38" y="-20.32" size="1.778" layer="95" rot="R270" xref="yes"/>
-</segment>
-</net>
 <net name="N$16" class="0">
 <segment>
 <pinref part="U4" gate="G$1" pin="VREF2"/>
@@ -6236,6 +6219,23 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="-101.6" y1="2.54" x2="-119.38" y2="2.54" width="0.1524" layer="91"/>
 <wire x1="-119.38" y1="2.54" x2="-119.38" y2="5.08" width="0.1524" layer="91"/>
 <label x="-119.38" y="5.08" size="1.778" layer="95" rot="R90" xref="yes"/>
+</segment>
+</net>
+<net name="I2C1_1.8_SDA" class="0">
+<segment>
+<pinref part="U3" gate="G$1" pin="SDA/SDI"/>
+<wire x1="-101.6" y1="-10.16" x2="-119.38" y2="-10.16" width="0.1524" layer="91"/>
+<wire x1="-119.38" y1="-10.16" x2="-119.38" y2="-20.32" width="0.1524" layer="91"/>
+<label x="-119.38" y="-20.32" size="1.778" layer="95" rot="R270" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U4" gate="G$1" pin="SDA1"/>
+<wire x1="76.2" y1="0" x2="48.26" y2="0" width="0.1524" layer="91"/>
+<pinref part="R47" gate="G$1" pin="1"/>
+<wire x1="48.26" y1="0" x2="48.26" y2="5.08" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="0" x2="48.26" y2="-10.16" width="0.1524" layer="91"/>
+<junction x="48.26" y="0"/>
+<label x="48.26" y="-10.16" size="1.778" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -6512,7 +6512,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="86.36" y1="-266.7" x2="86.36" y2="-205.74" width="0.1524" layer="206"/>
 <wire x1="86.36" y1="-205.74" x2="12.7" y2="-205.74" width="0.1524" layer="206"/>
 <text x="-25.4" y="-101.6" size="1.778" layer="120">pull up on the MCU side</text>
-<text x="10.16" y="-101.6" size="1.778" layer="120">5V-3V3 level shifter on page4</text>
+<text x="10.16" y="-101.6" size="1.778" layer="120">5V-1V8 level shifter on page4</text>
 <text x="-20.32" y="91.44" size="1.778" layer="120">pull up and pull down on the MCU side</text>
 <text x="40.64" y="-261.62" size="1.778" layer="120">connect to uart of JETSON</text>
 <text x="40.64" y="-264.16" size="1.778" layer="120">JETSON TTL UART</text>
@@ -6570,9 +6570,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </instance>
 <instance part="U$28" gate="G$1" x="-48.26" y="-101.6" smashed="yes">
 <attribute name="VALUE" x="-52.324" y="-100.584" size="1.27" layer="96"/>
-</instance>
-<instance part="U$29" gate="G$1" x="48.26" y="-106.68" smashed="yes">
-<attribute name="VALUE" x="44.196" y="-103.124" size="1.27" layer="96"/>
 </instance>
 <instance part="U$30" gate="G$1" x="-48.26" y="-236.22" smashed="yes">
 <attribute name="VALUE" x="-52.324" y="-235.204" size="1.27" layer="96"/>
@@ -6642,6 +6639,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <attribute name="NAME" x="-35.56" y="116.84" size="1.27" layer="95"/>
 <attribute name="VALUE" x="-12.7" y="116.84" size="1.27" layer="96"/>
 </instance>
+<instance part="U$21" gate="G$1" x="48.26" y="-106.68" smashed="yes"/>
 </instances>
 <busses>
 </busses>
@@ -6885,7 +6883,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <junction x="-33.02" y="-182.88"/>
 </segment>
 </net>
-<net name="3V3_SCL_1" class="0">
+<net name="I2C1_1.8_SCL" class="0">
 <segment>
 <pinref part="J4" gate="G$1" pin="3"/>
 <wire x1="30.48" y1="-116.84" x2="58.42" y2="-116.84" width="0.1524" layer="91"/>
@@ -6895,7 +6893,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="58.42" y1="-116.84" x2="73.66" y2="-116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="3V3_SDA_1" class="0">
+<net name="I2C1_1.8_SDA" class="0">
 <segment>
 <pinref part="J4" gate="G$1" pin="4"/>
 <wire x1="30.48" y1="-119.38" x2="63.5" y2="-119.38" width="0.1524" layer="91"/>
@@ -7077,20 +7075,21 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </net>
 <net name="+3V3" class="0">
 <segment>
-<pinref part="J4" gate="G$1" pin="1"/>
-<wire x1="30.48" y1="-111.76" x2="48.26" y2="-111.76" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="-111.76" x2="73.66" y2="-111.76" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="-111.76" x2="48.26" y2="-106.68" width="0.1524" layer="91"/>
-<junction x="48.26" y="-111.76"/>
-<pinref part="U$29" gate="G$1" pin="+3V3"/>
-<label x="38.1" y="-111.76" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="J6" gate="G$1" pin="1"/>
 <wire x1="-33.02" y1="33.02" x2="-25.4" y2="33.02" width="0.1524" layer="91"/>
 <wire x1="-25.4" y1="33.02" x2="-25.4" y2="43.18" width="0.1524" layer="91"/>
 <pinref part="U$60" gate="G$1" pin="+3V3"/>
 <label x="-30.48" y="33.02" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="+1.8V" class="0">
+<segment>
+<pinref part="J4" gate="G$1" pin="1"/>
+<wire x1="30.48" y1="-111.76" x2="48.26" y2="-111.76" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="-111.76" x2="73.66" y2="-111.76" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="-111.76" x2="48.26" y2="-106.68" width="0.1524" layer="91"/>
+<junction x="48.26" y="-111.76"/>
+<pinref part="U$21" gate="G$1" pin="+1.8V"/>
 </segment>
 </net>
 </nets>
