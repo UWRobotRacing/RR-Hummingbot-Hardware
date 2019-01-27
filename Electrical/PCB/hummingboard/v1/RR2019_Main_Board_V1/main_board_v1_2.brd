@@ -173,6 +173,43 @@
 <hole x="75.4" y="7.5" drill="3.2"/>
 <hole x="5" y="58" drill="3.2"/>
 <hole x="95" y="60.5" drill="3.2"/>
+<text x="7.8" y="20.7" size="0.6096" layer="21">VDD</text>
+<text x="7.8" y="18.1" size="0.6096" layer="21">VDD</text>
+<text x="7.8" y="15.6" size="0.6096" layer="21">VDD</text>
+<text x="7.8" y="13.1" size="0.6096" layer="21">3V3</text>
+<text x="7.8" y="10.5" size="0.6096" layer="21">3V3</text>
+<text x="7.8" y="7.9" size="0.6096" layer="21">GND</text>
+<text x="7.8" y="5.5" size="0.6096" layer="21">GND</text>
+<text x="7.8" y="2.9" size="0.6096" layer="21">GND</text>
+<text x="7.2" y="33.8" size="0.6096" layer="21">PTC2</text>
+<text x="7.2" y="31.3" size="0.6096" layer="21">PTC17</text>
+<text x="7.2" y="28.8" size="0.6096" layer="21">PTC16</text>
+<text x="7.4" y="43.8" size="0.6096" layer="21">PTE3</text>
+<text x="7.4" y="41.4" size="0.6096" layer="21">PTB5</text>
+<text x="7.5" y="49.1" size="0.6096" layer="21">PTB4</text>
+<text x="7.4" y="46.5" size="0.6096" layer="21">PTC3</text>
+<text x="7" y="54.1" size="0.6096" layer="21">PTD15</text>
+<text x="7.5" y="51.6" size="0.6096" layer="21">PTE8</text>
+<text x="7" y="59.2" size="0.6096" layer="21">PTE14</text>
+<text x="7" y="56.7" size="0.6096" layer="21">PTD16</text>
+<text x="3.7" y="61.2" size="0.6096" layer="21" rot="R90">GND</text>
+<text x="6.3" y="60.7" size="0.6096" layer="21" rot="R90">PTD10</text>
+<text x="8.8" y="61" size="0.6096" layer="21" rot="R90">PTD5</text>
+<text x="11.4" y="61.1" size="0.6096" layer="21" rot="R90">PTD6</text>
+<text x="13.9" y="61.1" size="0.6096" layer="21" rot="R90">PTD7</text>
+<text x="16.5" y="60.7" size="0.6096" layer="21" rot="R90">PTD13</text>
+<text x="18.9" y="60.7" size="0.6096" layer="21" rot="R90">PTD14</text>
+<text x="21.5" y="61" size="0.6096" layer="21" rot="R90">PTE9</text>
+<text x="24" y="60.7" size="0.6096" layer="21" rot="R90">PTE13</text>
+<text x="26.6" y="60.7" size="0.6096" layer="21" rot="R90">PTA11</text>
+<text x="31.7" y="61.2" size="0.6096" layer="21" rot="R90">PTD0</text>
+<text x="34.3" y="61.3" size="0.6096" layer="21" rot="R90">PTD1</text>
+<text x="36.8" y="60.7" size="0.6096" layer="21" rot="R90">PTE15</text>
+<text x="39.4" y="60.7" size="0.6096" layer="21" rot="R90">PTE16</text>
+<text x="41.8" y="60.7" size="0.6096" layer="21" rot="R90">PTE10</text>
+<text x="44.3" y="60.7" size="0.6096" layer="21" rot="R90">PTE11</text>
+<text x="46.9" y="61.1" size="0.6096" layer="21" rot="R90">PTA8</text>
+<text x="49.5" y="61.1" size="0.6096" layer="21" rot="R90">PTA9</text>
 </plain>
 <libraries>
 <library name="RobotRacing2019_Master">
@@ -624,6 +661,11 @@ reflow soldering</description>
 <rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 <rectangle x1="-0.5001" y1="-0.3" x2="0.5001" y2="0.3" layer="35"/>
+<wire x1="0.3048" y1="-0.66" x2="-0.3048" y2="-0.66" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="-0.127" x2="-1.422" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="0.66" x2="1.422" y2="-0.127" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="0.66" x2="-0.762" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="0.762" y1="0.66" x2="1.422" y2="0.66" width="0.1524" layer="21"/>
 </package>
 <package name="JST_B4B-PH-K-S(LF)(SN)">
 <wire x1="-4.95" y1="-2.25" x2="-4.95" y2="2.25" width="0.127" layer="51"/>
@@ -947,8 +989,8 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/346131962AD8067_a.pdf</d
 <wire x1="-4.534490625" y1="4.934009375" x2="-1.52431875" y2="2.8147" width="0.1" layer="21"/>
 <wire x1="3.938" y1="7.352040625" x2="4.82568125" y2="7.27478125" width="0.1" layer="21"/>
 <wire x1="4.82568125" y1="7.27478125" x2="6.3772" y2="7.11496875" width="0.1" layer="21"/>
-<text x="-2.94" y="-15.83" size="1.27" layer="21" font="vector">HUMMINGBOT</text>
-<text x="-2.94" y="-18.07" size="1.27" layer="21" font="vector">UW ROBOTICS 2019</text>
+<text x="-2.54" y="-11.43" size="1.27" layer="21" font="vector">HUMMINGBOT</text>
+<text x="-2.54" y="-13.97" size="1.27" layer="21" font="vector">UW ROBOTICS 2019</text>
 </package>
 <package name="SC70-5" urn="urn:adsk.eagle:footprint:2365/1">
 <description>&lt;b&gt;SMT SC70-5&lt;/b&gt;&lt;p&gt;
@@ -1644,32 +1686,32 @@ design rules under a new name.</description>
 <attribute name="NAME" x="60.28" y="16.31" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="J2" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="REAR_ENCODER" x="64.07" y="10.58" smashed="yes">
-<attribute name="NAME" x="58.86765" y="13.18116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="58.66765" y="9.78116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="61.56611875" y="13.47736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J3" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="FRONT_ENCODER" x="64.07" y="3.46" smashed="yes">
-<attribute name="NAME" x="59.46765" y="6.16116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="58.66765" y="2.86116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="61.96611875" y="6.15736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J4" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="I2C_1V8_1" x="40.34" y="10.54" smashed="yes">
-<attribute name="NAME" x="35.13765" y="13.14116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="34.73765" y="9.74116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="38.43611875" y="13.23736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J5" library="RobotRacing2019_Master" package="JST_B6B-PH-K-S(LF)(SN)" value="SPI_2" x="60.24" y="71.6" smashed="yes" rot="R180">
 <attribute name="NAME" x="51.94235" y="72.49883125" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="67.54388125" y="75.20263125" size="1.016740625" layer="27" rot="R180"/>
+<attribute name="VALUE" x="66.94388125" y="68.70263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
 <element name="J6" library="RobotRacing2019_Master" package="JST_B6B-PH-K-S(LF)(SN)" value="WIRELESS_MODULE" x="60.22" y="64.6" smashed="yes" rot="R180">
-<attribute name="NAME" x="67.82235" y="61.69883125" size="1.016459375" layer="25" rot="R180"/>
-<attribute name="VALUE" x="65.92388125" y="61.80263125" size="1.016740625" layer="27" rot="R180"/>
+<attribute name="NAME" x="67.72235" y="65.59883125" size="1.016459375" layer="25" rot="R270"/>
+<attribute name="VALUE" x="67.02388125" y="61.80263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
 <element name="J7" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="UART_0" x="40.39" y="3.4" smashed="yes">
-<attribute name="NAME" x="36.08765" y="6.30116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="34.78765" y="2.80116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="40.58611875" y="6.39736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J8" library="RobotRacing2019_Master" package="JST_B6B-PH-K-S(LF)(SN)" value="UART_2" x="4.57" y="47.14" smashed="yes" rot="R270">
-<attribute name="NAME" x="7.77116875" y="53.74235" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="7.66736875" y="45.54388125" size="1.016740625" layer="27" rot="R270"/>
+<attribute name="NAME" x="2.17116875" y="38.64235" size="1.016459375" layer="25"/>
+<attribute name="VALUE" x="0.56736875" y="49.74388125" size="1.016740625" layer="21" rot="R270"/>
 </element>
 <element name="U2" library="microbuilder" package="SSOP28DB" value="" x="80.4" y="33" smashed="yes">
 <attribute name="NAME" x="73.090003125" y="30.469996875" size="0.8128" layer="25" ratio="18"/>
@@ -1679,7 +1721,7 @@ design rules under a new name.</description>
 <attribute name="NAME" x="82.5" y="43.25" size="1.016" layer="25"/>
 </element>
 <element name="C15" library="RobotRacing2019_Master" package="0603SMT" value="0.1uF" x="82.4" y="39.6" smashed="yes">
-<attribute name="NAME" x="81.6" y="40.35" size="1.016" layer="25"/>
+<attribute name="NAME" x="80.3" y="40.45" size="1.016" layer="25"/>
 </element>
 <element name="D5" library="RobotRacing2019_Master" package="0603SMT" value="TX" x="74.6" y="40.5" smashed="yes" rot="R270">
 <attribute name="NAME" x="75.75" y="41.9" size="1.016" layer="25" rot="R270"/>
@@ -1702,10 +1744,10 @@ design rules under a new name.</description>
 <attribute name="NAME" x="29.65" y="59.6" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="D7" library="RobotRacing2019_Master" package="0603SMT" value="LED0603" x="68.7" y="40.5" smashed="yes" rot="R270">
-<attribute name="NAME" x="69.45" y="41.3" size="1.016" layer="25" rot="R270"/>
+<attribute name="NAME" x="69.55" y="41.9" size="1.016" layer="25" rot="R270"/>
 </element>
 <element name="D8" library="RobotRacing2019_Master" package="0603SMT" value="LED0603" x="71.4" y="40.5" smashed="yes" rot="R270">
-<attribute name="NAME" x="72.55" y="41.3" size="1.016" layer="25" rot="R270"/>
+<attribute name="NAME" x="72.35" y="41.9" size="1.016" layer="25" rot="R270"/>
 </element>
 <element name="VR1" library="RobotRacing2019_Master" package="SOT23-5" value="MIC5501" x="77.8" y="22.7" smashed="yes">
 <attribute name="NAME" x="76.595" y="24.905" size="1.27" layer="25"/>
@@ -1785,11 +1827,11 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="39.09" y="28.425" size="1.27" layer="27"/>
 </element>
 <element name="J9" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="STEERING_ANGLE" x="52.3" y="3.4" smashed="yes">
-<attribute name="NAME" x="46.69765" y="6.30116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="46.79765" y="2.80116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="47.59611875" y="6.09736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J10" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="I2C_5V_4" x="52.3" y="10.6" smashed="yes">
-<attribute name="NAME" x="47.09765" y="13.20116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="46.69765" y="9.60116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="50.89611875" y="12.99736875" size="1.016740625" layer="27"/>
 </element>
 <element name="L2" library="RobotRacing2019_Master" package="CHOKE0603" value="CHOKE0603" x="91.7" y="36.38" smashed="yes" rot="R180">
@@ -1805,23 +1847,23 @@ design rules under a new name.</description>
 <attribute name="NAME" x="40.05" y="52.9" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="C18" library="RobotRacing2019_Master" package="0603SMT" value="0.1uF" x="43.9" y="54.1" smashed="yes" rot="R90">
-<attribute name="NAME" x="46.85" y="52.8" size="1.016" layer="25" rot="R90"/>
+<attribute name="NAME" x="43.95" y="56.2" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="J11" library="RobotRacing2019_Master" package="JST_B3B-PH-K-S(LF)(SN)" value="SERVO_LEFT" x="29.4" y="3.4" smashed="yes">
-<attribute name="NAME" x="34.79765" y="1.90116875" size="1.016459375" layer="25" rot="R90"/>
+<attribute name="NAME" x="25.29765" y="6.20116875" size="1.016459375" layer="25"/>
 <attribute name="VALUE" x="25.19611875" y="6.39736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J12" library="RobotRacing2019_Master" package="JST_B3B-PH-K-S(LF)(SN)" value="SERVO_RIGHT" x="17.9" y="10.5" smashed="yes">
-<attribute name="NAME" x="16.59765" y="15.20116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="13.49765" y="9.40116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="12.89611875" y="13.49736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J13" library="RobotRacing2019_Master" package="JST_B3B-PH-K-S(LF)(SN)" value="ESC" x="29.27" y="10.5" smashed="yes">
-<attribute name="NAME" x="25.06765" y="13.40116875" size="1.016459375" layer="25"/>
+<attribute name="NAME" x="24.46765" y="9.30116875" size="1.016459375" layer="25" rot="R90"/>
 <attribute name="VALUE" x="28.16611875" y="13.49736875" size="1.016740625" layer="27"/>
 </element>
 <element name="J14" library="RobotRacing2019_Master" package="JST_B2B-PH-K-S(LF)(SN)" value="5V_INPUT" x="96.1" y="21.9" smashed="yes" rot="R90">
-<attribute name="NAME" x="96.99608125" y="26.89518125" size="1.01753125" layer="25"/>
-<attribute name="VALUE" x="93.301509375" y="25.49861875" size="1.01643125" layer="27"/>
+<attribute name="NAME" x="93.99608125" y="25.39518125" size="1.01753125" layer="25"/>
+<attribute name="VALUE" x="99.601509375" y="18.89861875" size="1.01643125" layer="21" rot="R90"/>
 </element>
 <element name="R23" library="RobotRacing2019_Master" package="0603SMT" value="TBD" x="91" y="25.8" smashed="yes">
 <attribute name="NAME" x="89.9" y="27.05" size="1.016" layer="25"/>
@@ -1864,7 +1906,7 @@ design rules under a new name.</description>
 <element name="U$38" library="RobotRacing2019_Master" package="BOARD_INFO" value="BOARD_INFO" x="78.2" y="3.2" smashed="yes" rot="MR0"/>
 <element name="J15" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="QUAD_ENCODER_2" x="7.31" y="71.58" smashed="yes" rot="R180">
 <attribute name="NAME" x="0.71235" y="72.57883125" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="12.11388125" y="68.58263125" size="0.8128" layer="27" rot="R180"/>
+<attribute name="VALUE" x="13.01388125" y="68.78263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
 <element name="C20" library="RobotRacing2019_Master" package="0603SMT" value="0.1uF" x="73.3" y="58.6" smashed="yes" rot="R180">
 <attribute name="NAME" x="74.4" y="60.35" size="1.016" layer="25" rot="R180"/>
@@ -1882,26 +1924,26 @@ design rules under a new name.</description>
 <attribute name="NAME" x="81.2" y="51.75" size="1.016" layer="25"/>
 </element>
 <element name="JP8" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="PWM" x="24.99" y="15.98" smashed="yes" rot="R180">
-<attribute name="NAME" x="12.9662" y="17.7212" size="1.27" layer="25" ratio="10" rot="R270"/>
+<attribute name="NAME" x="12.9662" y="17.0212" size="1.27" layer="25" ratio="10" rot="R270"/>
 <attribute name="VALUE" x="35.15" y="19.155" size="1.27" layer="27" rot="R180"/>
 </element>
 <element name="J17" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="I2C_5V_FXIO_1" x="30.83" y="71.6" smashed="yes" rot="R180">
 <attribute name="NAME" x="24.51235" y="72.55883125" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="32.35388125" y="68.68263125" size="1.016740625" layer="27" rot="R180"/>
+<attribute name="VALUE" x="35.85388125" y="68.78263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
 <element name="R28" library="RobotRacing2019_Master" package="0603SMT" value="10K" x="32.56" y="60.3" smashed="yes" rot="R180">
 <attribute name="NAME" x="31.76" y="58.45" size="1.016" layer="25"/>
 </element>
-<element name="R29" library="RobotRacing2019_Master" package="0603SMT" value="10K" x="36.41" y="60.32" smashed="yes">
-<attribute name="NAME" x="35.31" y="58.47" size="1.016" layer="25"/>
+<element name="R29" library="RobotRacing2019_Master" package="0603SMT" value="10K" x="36.31" y="59.92" smashed="yes">
+<attribute name="NAME" x="35.21" y="58.07" size="1.016" layer="25"/>
 </element>
 <element name="J18" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="I2C_5V_FXIO_2" x="19.08" y="71.6" smashed="yes" rot="R180">
 <attribute name="NAME" x="12.68235" y="72.69883125" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="20.17388125" y="68.77263125" size="1.016740625" layer="27" rot="R180"/>
+<attribute name="VALUE" x="24.17388125" y="68.77263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
 <element name="J20" library="RobotRacing2019_Master" package="JST_B4B-PH-K-S(LF)(SN)" value="QUAD_ENCODER_1" x="4.37" y="17" smashed="yes" rot="R270">
-<attribute name="NAME" x="4.57116875" y="10.20235" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="7.46736875" y="22.10388125" size="0.8128" layer="27" rot="R270"/>
+<attribute name="NAME" x="2.07116875" y="10.60235" size="1.016459375" layer="25"/>
+<attribute name="VALUE" x="0.56736875" y="22.60388125" size="0.8128" layer="21" rot="R270"/>
 </element>
 <element name="R30" library="RobotRacing2019_Master" package="0603SMT" value="180K" x="91" y="22.9" smashed="yes">
 <attribute name="NAME" x="89.9" y="23.65" size="1.016" layer="25"/>
@@ -1910,39 +1952,40 @@ design rules under a new name.</description>
 <attribute name="NAME" x="88" y="21.45" size="1.016" layer="25" rot="R270"/>
 </element>
 <element name="JP10" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="FXIO" x="40.18" y="64.6" smashed="yes">
-<attribute name="NAME" x="46.1438" y="61.2288" size="1.27" layer="25" ratio="10"/>
-<attribute name="VALUE" x="30.42" y="61.625" size="1.27" layer="27"/>
+<attribute name="NAME" x="29.4438" y="62.9288" size="1.27" layer="25" ratio="10" rot="R90"/>
+<attribute name="VALUE" x="36.52" y="66.225" size="1.27" layer="21"/>
 </element>
 <element name="JP11" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="ACMP_IN_OUT" x="11.02" y="50.63" smashed="yes" rot="R270">
-<attribute name="NAME" x="12.8488" y="60.8662" size="1.27" layer="25" ratio="10" rot="R270"/>
-<attribute name="VALUE" x="13.145" y="52.39" size="1.27" layer="27" rot="R270"/>
+<attribute name="NAME" x="7.9488" y="38.8662" size="1.27" layer="25" ratio="10"/>
+<attribute name="VALUE" x="12.645" y="59.69" size="1.27" layer="21" rot="R270"/>
 </element>
-<element name="JP6" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="POWER_1" x="11.02" y="12.1" smashed="yes" rot="R270">
-<attribute name="NAME" x="12.8488" y="22.3362" size="1.27" layer="25" ratio="10" rot="R270"/>
+<element name="JP6" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="POWER" x="11.02" y="12.1" smashed="yes" rot="R270">
+<attribute name="NAME" x="9.6488" y="0.2362" size="1.27" layer="25" ratio="10"/>
+<attribute name="VALUE" x="12.845" y="24.96" size="1.27" layer="21" rot="R270"/>
 </element>
 <element name="JP7" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X03" package3d_urn="urn:adsk.eagle:package:6240710/1" value="ADC_1" x="11.02" y="31.7" smashed="yes" rot="R270">
-<attribute name="NAME" x="12.8488" y="35.5862" size="1.27" layer="25" ratio="10" rot="R270"/>
-<attribute name="VALUE" x="12.845" y="32.41" size="1.27" layer="27" rot="R270"/>
+<attribute name="NAME" x="9.6488" y="36.1862" size="1.27" layer="25" ratio="10"/>
+<attribute name="VALUE" x="12.845" y="34.11" size="1.27" layer="21" rot="R270"/>
 </element>
 <element name="JP9" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="ADC_2" x="47.85" y="15.98" smashed="yes">
 <attribute name="NAME" x="37.6138" y="17.8088" size="1.27" layer="25" ratio="10"/>
 <attribute name="VALUE" x="52.68" y="17.755" size="1.27" layer="27"/>
 </element>
 <element name="JP14" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X08-BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="DIGITAL_1" x="49.08" y="50.63" smashed="yes" rot="R90">
-<attribute name="NAME" x="47.4512" y="44.5938" size="1.27" layer="25" ratio="10" rot="R90"/>
-<attribute name="VALUE" x="47.355" y="51.47" size="1.27" layer="27" rot="R90"/>
+<attribute name="NAME" x="50.7512" y="61.3938" size="1.27" layer="25" ratio="10" rot="R270"/>
+<attribute name="VALUE" x="52.055" y="40.17" size="1.27" layer="21" rot="R90"/>
 </element>
-<element name="U$50" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X10-BIG" package3d_urn="urn:adsk.eagle:package:6240656/1" value="DIGITAL_2" x="14.82" y="64.6" smashed="yes" rot="R180">
-<attribute name="NAME" x="26.3262" y="62.7712" size="1.27" layer="25" ratio="10" rot="R180"/>
-<attribute name="VALUE" x="10.85" y="62.675" size="1.27" layer="27" rot="R180"/>
+<element name="JP15" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X10-BIG" package3d_urn="urn:adsk.eagle:package:6240656/1" value="DIGITAL_2" x="14.82" y="64.6" smashed="yes" rot="R180">
+<attribute name="NAME" x="0.5262" y="66.3712" size="1.27" layer="25" ratio="10" rot="R270"/>
+<attribute name="VALUE" x="18.85" y="67.275" size="1.27" layer="21" rot="R180"/>
 </element>
 <element name="J21" library="RobotRacing2019_Master" package="JST_B6B-PH-K-S(LF)(SN)" value="BLDC_HALL" x="4.47" y="31" smashed="yes" rot="R270">
-<attribute name="NAME" x="7.07116875" y="38.20235" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="7.36736875" y="31.70388125" size="1.016740625" layer="27" rot="R270"/>
+<attribute name="NAME" x="2.07116875" y="22.60235" size="1.016459375" layer="25"/>
+<attribute name="VALUE" x="0.36736875" y="34.40388125" size="1.016740625" layer="21" rot="R270"/>
 </element>
 <element name="JP13" library="adafruit" library_urn="urn:adsk.eagle:library:420" package="1X06-BIG" package3d_urn="urn:adsk.eagle:package:6240714/1" value="DIGITAL_3" x="49.08" y="27.78" smashed="yes" rot="R270">
-<attribute name="NAME" x="51.1088" y="24.1762" size="1.27" layer="25" ratio="10" rot="R270"/>
-<attribute name="VALUE" x="51.005" y="35.2" size="1.27" layer="27" rot="R270"/>
+<attribute name="NAME" x="47.1088" y="18.2762" size="1.27" layer="25" ratio="10"/>
+<attribute name="VALUE" x="38.905" y="21.1" size="1.27" layer="21"/>
 </element>
 <element name="R32" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="67.9" y="19.1" smashed="yes" rot="R90">
 <attribute name="NAME" x="69.55" y="17.9" size="1.016" layer="25" rot="R90"/>
@@ -1955,13 +1998,13 @@ design rules under a new name.</description>
 <attribute name="NAME" x="54.995" y="53.295" size="1.27" layer="25" rot="R90"/>
 </element>
 <element name="Q5" library="RobotRacing2019_Master" package="SOT23" value="BSS138" x="66.2" y="55.9" smashed="yes" rot="R90">
-<attribute name="NAME" x="63.795" y="53.395" size="1.27" layer="25" rot="R90"/>
+<attribute name="NAME" x="63.795" y="53.095" size="1.27" layer="25" rot="R90"/>
 </element>
 <element name="R33" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="53.2" y="56.8" smashed="yes" rot="R90">
 <attribute name="NAME" x="54.95" y="55.5" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="R34" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="61.9" y="56.8" smashed="yes" rot="R90">
-<attribute name="NAME" x="62.45" y="58.5" size="1.016" layer="25" rot="R90"/>
+<attribute name="NAME" x="63.65" y="55.9" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="R35" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="57.6" y="59.4" smashed="yes" rot="R180">
 <attribute name="NAME" x="54.7" y="59.85" size="1.016" layer="25" rot="R180"/>
@@ -1992,14 +2035,14 @@ design rules under a new name.</description>
 </element>
 <element name="J22" library="RobotRacing2019_Master" package="JST_B6B-PH-K-S(LF)(SN)" value="SPI_FXIO_1" x="44.66" y="71.6" smashed="yes" rot="R180">
 <attribute name="NAME" x="36.26235" y="72.59883125" size="1.016459375" layer="25" rot="R270"/>
-<attribute name="VALUE" x="44.93388125" y="68.82263125" size="1.016740625" layer="27" rot="R180"/>
+<attribute name="VALUE" x="54.23388125" y="68.72263125" size="1.016740625" layer="21" rot="R180"/>
 </element>
-<element name="R41" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="40.27" y="60.34" smashed="yes">
-<attribute name="NAME" x="39.07" y="58.59" size="1.016" layer="25"/>
+<element name="R41" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="40.17" y="59.94" smashed="yes">
+<attribute name="NAME" x="38.97" y="58.19" size="1.016" layer="25"/>
 </element>
 <element name="J16" library="RobotRacing2019_Master" package="JST_B2B-PH-K-S(LF)(SN)" value="7.2V_INPUT" x="17.9" y="3.6" smashed="yes">
-<attribute name="NAME" x="14.69518125" y="6.20391875" size="1.01753125" layer="25"/>
-<attribute name="VALUE" x="6.29861875" y="0.398490625" size="1.01643125" layer="27"/>
+<attribute name="NAME" x="13.69518125" y="2.70391875" size="1.01753125" layer="25" rot="R90"/>
+<attribute name="VALUE" x="13.59861875" y="0.198490625" size="1.01643125" layer="21"/>
 </element>
 <element name="C23" library="RobotRacing2019_Master" package="0603SMT" value="TBD" x="23" y="6.3" smashed="yes" rot="R180">
 <attribute name="NAME" x="23.9" y="8.15" size="1.016" layer="25" rot="R180"/>
@@ -2012,13 +2055,14 @@ design rules under a new name.</description>
 </element>
 <element name="U$44" library="RobotRacing2019_Master" package="TEAM_LOGO" value="TEAM_LOGO" x="28.3" y="44" smashed="yes" rot="MR0"/>
 <element name="J19" library="RobotRacing2019_Master" package="JST_B2B-PH-K-S(LF)(SN)" value="JETSON_TRIGGER" x="96.1" y="14.6" smashed="yes" rot="R90">
-<attribute name="NAME" x="99.69608125" y="11.29518125" size="1.01753125" layer="25" rot="R90"/>
+<attribute name="NAME" x="95.89608125" y="9.89518125" size="1.01753125" layer="25"/>
+<attribute name="VALUE" x="99.701509375" y="6.59861875" size="1.01643125" layer="21" rot="R90"/>
 </element>
 <element name="C24" library="RobotRacing2019_Master" package="0603SMT" value="0.1u" x="79.7" y="11.9" smashed="yes" rot="R90">
 <attribute name="NAME" x="81.35" y="10.8" size="1.016" layer="25" rot="R90"/>
 </element>
 <element name="Q8" library="RobotRacing2019_Master" package="SOT23" value="BSS138" x="90.6" y="16.4" smashed="yes" rot="R180">
-<attribute name="NAME" x="88.305" y="16.395" size="1.27" layer="25" rot="R180"/>
+<attribute name="NAME" x="88.805" y="16.295" size="1.27" layer="25" rot="R180"/>
 </element>
 <element name="R43" library="RobotRacing2019_Master" package="0603SMT" value="10k" x="82.9" y="14.2" smashed="yes" rot="R180">
 <attribute name="NAME" x="87.1" y="14.65" size="1.016" layer="25" rot="R180"/>
@@ -2160,7 +2204,7 @@ design rules under a new name.</description>
 <contactref element="R31" pad="1"/>
 <contactref element="JP6" pad="7"/>
 <contactref element="JP6" pad="8"/>
-<contactref element="U$50" pad="10"/>
+<contactref element="JP15" pad="10"/>
 <contactref element="JP6" pad="6"/>
 <contactref element="R32" pad="1"/>
 <contactref element="J5" pad="2"/>
@@ -2216,9 +2260,9 @@ design rules under a new name.</description>
 <wire x1="21.005" y1="45.575" x2="23.275" y2="45.575" width="0.254" layer="1"/>
 <wire x1="23.275" y1="45.575" x2="23.3" y2="45.6" width="0.254" layer="1"/>
 <via x="23.3" y="45.6" extent="1-16" drill="0.35"/>
-<via x="8.3" y="44.6" extent="1-16" drill="0.35"/>
-<wire x1="4.02" y1="44.14" x2="7.84" y2="44.14" width="0.254" layer="1"/>
-<wire x1="7.84" y1="44.14" x2="8.3" y2="44.6" width="0.254" layer="1"/>
+<via x="8.4" y="45.2" extent="1-16" drill="0.35"/>
+<wire x1="4.02" y1="44.14" x2="7.34" y2="44.14" width="0.254" layer="1"/>
+<wire x1="7.34" y1="44.14" x2="8.4" y2="45.2" width="0.254" layer="1"/>
 <via x="27.4" y="39" extent="1-16" drill="0.35"/>
 <wire x1="27.4" y1="39" x2="27.4" y2="37.195" width="0.254" layer="1"/>
 <wire x1="27.4" y1="37.195" x2="27.38" y2="37.175" width="0.254" layer="1"/>
@@ -2408,7 +2452,6 @@ design rules under a new name.</description>
 <contactref element="VR1" pad="1"/>
 <contactref element="VR1" pad="3"/>
 <contactref element="R4" pad="2"/>
-<contactref element="Q3" pad="3"/>
 <contactref element="C17" pad="1"/>
 <contactref element="J9" pad="1"/>
 <contactref element="J10" pad="1"/>
@@ -2551,9 +2594,9 @@ design rules under a new name.</description>
 <wire x1="53.2" y1="57.675" x2="61.9" y2="57.675" width="0" layer="19" extent="1-1"/>
 <wire x1="53.2" y1="52.1" x2="53.2" y2="57.675" width="0" layer="19" extent="1-1"/>
 <wire x1="41.725" y1="55" x2="53.2" y2="57.675" width="0" layer="19" extent="1-1"/>
-<wire x1="41.145" y1="60.34" x2="41.725" y2="55" width="0" layer="19" extent="1-1"/>
-<wire x1="37.285" y1="60.32" x2="41.145" y2="60.34" width="0" layer="19" extent="1-1"/>
-<wire x1="31.685" y1="60.3" x2="37.285" y2="60.32" width="0" layer="19" extent="1-1"/>
+<wire x1="41.045" y1="59.94" x2="41.725" y2="55" width="0" layer="19" extent="1-1"/>
+<wire x1="37.185" y1="59.92" x2="41.045" y2="59.94" width="0" layer="19" extent="1-1"/>
+<wire x1="31.685" y1="60.3" x2="37.185" y2="59.92" width="0" layer="19" extent="1-1"/>
 <wire x1="30.38" y1="57.2355625" x2="31.685" y2="60.3" width="0" layer="19" extent="1-1"/>
 <wire x1="29.88" y1="55.02" x2="30.38" y2="55.08" width="0" layer="19" extent="1-1"/>
 <wire x1="29.38" y1="52.925" x2="29.88" y2="52.925" width="0" layer="19" extent="1-1"/>
@@ -2568,7 +2611,7 @@ design rules under a new name.</description>
 <wire x1="11.02" y1="18.45" x2="11.02" y2="20.99" width="0" layer="19" extent="1-1"/>
 <wire x1="11.02" y1="15.91" x2="11.02" y2="18.45" width="0" layer="19" extent="1-1"/>
 <wire x1="3.82" y1="14" x2="11.02" y2="15.91" width="0" layer="19" extent="1-1"/>
-<wire x1="39.66" y1="72.15" x2="41.145" y2="60.34" width="0" layer="19" extent="1-1"/>
+<wire x1="39.66" y1="72.15" x2="41.045" y2="59.94" width="0" layer="19" extent="1-1"/>
 <wire x1="27.83" y1="72.15" x2="39.66" y2="72.15" width="0" layer="19" extent="1-1"/>
 <wire x1="16.08" y1="72.15" x2="27.83" y2="72.15" width="0" layer="19" extent="1-1"/>
 <wire x1="4.31" y1="72.13" x2="16.08" y2="72.15" width="0" layer="19" extent="1-1"/>
@@ -2585,6 +2628,7 @@ design rules under a new name.</description>
 <wire x1="55.3" y1="10.05" x2="61.13" y2="17.385" width="0" layer="19" extent="1-1"/>
 <wire x1="55.3" y1="2.85" x2="55.3" y2="10.05" width="0" layer="19" extent="1-1"/>
 <wire x1="43.39" y1="2.85" x2="55.3" y2="2.85" width="0" layer="19" extent="1-1"/>
+<contactref element="Q3" pad="3"/>
 </signal>
 <signal name="N$3">
 <contactref element="R1" pad="1"/>
@@ -3221,12 +3265,12 @@ design rules under a new name.</description>
 <wire x1="80.5" y1="8.9" x2="81.85" y2="10.25" width="0.254" layer="1"/>
 </signal>
 <signal name="N$20">
-<contactref element="Q3" pad="2"/>
 <contactref element="C13" pad="1"/>
 <contactref element="L1" pad="2"/>
 <wire x1="84.625" y1="23.1" x2="84.625" y2="26" width="0.508" layer="1"/>
 <wire x1="84.625" y1="23.1" x2="84.625" y2="20.125" width="0.508" layer="1"/>
-<wire x1="84.625" y1="20.125" x2="84.65" y2="20.1" width="0.508" layer="1"/>
+<contactref element="Q3" pad="2"/>
+<wire x1="84.65" y1="20.1" x2="84.625" y2="20.125" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="N$13">
 <contactref element="U2" pad="16"/>
@@ -3335,7 +3379,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="DAC0_OUT">
 <contactref element="U$1" pad="23"/>
-<contactref element="U$50" pad="3"/>
+<contactref element="JP15" pad="3"/>
 <wire x1="23.88" y1="52.925" x2="23.88" y2="54.52" width="0.254" layer="1"/>
 <wire x1="19.17" y1="62.6" x2="21.17" y2="64.6" width="0.254" layer="1"/>
 <wire x1="19.17" y1="62.6" x2="19.17" y2="59.23" width="0.254" layer="1"/>
@@ -3344,8 +3388,8 @@ design rules under a new name.</description>
 <signal name="+5V">
 <contactref element="J13" pad="1"/>
 <polygon width="0.254" layer="15">
-<vertex x="100" y="26.3"/>
-<vertex x="93.4" y="26.3"/>
+<vertex x="100" y="26.5"/>
+<vertex x="93.6" y="26.5"/>
 <vertex x="92.7" y="25.6"/>
 <vertex x="92.7" y="6.1"/>
 <vertex x="91.5" y="4.9"/>
@@ -3397,11 +3441,11 @@ design rules under a new name.</description>
 <contactref element="J22" pad="5"/>
 <contactref element="R41" pad="1"/>
 <wire x1="34.38" y1="52.925" x2="34.38" y2="56.38" width="0.254" layer="1"/>
-<wire x1="37.555" y1="58.5" x2="39.395" y2="60.34" width="0.254" layer="1"/>
+<wire x1="37.855" y1="58.5" x2="39.295" y2="59.94" width="0.254" layer="1"/>
 <wire x1="34.38" y1="56.38" x2="36.5" y2="58.5" width="0.254" layer="1"/>
-<wire x1="36.5" y1="58.5" x2="37.555" y2="58.5" width="0.254" layer="1"/>
-<wire x1="39.395" y1="60.34" x2="36.37" y2="63.365" width="0.254" layer="1"/>
-<wire x1="36.37" y1="63.365" x2="36.37" y2="64.6" width="0.254" layer="1"/>
+<wire x1="36.5" y1="58.5" x2="37.855" y2="58.5" width="0.254" layer="1"/>
+<wire x1="39.295" y1="59.94" x2="36.37" y2="62.865" width="0.254" layer="1"/>
+<wire x1="36.37" y1="62.865" x2="36.37" y2="64.6" width="0.254" layer="1"/>
 <wire x1="36.37" y1="64.6" x2="39.97" y2="68.2" width="0.254" layer="1"/>
 <wire x1="39.97" y1="68.2" x2="41.4" y2="68.2" width="0.254" layer="1"/>
 <via x="41.4" y="68.2" extent="1-16" drill="0.35"/>
@@ -3472,14 +3516,14 @@ design rules under a new name.</description>
 </signal>
 <signal name="CLK_OUT_/_FTM2_CH5">
 <contactref element="U$1" pad="24"/>
-<contactref element="U$50" pad="4"/>
+<contactref element="JP15" pad="4"/>
 <wire x1="18.63" y1="64.6" x2="18.63" y2="59.07" width="0.254" layer="1"/>
 <wire x1="23.38" y1="54.32" x2="23.38" y2="52.925" width="0.254" layer="1"/>
 <wire x1="18.63" y1="59.07" x2="23.38" y2="54.32" width="0.254" layer="1"/>
 </signal>
 <signal name="RTC_CLK_OUT_/_FTM2_CH4">
 <contactref element="U$1" pad="25"/>
-<contactref element="U$50" pad="5"/>
+<contactref element="JP15" pad="5"/>
 <wire x1="22.88" y1="52.925" x2="22.88" y2="54.12" width="0.254" layer="1"/>
 <wire x1="18.09" y1="62.6" x2="16.09" y2="64.6" width="0.254" layer="1"/>
 <wire x1="18.09" y1="62.6" x2="18.09" y2="58.91" width="0.254" layer="1"/>
@@ -3851,10 +3895,10 @@ design rules under a new name.</description>
 <contactref element="J17" pad="4"/>
 <contactref element="J18" pad="4"/>
 <contactref element="JP10" pad="2"/>
-<wire x1="33.88" y1="52.925" x2="33.88" y2="58.665" width="0.254" layer="1"/>
-<wire x1="33.88" y1="58.665" x2="35.535" y2="60.32" width="0.254" layer="1"/>
-<wire x1="33.83" y1="64.6" x2="33.83" y2="62.025" width="0.254" layer="1"/>
-<wire x1="33.83" y1="62.025" x2="35.535" y2="60.32" width="0.254" layer="1"/>
+<wire x1="33.88" y1="52.925" x2="33.88" y2="58.365" width="0.254" layer="1"/>
+<wire x1="33.88" y1="58.365" x2="35.435" y2="59.92" width="0.254" layer="1"/>
+<wire x1="33.83" y1="64.6" x2="33.83" y2="61.525" width="0.254" layer="1"/>
+<wire x1="33.83" y1="61.525" x2="35.435" y2="59.92" width="0.254" layer="1"/>
 <wire x1="33.83" y1="64.6" x2="33.83" y2="72.15" width="0.254" layer="1"/>
 <wire x1="22.08" y1="72.15" x2="23.53" y2="70.7" width="0.254" layer="16"/>
 <wire x1="32.38" y1="70.7" x2="33.83" y2="72.15" width="0.254" layer="16"/>
@@ -3896,13 +3940,12 @@ design rules under a new name.</description>
 </signal>
 <signal name="PTE13_/_FTM2_FLT0">
 <contactref element="U$1" pad="7"/>
-<contactref element="U$50" pad="2"/>
+<contactref element="JP15" pad="2"/>
 <wire x1="31.88" y1="52.925" x2="31.88" y2="51.12" width="0.254" layer="1"/>
 <wire x1="31.88" y1="51.12" x2="32.2" y2="50.8" width="0.254" layer="1"/>
 <via x="32.2" y="50.8" extent="1-16" drill="0.35"/>
 <wire x1="23.71" y1="64.6" x2="26.5" y2="61.81" width="0.254" layer="16"/>
-<wire x1="26.5" y1="61.81" x2="26.5" y2="57.5" width="0.254" layer="16"/>
-<wire x1="26.5" y1="57.5" x2="26.5" y2="53.1299875" width="0.254" layer="16"/>
+<wire x1="26.5" y1="61.81" x2="26.5" y2="53.1299875" width="0.254" layer="16"/>
 <wire x1="32.2" y1="50.8" x2="32.2" y2="50.1" width="0.254" layer="16"/>
 <wire x1="32.2" y1="50.1" x2="31.6" y2="49.5" width="0.254" layer="16"/>
 <wire x1="31.6" y1="49.5" x2="30.1299875" y2="49.5" width="0.254" layer="16"/>
@@ -3910,7 +3953,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PTD7_/_FTM2_FLT3">
 <contactref element="U$1" pad="31"/>
-<contactref element="U$50" pad="6"/>
+<contactref element="JP15" pad="6"/>
 <via x="18.1" y="48.9" extent="1-16" drill="0.35"/>
 <wire x1="20.98" y1="48.6" x2="21.005" y2="48.575" width="0.254" layer="1"/>
 <wire x1="13.55" y1="64.6" x2="13.55" y2="61.05" width="0.254" layer="16"/>
@@ -3923,7 +3966,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PTD6_/_FTM2_FLT2">
 <contactref element="U$1" pad="32"/>
-<contactref element="U$50" pad="7"/>
+<contactref element="JP15" pad="7"/>
 <via x="16.7" y="48.5" extent="1-16" drill="0.35"/>
 <wire x1="20.98" y1="48.1" x2="21.005" y2="48.075" width="0.254" layer="1"/>
 <wire x1="17.825" y1="48.075" x2="17.4" y2="48.5" width="0.254" layer="1"/>
@@ -3937,13 +3980,14 @@ design rules under a new name.</description>
 </signal>
 <signal name="PTD5_/_FTM2_CH3_/_PWT_IN2">
 <contactref element="U$1" pad="33"/>
-<contactref element="U$50" pad="8"/>
+<contactref element="JP15" pad="8"/>
 <via x="15.2" y="47.9" extent="1-16" drill="0.35"/>
 <wire x1="20.98" y1="47.6" x2="21.005" y2="47.575" width="0.254" layer="1"/>
 <wire x1="15.2" y1="47.9" x2="15.525" y2="47.575" width="0.254" layer="1"/>
 <wire x1="21.005" y1="47.575" x2="15.525" y2="47.575" width="0.254" layer="1"/>
 <wire x1="15.2" y1="51.4" x2="15.2" y2="47.9" width="0.254" layer="16"/>
-<wire x1="8.47" y1="64.6" x2="13.1" y2="59.97" width="0.254" layer="16"/>
+<wire x1="8.47" y1="64.6" x2="9.485" y2="63.585" width="0.254" layer="16"/>
+<wire x1="9.485" y1="63.585" x2="13.1" y2="59.97" width="0.254" layer="16"/>
 <wire x1="13.1" y1="59.97" x2="13.1" y2="53.5" width="0.254" layer="16"/>
 <wire x1="13.1" y1="53.5" x2="15.2" y2="51.4" width="0.254" layer="16"/>
 </signal>
@@ -4110,7 +4154,7 @@ design rules under a new name.</description>
 </signal>
 <signal name="PTD10_/_FTM2_CH0">
 <contactref element="U$1" pad="36"/>
-<contactref element="U$50" pad="9"/>
+<contactref element="JP15" pad="9"/>
 <via x="13.3" y="44.4" extent="1-16" drill="0.35"/>
 <wire x1="5.93" y1="64.6" x2="7.43" y2="63.1" width="0.254" layer="16"/>
 <wire x1="7.43" y1="63.1" x2="9.29236875" y2="63.1" width="0.254" layer="16"/>
@@ -4514,7 +4558,7 @@ design rules under a new name.</description>
 <signal name="PTA11_/_FTM1_CH5">
 <contactref element="U$1" pad="91"/>
 <contactref element="J21" pad="4"/>
-<contactref element="U$50" pad="1"/>
+<contactref element="JP15" pad="1"/>
 <wire x1="34.85" y1="46.55" x2="36.755" y2="46.55" width="0.254" layer="1"/>
 <wire x1="34.85" y1="46.55" x2="34.2" y2="45.9" width="0.254" layer="1"/>
 <wire x1="34.2" y1="45.9" x2="34.2" y2="45" width="0.254" layer="1"/>
@@ -4658,7 +4702,6 @@ design rules under a new name.</description>
 <wire x1="23" y1="3.075" x2="23" y2="3.525" width="0.508" layer="1"/>
 </signal>
 <signal name="N$39">
-<contactref element="Q3" pad="1"/>
 <contactref element="R43" pad="1"/>
 <contactref element="IC1" pad="4"/>
 <wire x1="86.55" y1="20.1" x2="86.6" y2="20.1" width="0.254" layer="1"/>
@@ -4669,6 +4712,7 @@ design rules under a new name.</description>
 <wire x1="83.15" y1="12.75" x2="83.15" y2="13.45" width="0.254" layer="1"/>
 <wire x1="83.15" y1="13.45" x2="83.5" y2="13.8" width="0.254" layer="1"/>
 <wire x1="83.5" y1="13.8" x2="83.775" y2="14.2" width="0" layer="19" extent="1-1"/>
+<contactref element="Q3" pad="1"/>
 </signal>
 <signal name="N$35">
 <contactref element="J19" pad="1"/>
@@ -4812,15 +4856,15 @@ design rules under a new name.</description>
 <wire x1="29.5" y1="25.345" x2="28.655" y2="25.345" width="0.2" layer="1"/>
 <wire x1="28.655" y1="25.345" x2="28.4" y2="25.6" width="0.2" layer="1"/>
 <wire x1="28.4" y1="25.6" x2="26.5" y2="25.6" width="0.2" layer="1"/>
-<wire x1="21.25" y1="26.95" x2="21.25" y2="26.6" width="0.2" layer="1"/>
 <wire x1="26.5" y1="25.6" x2="24.5" y2="27.6" width="0.2" layer="1"/>
 <wire x1="24.5" y1="27.6" x2="21.9" y2="27.6" width="0.2" layer="1"/>
 <wire x1="21.9" y1="27.6" x2="21.25" y2="26.95" width="0.2" layer="1"/>
+<wire x1="21.25" y1="26.95" x2="21.25" y2="26.6" width="0" layer="19" extent="1-1"/>
 </signal>
 </signals>
 <mfgpreviewcolors>
-<mfgpreviewcolor name="soldermaskcolor" color="0xC8008000"/>
-<mfgpreviewcolor name="silkscreencolor" color="0xFFFEFEFE"/>
+<mfgpreviewcolor name="soldermaskcolor" color="0xC8000000"/>
+<mfgpreviewcolor name="silkscreencolor" color="0xFFFFFFFF"/>
 <mfgpreviewcolor name="backgroundcolor" color="0xFF282828"/>
 <mfgpreviewcolor name="coppercolor" color="0xFFFFBF00"/>
 <mfgpreviewcolor name="substratecolor" color="0xFF786E46"/>

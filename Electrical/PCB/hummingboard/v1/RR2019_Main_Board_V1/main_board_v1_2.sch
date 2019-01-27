@@ -610,6 +610,11 @@ reflow soldering</description>
 <rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 <rectangle x1="-0.5001" y1="-0.3" x2="0.5001" y2="0.3" layer="35"/>
+<wire x1="0.3048" y1="-0.66" x2="-0.3048" y2="-0.66" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="-0.127" x2="-1.422" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="0.66" x2="1.422" y2="-0.127" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="0.66" x2="-0.762" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="0.762" y1="0.66" x2="1.422" y2="0.66" width="0.1524" layer="21"/>
 </package>
 <package name="JST_B4B-PH-K-S(LF)(SN)">
 <wire x1="-4.95" y1="-2.25" x2="-4.95" y2="2.25" width="0.127" layer="51"/>
@@ -933,8 +938,8 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/346131962AD8067_a.pdf</d
 <wire x1="-4.534490625" y1="4.934009375" x2="-1.52431875" y2="2.8147" width="0.1" layer="21"/>
 <wire x1="3.938" y1="7.352040625" x2="4.82568125" y2="7.27478125" width="0.1" layer="21"/>
 <wire x1="4.82568125" y1="7.27478125" x2="6.3772" y2="7.11496875" width="0.1" layer="21"/>
-<text x="-2.94" y="-15.83" size="1.27" layer="21" font="vector">HUMMINGBOT</text>
-<text x="-2.94" y="-18.07" size="1.27" layer="21" font="vector">UW ROBOTICS 2019</text>
+<text x="-2.54" y="-11.43" size="1.27" layer="21" font="vector">HUMMINGBOT</text>
+<text x="-2.54" y="-13.97" size="1.27" layer="21" font="vector">UW ROBOTICS 2019</text>
 </package>
 <package name="SC70-5" urn="urn:adsk.eagle:footprint:2365/1">
 <description>&lt;b&gt;SMT SC70-5&lt;/b&gt;&lt;p&gt;
@@ -3510,12 +3515,12 @@ distributor RS Components</description>
 <part name="JP11" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="ACMP_IN_OUT"/>
 <part name="SUPPLY56" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="U$46" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
-<part name="JP6" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="POWER_1"/>
+<part name="JP6" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="POWER"/>
 <part name="U$47" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 <part name="JP7" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1" value="ADC_1"/>
 <part name="JP9" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="ADC_2"/>
 <part name="JP14" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="DIGITAL_1"/>
-<part name="U$50" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X10" device="" package3d_urn="urn:adsk.eagle:package:6240656/1" value="DIGITAL_2"/>
+<part name="JP15" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X10" device="" package3d_urn="urn:adsk.eagle:package:6240656/1" value="DIGITAL_2"/>
 <part name="SUPPLY58" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="J21" library="RobotRacing2019_Master" deviceset="PINHEAD-6-VERTICAL" device="" value="BLDC_HALL"/>
 <part name="JP13" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X6" device="B" package3d_urn="urn:adsk.eagle:package:6240714/1" value="DIGITAL_3"/>
@@ -5800,7 +5805,6 @@ VDD = MOS_OFF</text>
 </net>
 <net name="N$39" class="0">
 <segment>
-<wire x1="-91.44" y1="-53.34" x2="-88.9" y2="-53.34" width="0.1524" layer="91"/>
 <pinref part="Q3" gate="G$1" pin="G"/>
 <wire x1="-88.9" y1="-53.34" x2="-86.36" y2="-53.34" width="0.1524" layer="91"/>
 <wire x1="-86.36" y1="-53.34" x2="-73.66" y2="-53.34" width="0.1524" layer="91"/>
@@ -5809,7 +5813,6 @@ VDD = MOS_OFF</text>
 <junction x="-86.36" y="-53.34"/>
 <pinref part="R43" gate="G$1" pin="1"/>
 <pinref part="IC1" gate="G$1" pin="OUT"/>
-<junction x="-88.9" y="-53.34"/>
 </segment>
 </net>
 <net name="N$35" class="0">
@@ -7484,7 +7487,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <attribute name="NAME" x="39.37" y="-230.505" size="1.778" layer="95"/>
 <attribute name="VALUE" x="39.37" y="-256.54" size="1.778" layer="96"/>
 </instance>
-<instance part="U$50" gate="G$1" x="45.72" y="-279.4" smashed="yes">
+<instance part="JP15" gate="G$1" x="45.72" y="-279.4" smashed="yes">
 <attribute name="NAME" x="39.37" y="-266.065" size="1.778" layer="95"/>
 <attribute name="VALUE" x="39.37" y="-297.18" size="1.778" layer="96"/>
 </instance>
@@ -7707,7 +7710,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <junction x="0" y="88.9"/>
 </segment>
 <segment>
-<pinref part="U$50" gate="G$1" pin="10"/>
+<pinref part="JP15" gate="G$1" pin="10"/>
 <wire x1="43.18" y1="-292.1" x2="30.48" y2="-292.1" width="0.1524" layer="91"/>
 <pinref part="SUPPLY58" gate="GND" pin="GND"/>
 <wire x1="30.48" y1="-292.1" x2="30.48" y2="-294.64" width="0.1524" layer="91"/>
@@ -7835,61 +7838,61 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <segment>
 <wire x1="43.18" y1="-271.78" x2="33.02" y2="-271.78" width="0.1524" layer="91"/>
 <label x="33.02" y="-271.78" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="2"/>
+<pinref part="JP15" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="DAC0_OUT" class="0">
 <segment>
 <wire x1="43.18" y1="-274.32" x2="-20.32" y2="-274.32" width="0.1524" layer="91"/>
 <label x="-20.32" y="-274.32" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="3"/>
+<pinref part="JP15" gate="G$1" pin="3"/>
 </segment>
 </net>
 <net name="CLK_OUT_/_FTM2_CH5" class="0">
 <segment>
 <wire x1="43.18" y1="-276.86" x2="33.02" y2="-276.86" width="0.1524" layer="91"/>
 <label x="33.02" y="-276.86" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="4"/>
+<pinref part="JP15" gate="G$1" pin="4"/>
 </segment>
 </net>
 <net name="RTC_CLK_OUT_/_FTM2_CH4" class="0">
 <segment>
 <wire x1="43.18" y1="-279.4" x2="-20.32" y2="-279.4" width="0.1524" layer="91"/>
 <label x="-20.32" y="-279.4" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="5"/>
+<pinref part="JP15" gate="G$1" pin="5"/>
 </segment>
 </net>
 <net name="PTD7_/_FTM2_FLT3" class="0">
 <segment>
 <wire x1="43.18" y1="-281.94" x2="33.02" y2="-281.94" width="0.1524" layer="91"/>
 <label x="33.02" y="-281.94" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="6"/>
+<pinref part="JP15" gate="G$1" pin="6"/>
 </segment>
 </net>
 <net name="PTD6_/_FTM2_FLT2" class="0">
 <segment>
 <wire x1="43.18" y1="-284.48" x2="-20.32" y2="-284.48" width="0.1524" layer="91"/>
 <label x="-20.32" y="-284.48" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="7"/>
+<pinref part="JP15" gate="G$1" pin="7"/>
 </segment>
 </net>
 <net name="PTD5_/_FTM2_CH3_/_PWT_IN2" class="0">
 <segment>
 <wire x1="33.02" y1="-287.02" x2="43.18" y2="-287.02" width="0.1524" layer="91"/>
 <label x="33.02" y="-287.02" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="8"/>
+<pinref part="JP15" gate="G$1" pin="8"/>
 </segment>
 </net>
 <net name="PTD10_/_FTM2_CH0" class="0">
 <segment>
 <wire x1="43.18" y1="-289.56" x2="-20.32" y2="-289.56" width="0.1524" layer="91"/>
 <label x="-20.32" y="-289.56" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="U$50" gate="G$1" pin="9"/>
+<pinref part="JP15" gate="G$1" pin="9"/>
 </segment>
 </net>
 <net name="PTA11_/_FTM1_CH5" class="0">
 <segment>
-<pinref part="U$50" gate="G$1" pin="1"/>
+<pinref part="JP15" gate="G$1" pin="1"/>
 <wire x1="43.18" y1="-269.24" x2="-20.32" y2="-269.24" width="0.1524" layer="91"/>
 <label x="-20.32" y="-269.24" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
