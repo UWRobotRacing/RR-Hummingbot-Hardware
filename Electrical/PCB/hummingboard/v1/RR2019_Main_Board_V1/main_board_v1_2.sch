@@ -3578,7 +3578,7 @@ distributor RS Components</description>
 <part name="R43" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10k"/>
 <part name="R44" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10k"/>
 <part name="IC1" library="RobotRacing2019_Master" deviceset="OR_SC70-5" device=""/>
-<part name="U$12" library="RobotRacing2019_Master" deviceset="SWD_1.27MM" device=""/>
+<part name="U$12" library="RobotRacing2019_Master" deviceset="SWD_1.27MM" device="" value="SWD"/>
 <part name="U$18" library="RobotRacing2019_Master" deviceset="+5V" device=""/>
 <part name="U$20" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 <part name="U$34" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
