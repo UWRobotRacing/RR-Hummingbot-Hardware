@@ -1073,7 +1073,58 @@ Source: http://www.semiconductors.philips.com/acrobat_download/datasheets/74HC_H
 <smd name="6" x="0.27" y="1.38" dx="0.25" dy="0.5" layer="1"/>
 <smd name="5" x="0.77" y="1.38" dx="0.25" dy="0.5" layer="1"/>
 </package>
+<package name="M9040P" urn="urn:adsk.eagle:footprint:27535/1">
+<description>&lt;b&gt;TOGGLE SWITCH&lt;/b&gt;&lt;p&gt;
+Marquardt</description>
+<wire x1="-3.3528" y1="6.6802" x2="-3.9878" y2="6.0452" width="0.1524" layer="21"/>
+<wire x1="-3.3528" y1="6.6802" x2="3.3528" y2="6.6802" width="0.1524" layer="21"/>
+<wire x1="3.9878" y1="6.0452" x2="3.3528" y2="6.6802" width="0.1524" layer="21"/>
+<wire x1="3.3782" y1="-6.6802" x2="4.0132" y2="-6.0452" width="0.1524" layer="21"/>
+<wire x1="3.3782" y1="-6.6802" x2="-3.3782" y2="-6.6802" width="0.1524" layer="21"/>
+<wire x1="-4.0132" y1="-6.0452" x2="-3.3782" y2="-6.6802" width="0.1524" layer="21"/>
+<wire x1="4.318" y1="2.286" x2="4.318" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-4.318" y1="2.286" x2="-4.318" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="4.318" y1="2.286" x2="3.9878" y2="2.5146" width="0.1524" layer="21"/>
+<wire x1="0" y1="5.08" x2="-3.9878" y2="2.4892" width="0.1524" layer="51"/>
+<wire x1="-4.318" y1="-2.286" x2="-4.0132" y2="-2.4892" width="0.1524" layer="21"/>
+<wire x1="0" y1="-5.08" x2="4.0132" y2="-2.4892" width="0.1524" layer="51"/>
+<wire x1="1.905" y1="-1.27" x2="2.54" y2="-1.905" width="0.1524" layer="51"/>
+<wire x1="2.54" y1="-1.905" x2="2.54" y2="-2.54" width="0.1524" layer="51"/>
+<wire x1="1.905" y1="-3.175" x2="2.54" y2="-2.54" width="0.1524" layer="51"/>
+<wire x1="1.905" y1="-3.175" x2="-1.905" y2="-3.175" width="0.1524" layer="51"/>
+<wire x1="-2.54" y1="-2.54" x2="-1.905" y2="-3.175" width="0.1524" layer="51"/>
+<wire x1="-2.54" y1="-2.54" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
+<wire x1="-1.905" y1="-1.27" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
+<wire x1="-1.905" y1="-1.27" x2="1.905" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="1.6002" y1="1.27" x2="2.54" y2="-1.905" width="0.1524" layer="51"/>
+<wire x1="4.0132" y1="-6.0452" x2="4.0132" y2="-2.4892" width="0.1524" layer="21"/>
+<wire x1="3.9878" y1="6.0452" x2="3.9878" y2="2.5146" width="0.1524" layer="21"/>
+<wire x1="-3.9878" y1="2.4892" x2="-3.9878" y2="6.0452" width="0.1524" layer="21"/>
+<wire x1="-4.0132" y1="-6.0452" x2="-4.0132" y2="-2.4892" width="0.1524" layer="21"/>
+<wire x1="-1.6002" y1="1.27" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
+<wire x1="-2.54" y1="-2.54" x2="2.54" y2="-2.54" width="0.1524" layer="51" curve="-270"/>
+<wire x1="-2.54" y1="-1.27" x2="2.54" y2="-1.27" width="0.1524" layer="51" curve="-233.130102"/>
+<wire x1="-1.6002" y1="1.27" x2="1.6002" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="3.9878" y1="2.5146" x2="0" y2="5.08" width="0.1524" layer="51"/>
+<wire x1="4.0132" y1="-2.4892" x2="4.318" y2="-2.286" width="0.1524" layer="21"/>
+<wire x1="-4.0132" y1="-2.4892" x2="0" y2="-5.08" width="0.1524" layer="51"/>
+<wire x1="-3.9878" y1="2.4892" x2="-4.318" y2="2.286" width="0.1524" layer="21"/>
+<pad name="3" x="0" y="-4.699" drill="1.8034" shape="long"/>
+<pad name="2" x="0" y="0" drill="1.8034" shape="long"/>
+<pad name="1" x="0" y="4.699" drill="1.8034" shape="long"/>
+<text x="-3.81" y="7.62" size="1.778" layer="25" ratio="10">&gt;NAME</text>
+<text x="-3.81" y="-9.525" size="1.778" layer="27" ratio="10">&gt;VALUE</text>
+</package>
 </packages>
+<packages3d>
+<package3d name="M9040P" urn="urn:adsk.eagle:package:27676/1" type="box">
+<description>TOGGLE SWITCH
+Marquardt</description>
+<packageinstances>
+<packageinstance name="M9040P"/>
+</packageinstances>
+</package3d>
+</packages3d>
 <symbols>
 <symbol name="MKE14F512VLL16">
 <wire x1="-38.1" y1="40.64" x2="38.1" y2="40.64" width="0.254" layer="94"/>
@@ -1634,6 +1685,29 @@ Source: http://www.semiconductors.philips.com/acrobat_download/datasheets/74HC_H
 <pin name="SCL2" x="15.24" y="2.54" length="middle" rot="R180"/>
 <pin name="SDA2" x="15.24" y="0" length="middle" rot="R180"/>
 <pin name="GND" x="-15.24" y="-2.54" length="middle"/>
+</symbol>
+<symbol name="KS-U">
+<wire x1="-3.81" y1="1.905" x2="-2.54" y2="1.905" width="0.254" layer="94"/>
+<wire x1="-3.81" y1="1.905" x2="-3.81" y2="0" width="0.254" layer="94"/>
+<wire x1="-3.81" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="-3.81" y1="0" x2="-3.81" y2="-1.905" width="0.254" layer="94"/>
+<wire x1="-1.27" y1="0" x2="-0.762" y2="0" width="0.1524" layer="94"/>
+<wire x1="-5.08" y1="1.905" x2="-3.81" y2="1.905" width="0.254" layer="94"/>
+<wire x1="0.254" y1="0" x2="0.635" y2="0" width="0.1524" layer="94"/>
+<wire x1="1.27" y1="0" x2="1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="-3.175" x2="2.54" y2="-1.905" width="0.254" layer="94"/>
+<wire x1="2.54" y1="-1.905" x2="0.635" y2="3.175" width="0.254" layer="94"/>
+<wire x1="3.81" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="3.175" width="0.254" layer="94"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="2.54" width="0.254" layer="94"/>
+<wire x1="0" y1="2.54" x2="0" y2="3.175" width="0.254" layer="94"/>
+<wire x1="-0.762" y1="0" x2="-0.254" y2="-0.762" width="0.1524" layer="94"/>
+<wire x1="-0.254" y1="-0.762" x2="0.254" y2="0" width="0.1524" layer="94"/>
+<text x="-6.35" y="-1.905" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="-3.81" y="2.54" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="P" x="2.54" y="-5.08" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="S" x="5.08" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
+<pin name="O" x="0" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -2258,6 +2332,28 @@ NOT compatible with all available part number pinout schemes- DOUBLE CHECK!!!</d
 <attribute name="PACKAGE" value="SSOP-8 Texas Instruments"/>
 <attribute name="PRICE" value="None"/>
 </technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="M9040P" prefix="S" uservalue="yes">
+<description>&lt;b&gt;TOGGLE SWITCH&lt;/b&gt;&lt;p&gt;
+Marquardt</description>
+<gates>
+<gate name="1" symbol="KS-U" x="-2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="M9040P">
+<connects>
+<connect gate="1" pin="O" pad="1"/>
+<connect gate="1" pin="P" pad="2"/>
+<connect gate="1" pin="S" pad="3"/>
+</connects>
+<package3dinstances>
+<package3dinstance package3d_urn="urn:adsk.eagle:package:27676/1"/>
+</package3dinstances>
+<technologies>
+<technology name=""/>
 </technologies>
 </device>
 </devices>
@@ -3136,113 +3232,6 @@ With round pins</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="switch" urn="urn:adsk.eagle:library:380">
-<description>&lt;b&gt;Switches&lt;/b&gt;&lt;p&gt;
-Marquardt, Siemens, C&amp;K, ITT, and others&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="320-916" urn="urn:adsk.eagle:footprint:27534/1" library_version="1">
-<description>&lt;b&gt;TOGGLE SWITCH&lt;/b&gt;&lt;p&gt;
-distributor RS Components</description>
-<wire x1="-2.8702" y1="6.6802" x2="-3.5052" y2="6.0452" width="0.1524" layer="21"/>
-<wire x1="-2.8702" y1="6.6802" x2="2.8702" y2="6.6802" width="0.1524" layer="21"/>
-<wire x1="3.5052" y1="6.0452" x2="2.8702" y2="6.6802" width="0.1524" layer="21"/>
-<wire x1="2.8702" y1="-6.6802" x2="3.5052" y2="-6.0452" width="0.1524" layer="21"/>
-<wire x1="2.8702" y1="-6.6802" x2="-2.8702" y2="-6.6802" width="0.1524" layer="21"/>
-<wire x1="-3.5052" y1="-6.0452" x2="-2.8702" y2="-6.6802" width="0.1524" layer="21"/>
-<wire x1="4.318" y1="2.286" x2="4.318" y2="-2.286" width="0.1524" layer="21"/>
-<wire x1="-4.318" y1="2.286" x2="-4.318" y2="-2.286" width="0.1524" layer="21"/>
-<wire x1="1.905" y1="-1.27" x2="2.54" y2="-1.905" width="0.1524" layer="51"/>
-<wire x1="2.54" y1="-1.905" x2="2.54" y2="-2.54" width="0.1524" layer="51"/>
-<wire x1="1.905" y1="-3.175" x2="2.54" y2="-2.54" width="0.1524" layer="51"/>
-<wire x1="1.905" y1="-3.175" x2="-1.905" y2="-3.175" width="0.1524" layer="51"/>
-<wire x1="-2.54" y1="-2.54" x2="-1.905" y2="-3.175" width="0.1524" layer="51"/>
-<wire x1="-2.54" y1="-2.54" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
-<wire x1="-1.905" y1="-1.27" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
-<wire x1="-1.905" y1="-1.27" x2="1.905" y2="-1.27" width="0.1524" layer="51"/>
-<wire x1="1.6002" y1="1.27" x2="2.54" y2="-1.905" width="0.1524" layer="51"/>
-<wire x1="3.5052" y1="-6.0452" x2="3.5052" y2="-2.8702" width="0.1524" layer="21"/>
-<wire x1="3.5052" y1="6.0452" x2="3.5052" y2="2.8702" width="0.1524" layer="21"/>
-<wire x1="-3.5052" y1="2.8702" x2="-3.5052" y2="6.0452" width="0.1524" layer="21"/>
-<wire x1="-3.5052" y1="-6.0452" x2="-3.5052" y2="-2.8194" width="0.1524" layer="21"/>
-<wire x1="-1.6002" y1="1.27" x2="-2.54" y2="-1.905" width="0.1524" layer="51"/>
-<wire x1="-2.54" y1="-2.54" x2="2.54" y2="-2.54" width="0.1524" layer="51" curve="-270"/>
-<wire x1="-2.54" y1="-1.27" x2="2.54" y2="-1.27" width="0.1524" layer="51" curve="-233.130102"/>
-<wire x1="-1.6002" y1="1.27" x2="1.6002" y2="1.27" width="0.1524" layer="51"/>
-<wire x1="-4.318" y1="-2.286" x2="-3.5052" y2="-2.8194" width="0.1524" layer="21"/>
-<wire x1="-3.5052" y1="-2.8194" x2="0" y2="-5.08" width="0.1524" layer="51"/>
-<wire x1="4.318" y1="-2.286" x2="3.5052" y2="-2.8702" width="0.1524" layer="21"/>
-<wire x1="3.5052" y1="-2.8702" x2="0" y2="-5.08" width="0.1524" layer="51"/>
-<wire x1="4.318" y1="2.286" x2="3.5052" y2="2.8702" width="0.1524" layer="21"/>
-<wire x1="3.5052" y1="2.8702" x2="0" y2="5.08" width="0.1524" layer="51"/>
-<wire x1="-4.318" y1="2.286" x2="-3.5052" y2="2.8702" width="0.1524" layer="21"/>
-<wire x1="-3.5052" y1="2.8702" x2="0" y2="5.08" width="0.1524" layer="51"/>
-<pad name="3" x="0" y="-4.0132" drill="2.0066" shape="long"/>
-<pad name="2" x="0" y="0" drill="2.0066" shape="long"/>
-<pad name="1" x="0" y="4.0132" drill="2.0066" shape="long"/>
-<text x="-2.54" y="7.62" size="1.778" layer="25" ratio="10">&gt;NAME</text>
-<text x="-2.54" y="-9.525" size="1.778" layer="27" ratio="10">&gt;VALUE</text>
-</package>
-</packages>
-<packages3d>
-<package3d name="320-916" urn="urn:adsk.eagle:package:27678/1" type="box" library_version="1">
-<description>TOGGLE SWITCH
-distributor RS Components</description>
-<packageinstances>
-<packageinstance name="320-916"/>
-</packageinstances>
-</package3d>
-</packages3d>
-<symbols>
-<symbol name="KS-U" urn="urn:adsk.eagle:symbol:27532/1" library_version="1">
-<wire x1="-3.81" y1="1.905" x2="-2.54" y2="1.905" width="0.254" layer="94"/>
-<wire x1="-3.81" y1="1.905" x2="-3.81" y2="0" width="0.254" layer="94"/>
-<wire x1="-3.81" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
-<wire x1="-3.81" y1="0" x2="-3.81" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="0" x2="-0.762" y2="0" width="0.1524" layer="94"/>
-<wire x1="-5.08" y1="1.905" x2="-3.81" y2="1.905" width="0.254" layer="94"/>
-<wire x1="0.254" y1="0" x2="0.635" y2="0" width="0.1524" layer="94"/>
-<wire x1="1.27" y1="0" x2="1.905" y2="0" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="-3.175" x2="2.54" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="2.54" y1="-1.905" x2="0.635" y2="3.175" width="0.254" layer="94"/>
-<wire x1="3.81" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="3.175" width="0.254" layer="94"/>
-<wire x1="0" y1="2.54" x2="1.27" y2="2.54" width="0.254" layer="94"/>
-<wire x1="0" y1="2.54" x2="0" y2="3.175" width="0.254" layer="94"/>
-<wire x1="-0.762" y1="0" x2="-0.254" y2="-0.762" width="0.1524" layer="94"/>
-<wire x1="-0.254" y1="-0.762" x2="0.254" y2="0" width="0.1524" layer="94"/>
-<text x="-6.35" y="-1.905" size="1.778" layer="95" rot="R90">&gt;NAME</text>
-<text x="-3.81" y="2.54" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
-<pin name="P" x="2.54" y="-5.08" visible="pad" length="short" direction="pas" rot="R90"/>
-<pin name="S" x="5.08" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
-<pin name="O" x="0" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="320-916" urn="urn:adsk.eagle:component:27763/1" prefix="S" uservalue="yes" library_version="1">
-<description>&lt;b&gt;TOGGLE SWITCH&lt;/b&gt;&lt;p&gt;
-distributor RS Components</description>
-<gates>
-<gate name="1" symbol="KS-U" x="-2.54" y="0"/>
-</gates>
-<devices>
-<device name="" package="320-916">
-<connects>
-<connect gate="1" pin="O" pad="1"/>
-<connect gate="1" pin="P" pad="2"/>
-<connect gate="1" pin="S" pad="3"/>
-</connects>
-<package3dinstances>
-<package3dinstance package3d_urn="urn:adsk.eagle:package:27678/1"/>
-</package3dinstances>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="special" urn="urn:adsk.eagle:library:367">
 <description>&lt;b&gt;Special Devices&lt;/b&gt;&lt;p&gt;
 7-segment displays, switches, heatsinks, crystals, transformers, etc.&lt;p&gt;
@@ -3346,8 +3335,8 @@ distributor RS Components</description>
 </classes>
 <parts>
 <part name="U$1" library="RobotRacing2019_Master" deviceset="MKE14F512LL16" device=""/>
-<part name="R1" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
-<part name="R2" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="R1" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
+<part name="R2" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
 <part name="C1" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="100nF"/>
 <part name="C3" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="100nF"/>
 <part name="C4" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="100nF"/>
@@ -3374,8 +3363,8 @@ distributor RS Components</description>
 <part name="C15" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="0.1uF"/>
 <part name="D5" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="TX"/>
 <part name="D6" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="RX"/>
-<part name="R12" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="1k"/>
-<part name="R13" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="1k"/>
+<part name="R12" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
+<part name="R13" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
 <part name="C16" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="0.1uF"/>
 <part name="U$2" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="U$5" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
@@ -3389,9 +3378,9 @@ distributor RS Components</description>
 <part name="C7" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="10uF"/>
 <part name="C8" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="1uF"/>
 <part name="C9" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="1uF"/>
-<part name="R3" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="150"/>
+<part name="R3" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="120"/>
 <part name="D3" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="LED_GREEN"/>
-<part name="R4" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="150"/>
+<part name="R4" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
 <part name="D4" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="LED_GREEN"/>
 <part name="Q3" library="RobotRacing2019_Master" deviceset="PMOS_SOT23" device="" value="DMP2066LSN"/>
 <part name="C13" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="TBD"/>
@@ -3401,16 +3390,13 @@ distributor RS Components</description>
 </part>
 <part name="JP1" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1"/>
 <part name="JP2" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1"/>
-<part name="R14" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="R14" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
 <part name="FB1" library="RobotRacing2019_Master" deviceset="FERRITE_BEAD" device="" value="600ohm@100MHz"/>
-<part name="DEBUG/RACE" library="switch" library_urn="urn:adsk.eagle:library:380" deviceset="320-916" device="" package3d_urn="urn:adsk.eagle:package:27678/1"/>
 <part name="U$10" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
-<part name="R15" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10K"/>
-<part name="R17" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10K"/>
+<part name="R15" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="100k"/>
 <part name="JP3" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1"/>
-<part name="RC/AUTO" library="switch" library_urn="urn:adsk.eagle:library:380" deviceset="320-916" device="" package3d_urn="urn:adsk.eagle:package:27678/1"/>
 <part name="U$11" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
-<part name="R18" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10K"/>
+<part name="R18" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="100k"/>
 <part name="JP4" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1"/>
 <part name="J9" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="STEERING_ANGLE"/>
 <part name="J10" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="I2C_5V_4"/>
@@ -3479,10 +3465,8 @@ distributor RS Components</description>
 <part name="R26" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="100k"/>
 <part name="R25" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="100K"/>
 <part name="SUPPLY38" library="RobotRacing2019_Master" deviceset="GND" device=""/>
-<part name="OFF/ON" library="switch" library_urn="urn:adsk.eagle:library:380" deviceset="320-916" device="" package3d_urn="urn:adsk.eagle:package:27678/1"/>
-<part name="R19" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="10K"/>
 <part name="SUPPLY13" library="RobotRacing2019_Master" deviceset="GND" device=""/>
-<part name="R16" library="RobotRacing2019_Master" deviceset="RES0603" device=""/>
+<part name="R16" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="120"/>
 <part name="U$38" library="RobotRacing2019_Master" deviceset="BOARD_INFO" device=""/>
 <part name="J15" library="RobotRacing2019_Master" deviceset="PINHEAD-4-VERTICAL" device="" value="QUAD_ENCODER_2"/>
 <part name="SUPPLY46" library="RobotRacing2019_Master" deviceset="GND" device=""/>
@@ -3594,9 +3578,6 @@ distributor RS Components</description>
 <part name="VR2" library="RobotRacing2019_Master" deviceset="ADP121" device="" value="ADP121-AUJZ18"/>
 <part name="C25" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="1uF"/>
 <part name="C26" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="1uF"/>
-<part name="R45" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="150"/>
-<part name="D9" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="LED_GREEN"/>
-<part name="SUPPLY64" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY65" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY66" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY67" library="RobotRacing2019_Master" deviceset="GND" device=""/>
@@ -3628,6 +3609,10 @@ distributor RS Components</description>
 <part name="U$23" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="U$24" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="U$21" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
+<part name="U$29" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
+<part name="RC/AUTO" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
+<part name="S3" library="RobotRacing2019_Master" deviceset="M9040P" device="" package3d_urn="urn:adsk.eagle:package:27676/1" value="ON/OFF"/>
+<part name="DEBUD/RACE" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
 </parts>
 <sheets>
 <sheet>
@@ -3640,7 +3625,7 @@ UW Autonomous Robot Racing Team  2019
 <text x="-205.74" y="33.02" size="1.778" layer="119">POWER_DECOUPLING</text>
 <text x="-266.7" y="33.02" size="1.778" layer="119">reset [include trigger with BMS?]</text>
 <text x="-294.64" y="53.34" size="1.778" layer="119">BUTTON / RESET</text>
-<text x="-330.2" y="-40.64" size="1.778" layer="119">mode toggle [ RC / AUTO]</text>
+<text x="-322.58" y="-40.64" size="1.778" layer="119">mode toggle [ RC / AUTO]</text>
 <text x="-320.04" y="33.02" size="1.778" layer="119">power toggle</text>
 <text x="-269.24" y="-40.64" size="1.778" layer="119">mode toggle [ RACE / DEBUG]</text>
 <wire x1="-297.18" y1="129.54" x2="-342.9" y2="129.54" width="0.1524" layer="206"/>
@@ -3755,31 +3740,19 @@ VDD = MOS_OFF</text>
 <attribute name="NAME" x="-321.31" y="120.015" size="1.778" layer="95"/>
 <attribute name="VALUE" x="-321.31" y="106.68" size="1.778" layer="96"/>
 </instance>
-<instance part="DEBUG/RACE" gate="1" x="-261.62" y="-66.04" smashed="yes" rot="MR270">
-<attribute name="NAME" x="-247.015" y="-59.69" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="-264.16" y="-62.23" size="1.778" layer="96" rot="MR0"/>
-</instance>
 <instance part="U$10" gate="G$1" x="-271.78" y="-48.26" smashed="yes"/>
 <instance part="R15" gate="G$1" x="-271.78" y="-58.42" smashed="yes" rot="R90">
 <attribute name="NAME" x="-273.2786" y="-62.23" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="-268.478" y="-62.23" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="R17" gate="G$1" x="-271.78" y="-78.74" smashed="yes" rot="R90">
-<attribute name="NAME" x="-273.2786" y="-82.55" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="-268.478" y="-82.55" size="1.778" layer="96" rot="R90"/>
-</instance>
 <instance part="JP3" gate="A" x="-236.22" y="-71.12" smashed="yes">
 <attribute name="NAME" x="-242.57" y="-65.405" size="1.778" layer="95"/>
 <attribute name="VALUE" x="-242.57" y="-78.74" size="1.778" layer="96"/>
 </instance>
-<instance part="RC/AUTO" gate="1" x="-320.04" y="-66.04" smashed="yes" rot="MR270">
-<attribute name="NAME" x="-310.515" y="-59.69" size="1.778" layer="95" rot="MR0"/>
-<attribute name="VALUE" x="-322.58" y="-62.23" size="1.778" layer="96" rot="MR0"/>
-</instance>
-<instance part="U$11" gate="G$1" x="-330.2" y="-48.26" smashed="yes"/>
-<instance part="R18" gate="G$1" x="-330.2" y="-58.42" smashed="yes" rot="R90">
-<attribute name="NAME" x="-331.6986" y="-62.23" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="-326.898" y="-62.23" size="1.778" layer="96" rot="R90"/>
+<instance part="U$11" gate="G$1" x="-325.12" y="-50.8" smashed="yes"/>
+<instance part="R18" gate="G$1" x="-325.12" y="-60.96" smashed="yes" rot="R90">
+<attribute name="NAME" x="-326.6186" y="-64.77" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="-321.818" y="-64.77" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="JP4" gate="A" x="-294.64" y="-71.12" smashed="yes">
 <attribute name="NAME" x="-300.99" y="-65.405" size="1.778" layer="95"/>
@@ -3813,8 +3786,8 @@ VDD = MOS_OFF</text>
 <instance part="SUPPLY12" gate="GND" x="-292.1" y="73.66" smashed="yes">
 <attribute name="VALUE" x="-294.005" y="70.485" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY35" gate="GND" x="-271.78" y="-88.9" smashed="yes">
-<attribute name="VALUE" x="-273.685" y="-92.075" size="1.778" layer="96"/>
+<instance part="SUPPLY35" gate="GND" x="-271.78" y="-93.98" smashed="yes">
+<attribute name="VALUE" x="-273.685" y="-97.155" size="1.778" layer="96"/>
 </instance>
 <instance part="SUPPLY36" gate="GND" x="-5.08" y="137.16" smashed="yes" rot="R90">
 <attribute name="VALUE" x="-1.905" y="135.255" size="1.778" layer="96" rot="R90"/>
@@ -3882,16 +3855,8 @@ VDD = MOS_OFF</text>
 <instance part="SUPPLY38" gate="GND" x="-327.66" y="-12.7" smashed="yes">
 <attribute name="VALUE" x="-329.565" y="-15.875" size="1.778" layer="96"/>
 </instance>
-<instance part="OFF/ON" gate="1" x="-317.5" y="5.08" smashed="yes" rot="R90">
-<attribute name="NAME" x="-297.815" y="13.97" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="-320.04" y="1.27" size="1.778" layer="96" rot="R180"/>
-</instance>
-<instance part="R19" gate="G$1" x="-330.2" y="-78.74" smashed="yes" rot="R90">
-<attribute name="NAME" x="-331.6986" y="-82.55" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="-326.898" y="-82.55" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="SUPPLY13" gate="GND" x="-330.2" y="-88.9" smashed="yes">
-<attribute name="VALUE" x="-332.105" y="-92.075" size="1.778" layer="96"/>
+<instance part="SUPPLY13" gate="GND" x="-325.12" y="-93.98" smashed="yes">
+<attribute name="VALUE" x="-327.025" y="-97.155" size="1.778" layer="96"/>
 </instance>
 <instance part="U$38" gate="G$1" x="-101.6" y="101.6" smashed="yes"/>
 <instance part="C20" gate="G$1" x="-251.46" y="86.36" smashed="yes">
@@ -3912,19 +3877,19 @@ VDD = MOS_OFF</text>
 <instance part="SUPPLY48" gate="GND" x="-309.88" y="-12.7" smashed="yes">
 <attribute name="VALUE" x="-311.785" y="-15.875" size="1.778" layer="96"/>
 </instance>
-<instance part="C21" gate="G$1" x="-312.42" y="-78.74" smashed="yes">
-<attribute name="NAME" x="-311.404" y="-75.565" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-311.404" y="-82.931" size="1.778" layer="96"/>
+<instance part="C21" gate="G$1" x="-312.42" y="-83.82" smashed="yes">
+<attribute name="NAME" x="-311.404" y="-80.645" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-311.404" y="-88.011" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY50" gate="GND" x="-312.42" y="-88.9" smashed="yes">
-<attribute name="VALUE" x="-314.325" y="-92.075" size="1.778" layer="96"/>
+<instance part="SUPPLY50" gate="GND" x="-312.42" y="-93.98" smashed="yes">
+<attribute name="VALUE" x="-314.325" y="-97.155" size="1.778" layer="96"/>
 </instance>
-<instance part="C22" gate="G$1" x="-254" y="-78.74" smashed="yes">
-<attribute name="NAME" x="-252.984" y="-75.565" size="1.778" layer="95"/>
-<attribute name="VALUE" x="-252.984" y="-82.931" size="1.778" layer="96"/>
+<instance part="C22" gate="G$1" x="-254" y="-83.82" smashed="yes">
+<attribute name="NAME" x="-252.984" y="-80.645" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-252.984" y="-88.011" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY51" gate="GND" x="-254" y="-88.9" smashed="yes">
-<attribute name="VALUE" x="-255.905" y="-92.075" size="1.778" layer="96"/>
+<instance part="SUPPLY51" gate="GND" x="-254" y="-93.98" smashed="yes">
+<attribute name="VALUE" x="-255.905" y="-97.155" size="1.778" layer="96"/>
 </instance>
 <instance part="R28" gate="G$1" x="-165.1" y="33.02" smashed="yes" rot="R90">
 <attribute name="NAME" x="-166.5986" y="29.21" size="1.778" layer="95" rot="R90"/>
@@ -3948,6 +3913,18 @@ VDD = MOS_OFF</text>
 </instance>
 <instance part="U$44" gate="G$1" x="-172.72" y="104.14" smashed="yes"/>
 <instance part="U$34" gate="G$1" x="-259.08" y="119.38" smashed="yes"/>
+<instance part="RC/AUTO" gate="G$1" x="-325.12" y="-78.74" smashed="yes" rot="R270">
+<attribute name="NAME" x="-321.945" y="-73.66" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="-330.2" y="-73.66" size="1.778" layer="96" rot="R270"/>
+</instance>
+<instance part="S3" gate="1" x="-317.5" y="5.08" smashed="yes" rot="R90">
+<attribute name="NAME" x="-315.595" y="-1.27" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="-312.42" y="16.51" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="DEBUD/RACE" gate="G$1" x="-271.78" y="-78.74" smashed="yes" rot="R270">
+<attribute name="NAME" x="-268.605" y="-71.12" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="-276.86" y="-73.66" size="1.778" layer="96" rot="R270"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -3973,11 +3950,6 @@ VDD = MOS_OFF</text>
 <pinref part="D2" gate="G$1" pin="C"/>
 <wire x1="-292.1" y1="81.28" x2="-292.1" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="SUPPLY12" gate="GND" pin="GND"/>
-</segment>
-<segment>
-<pinref part="R17" gate="G$1" pin="1"/>
-<wire x1="-271.78" y1="-83.82" x2="-271.78" y2="-86.36" width="0.1524" layer="91"/>
-<pinref part="SUPPLY35" gate="GND" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C18" gate="G$1" pin="2"/>
@@ -4060,11 +4032,6 @@ VDD = MOS_OFF</text>
 <pinref part="SUPPLY38" gate="GND" pin="GND"/>
 </segment>
 <segment>
-<pinref part="R19" gate="G$1" pin="1"/>
-<wire x1="-330.2" y1="-83.82" x2="-330.2" y2="-86.36" width="0.1524" layer="91"/>
-<pinref part="SUPPLY13" gate="GND" pin="GND"/>
-</segment>
-<segment>
 <pinref part="C20" gate="G$1" pin="2"/>
 <wire x1="-251.46" y1="82.55" x2="-251.46" y2="76.2" width="0.1524" layer="91"/>
 <pinref part="SUPPLY49" gate="GND" pin="GND"/>
@@ -4076,13 +4043,23 @@ VDD = MOS_OFF</text>
 </segment>
 <segment>
 <pinref part="C21" gate="G$1" pin="2"/>
-<wire x1="-312.42" y1="-82.55" x2="-312.42" y2="-86.36" width="0.1524" layer="91"/>
+<wire x1="-312.42" y1="-87.63" x2="-312.42" y2="-91.44" width="0.1524" layer="91"/>
 <pinref part="SUPPLY50" gate="GND" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C22" gate="G$1" pin="2"/>
-<wire x1="-254" y1="-82.55" x2="-254" y2="-86.36" width="0.1524" layer="91"/>
+<wire x1="-254" y1="-87.63" x2="-254" y2="-91.44" width="0.1524" layer="91"/>
 <pinref part="SUPPLY51" gate="GND" pin="GND"/>
+</segment>
+<segment>
+<pinref part="RC/AUTO" gate="G$1" pin="1"/>
+<pinref part="SUPPLY13" gate="GND" pin="GND"/>
+<wire x1="-325.12" y1="-86.36" x2="-325.12" y2="-91.44" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="DEBUD/RACE" gate="G$1" pin="1"/>
+<pinref part="SUPPLY35" gate="GND" pin="GND"/>
+<wire x1="-271.78" y1="-86.36" x2="-271.78" y2="-91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -4307,18 +4284,17 @@ VDD = MOS_OFF</text>
 </net>
 <net name="N$26" class="0">
 <segment>
-<pinref part="DEBUG/RACE" gate="1" pin="O"/>
-<wire x1="-266.7" y1="-66.04" x2="-271.78" y2="-66.04" width="0.1524" layer="91"/>
-<wire x1="-271.78" y1="-66.04" x2="-271.78" y2="-63.5" width="0.1524" layer="91"/>
 <pinref part="R15" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$28" class="0">
-<segment>
-<pinref part="R17" gate="G$1" pin="2"/>
-<wire x1="-271.78" y1="-73.66" x2="-271.78" y2="-71.12" width="0.1524" layer="91"/>
-<pinref part="DEBUG/RACE" gate="1" pin="S"/>
-<wire x1="-271.78" y1="-71.12" x2="-266.7" y2="-71.12" width="0.1524" layer="91"/>
+<pinref part="DEBUD/RACE" gate="G$1" pin="2"/>
+<wire x1="-271.78" y1="-71.12" x2="-271.78" y2="-68.58" width="0.1524" layer="91"/>
+<pinref part="C22" gate="G$1" pin="1"/>
+<wire x1="-271.78" y1="-68.58" x2="-271.78" y2="-63.5" width="0.1524" layer="91"/>
+<wire x1="-254" y1="-80.01" x2="-254" y2="-68.58" width="0.1524" layer="91"/>
+<pinref part="JP3" gate="A" pin="1"/>
+<wire x1="-254" y1="-68.58" x2="-238.76" y2="-68.58" width="0.1524" layer="91"/>
+<junction x="-254" y="-68.58"/>
+<wire x1="-271.78" y1="-68.58" x2="-254" y2="-68.58" width="0.1524" layer="91"/>
+<junction x="-271.78" y="-68.58"/>
 </segment>
 </net>
 <net name="DIGITAL_TWO" class="0">
@@ -4331,21 +4307,17 @@ VDD = MOS_OFF</text>
 </net>
 <net name="N$31" class="0">
 <segment>
-<pinref part="RC/AUTO" gate="1" pin="P"/>
-<wire x1="-314.96" y1="-68.58" x2="-312.42" y2="-68.58" width="0.1524" layer="91"/>
 <pinref part="JP4" gate="A" pin="1"/>
 <pinref part="C21" gate="G$1" pin="1"/>
 <wire x1="-312.42" y1="-68.58" x2="-297.18" y2="-68.58" width="0.1524" layer="91"/>
-<wire x1="-312.42" y1="-74.93" x2="-312.42" y2="-68.58" width="0.1524" layer="91"/>
+<wire x1="-312.42" y1="-80.01" x2="-312.42" y2="-68.58" width="0.1524" layer="91"/>
 <junction x="-312.42" y="-68.58"/>
-</segment>
-</net>
-<net name="N$32" class="0">
-<segment>
-<pinref part="RC/AUTO" gate="1" pin="O"/>
-<wire x1="-325.12" y1="-66.04" x2="-330.2" y2="-66.04" width="0.1524" layer="91"/>
-<wire x1="-330.2" y1="-66.04" x2="-330.2" y2="-63.5" width="0.1524" layer="91"/>
+<wire x1="-325.12" y1="-71.12" x2="-325.12" y2="-68.58" width="0.1524" layer="91"/>
 <pinref part="R18" gate="G$1" pin="1"/>
+<pinref part="RC/AUTO" gate="G$1" pin="2"/>
+<wire x1="-325.12" y1="-68.58" x2="-325.12" y2="-66.04" width="0.1524" layer="91"/>
+<wire x1="-312.42" y1="-68.58" x2="-325.12" y2="-68.58" width="0.1524" layer="91"/>
+<junction x="-325.12" y="-68.58"/>
 </segment>
 </net>
 <net name="DIGITAL_ONE" class="0">
@@ -4388,11 +4360,11 @@ VDD = MOS_OFF</text>
 <segment>
 <wire x1="-312.42" y1="7.62" x2="-309.88" y2="7.62" width="0.1524" layer="91"/>
 <label x="-302.26" y="7.62" size="1.778" layer="95" xref="yes"/>
-<pinref part="OFF/ON" gate="1" pin="P"/>
 <pinref part="C19" gate="G$1" pin="1"/>
 <wire x1="-309.88" y1="7.62" x2="-302.26" y2="7.62" width="0.1524" layer="91"/>
 <wire x1="-309.88" y1="1.27" x2="-309.88" y2="7.62" width="0.1524" layer="91"/>
 <junction x="-309.88" y="7.62"/>
+<pinref part="S3" gate="1" pin="P"/>
 </segment>
 </net>
 <net name="N$45" class="0">
@@ -4400,7 +4372,7 @@ VDD = MOS_OFF</text>
 <wire x1="-322.58" y1="10.16" x2="-327.66" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="-327.66" y1="10.16" x2="-327.66" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="R26" gate="G$1" pin="1"/>
-<pinref part="OFF/ON" gate="1" pin="S"/>
+<pinref part="S3" gate="1" pin="S"/>
 </segment>
 </net>
 <net name="N$46" class="0">
@@ -4408,15 +4380,7 @@ VDD = MOS_OFF</text>
 <pinref part="R25" gate="G$1" pin="2"/>
 <wire x1="-327.66" y1="2.54" x2="-327.66" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="-327.66" y1="5.08" x2="-322.58" y2="5.08" width="0.1524" layer="91"/>
-<pinref part="OFF/ON" gate="1" pin="O"/>
-</segment>
-</net>
-<net name="N$33" class="0">
-<segment>
-<pinref part="R19" gate="G$1" pin="2"/>
-<wire x1="-330.2" y1="-73.66" x2="-330.2" y2="-71.12" width="0.1524" layer="91"/>
-<wire x1="-330.2" y1="-71.12" x2="-325.12" y2="-71.12" width="0.1524" layer="91"/>
-<pinref part="RC/AUTO" gate="1" pin="S"/>
+<pinref part="S3" gate="1" pin="O"/>
 </segment>
 </net>
 <net name="ACMP2_IN0" class="0">
@@ -4603,17 +4567,6 @@ VDD = MOS_OFF</text>
 <wire x1="-261.62" y1="93.98" x2="-259.08" y2="93.98" width="0.1524" layer="91"/>
 <junction x="-259.08" y="93.98"/>
 <junction x="-251.46" y="101.6"/>
-</segment>
-</net>
-<net name="N$4" class="0">
-<segment>
-<pinref part="C22" gate="G$1" pin="1"/>
-<wire x1="-254" y1="-74.93" x2="-254" y2="-68.58" width="0.1524" layer="91"/>
-<pinref part="DEBUG/RACE" gate="1" pin="P"/>
-<wire x1="-256.54" y1="-68.58" x2="-254" y2="-68.58" width="0.1524" layer="91"/>
-<pinref part="JP3" gate="A" pin="1"/>
-<wire x1="-254" y1="-68.58" x2="-238.76" y2="-68.58" width="0.1524" layer="91"/>
-<junction x="-254" y="-68.58"/>
 </segment>
 </net>
 <net name="FXIO_D1_/_ADC2_SE1" class="0">
@@ -5010,7 +4963,7 @@ VDD = MOS_OFF</text>
 <segment>
 <pinref part="U$11" gate="G$1" pin="+VDD"/>
 <pinref part="R18" gate="G$1" pin="2"/>
-<wire x1="-330.2" y1="-50.8" x2="-330.2" y2="-53.34" width="0.1524" layer="91"/>
+<wire x1="-325.12" y1="-53.34" x2="-325.12" y2="-55.88" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U$10" gate="G$1" pin="+VDD"/>
@@ -5578,17 +5531,6 @@ VDD = MOS_OFF</text>
 <attribute name="NAME" x="28.956" y="-45.085" size="1.778" layer="95"/>
 <attribute name="VALUE" x="28.956" y="-52.451" size="1.778" layer="96"/>
 </instance>
-<instance part="R45" gate="G$1" x="40.64" y="-48.26" smashed="yes" rot="R90">
-<attribute name="NAME" x="39.1414" y="-52.07" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="43.942" y="-52.07" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="D9" gate="G$1" x="40.64" y="-66.04" smashed="yes">
-<attribute name="NAME" x="44.196" y="-68.072" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="46.355" y="-68.072" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="SUPPLY64" gate="GND" x="40.64" y="-76.2" smashed="yes">
-<attribute name="VALUE" x="38.735" y="-79.375" size="1.778" layer="96"/>
-</instance>
 <instance part="SUPPLY65" gate="GND" x="-25.4" y="-58.42" smashed="yes">
 <attribute name="VALUE" x="-27.305" y="-61.595" size="1.778" layer="96"/>
 </instance>
@@ -5666,11 +5608,6 @@ VDD = MOS_OFF</text>
 <pinref part="C9" gate="G$1" pin="2"/>
 <pinref part="SUPPLY11" gate="GND" pin="GND"/>
 <wire x1="27.94" y1="-6.35" x2="27.94" y2="-10.16" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="D9" gate="G$1" pin="C"/>
-<wire x1="40.64" y1="-68.58" x2="40.64" y2="-73.66" width="0.1524" layer="91"/>
-<pinref part="SUPPLY64" gate="GND" pin="GND"/>
 </segment>
 <segment>
 <pinref part="C25" gate="G$1" pin="2"/>
@@ -5861,20 +5798,10 @@ VDD = MOS_OFF</text>
 <pinref part="U$20" gate="G$1" pin="+3V3"/>
 </segment>
 </net>
-<net name="N$42" class="0">
-<segment>
-<pinref part="D9" gate="G$1" pin="A"/>
-<pinref part="R45" gate="G$1" pin="1"/>
-<wire x1="40.64" y1="-60.96" x2="40.64" y2="-53.34" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="+1.8V" class="0">
 <segment>
 <pinref part="VR2" gate="G$1" pin="VOUT"/>
 <wire x1="17.78" y1="-40.64" x2="27.94" y2="-40.64" width="0.1524" layer="91"/>
-<pinref part="R45" gate="G$1" pin="2"/>
-<wire x1="27.94" y1="-40.64" x2="40.64" y2="-40.64" width="0.1524" layer="91"/>
-<wire x1="40.64" y1="-40.64" x2="40.64" y2="-43.18" width="0.1524" layer="91"/>
 <pinref part="C26" gate="G$1" pin="1"/>
 <wire x1="27.94" y1="-44.45" x2="27.94" y2="-40.64" width="0.1524" layer="91"/>
 <junction x="27.94" y="-40.64"/>
@@ -7429,7 +7356,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="76.2" y1="-208.28" x2="76.2" y2="-142.24" width="0.1524" layer="206"/>
 <wire x1="76.2" y1="-142.24" x2="7.62" y2="-142.24" width="0.1524" layer="206"/>
 <wire x1="-76.2" y1="-142.24" x2="-7.62" y2="-142.24" width="0.1524" layer="206"/>
-<text x="-12.7" y="119.38" size="1.778" layer="120">add GND point for oscilliscope </text>
+<text x="10.16" y="119.38" size="1.778" layer="120">add GND point for oscilliscope </text>
 <text x="-7.62" y="-218.44" size="3.81" layer="119">DIGITAL</text>
 <wire x1="-76.2" y1="-218.44" x2="-76.2" y2="-337.82" width="0.1524" layer="206"/>
 <wire x1="-76.2" y1="-337.82" x2="76.2" y2="-337.82" width="0.1524" layer="206"/>
@@ -7501,6 +7428,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <instance part="SUPPLY59" gate="GND" x="30.48" y="-330.2" smashed="yes">
 <attribute name="VALUE" x="28.575" y="-333.375" size="1.778" layer="96"/>
 </instance>
+<instance part="U$29" gate="G$1" x="-15.24" y="111.76" smashed="yes"/>
 </instances>
 <busses>
 </busses>
@@ -7956,10 +7884,14 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <label x="-2.54" y="96.52" size="1.778" layer="95"/>
 <wire x1="-7.62" y1="96.52" x2="-7.62" y2="111.76" width="0.1524" layer="91"/>
 <pinref part="U$47" gate="G$1" pin="+3V3"/>
+</segment>
+</net>
+<net name="+1.8V" class="0">
+<segment>
 <pinref part="JP6" gate="G$1" pin="5"/>
-<wire x1="17.78" y1="93.98" x2="-7.62" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="-7.62" y1="93.98" x2="-7.62" y2="96.52" width="0.1524" layer="91"/>
-<junction x="-7.62" y="96.52"/>
+<wire x1="17.78" y1="93.98" x2="-15.24" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="-15.24" y1="93.98" x2="-15.24" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="U$29" gate="G$1" pin="+1.8V"/>
 </segment>
 </net>
 </nets>
