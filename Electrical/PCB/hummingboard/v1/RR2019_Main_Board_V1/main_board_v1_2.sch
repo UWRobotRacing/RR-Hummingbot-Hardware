@@ -3500,7 +3500,6 @@ With round pins</description>
 <part name="SUPPLY56" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="U$46" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="JP6" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="POWER"/>
-<part name="U$47" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 <part name="JP7" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1" value="ADC_1"/>
 <part name="JP9" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="ADC_2"/>
 <part name="JP14" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X8" device="BIG" package3d_urn="urn:adsk.eagle:package:6240707/1" value="DIGITAL_1"/>
@@ -3613,6 +3612,9 @@ With round pins</description>
 <part name="RC/AUTO" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
 <part name="S3" library="RobotRacing2019_Master" deviceset="M9040P" device="" package3d_urn="urn:adsk.eagle:package:27676/1" value="ON/OFF"/>
 <part name="DEBUD/RACE" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
+<part name="JP12" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1" value="POWER2"/>
+<part name="SUPPLY16" library="RobotRacing2019_Master" deviceset="GND" device=""/>
+<part name="U$40" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7389,18 +7391,15 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <attribute name="NAME" x="57.15" y="-90.805" size="1.778" layer="95"/>
 <attribute name="VALUE" x="52.07" y="-116.84" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY56" gate="GND" x="0" y="78.74" smashed="yes">
-<attribute name="VALUE" x="-1.905" y="75.565" size="1.778" layer="96"/>
+<instance part="SUPPLY56" gate="GND" x="-25.4" y="78.74" smashed="yes">
+<attribute name="VALUE" x="-27.305" y="75.565" size="1.778" layer="96"/>
 </instance>
-<instance part="U$46" gate="G$1" x="0" y="114.3" smashed="yes">
-<attribute name="VALUE" x="-1.524" y="115.316" size="1.27" layer="96"/>
+<instance part="U$46" gate="G$1" x="-25.4" y="114.3" smashed="yes">
+<attribute name="VALUE" x="-26.924" y="115.316" size="1.27" layer="96"/>
 </instance>
-<instance part="JP6" gate="G$1" x="20.32" y="96.52" smashed="yes">
-<attribute name="NAME" x="13.97" y="107.315" size="1.778" layer="95"/>
-<attribute name="VALUE" x="13.97" y="81.28" size="1.778" layer="96"/>
-</instance>
-<instance part="U$47" gate="G$1" x="-7.62" y="111.76" smashed="yes">
-<attribute name="VALUE" x="-9.144" y="115.316" size="1.27" layer="96"/>
+<instance part="JP6" gate="G$1" x="-5.08" y="96.52" smashed="yes">
+<attribute name="NAME" x="-11.43" y="107.315" size="1.778" layer="95"/>
+<attribute name="VALUE" x="-11.43" y="81.28" size="1.778" layer="96"/>
 </instance>
 <instance part="JP7" gate="A" x="40.64" y="-160.02" smashed="yes">
 <attribute name="NAME" x="34.29" y="-154.305" size="1.778" layer="95"/>
@@ -7428,7 +7427,15 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <instance part="SUPPLY59" gate="GND" x="30.48" y="-330.2" smashed="yes">
 <attribute name="VALUE" x="28.575" y="-333.375" size="1.778" layer="96"/>
 </instance>
-<instance part="U$29" gate="G$1" x="-15.24" y="111.76" smashed="yes"/>
+<instance part="U$29" gate="G$1" x="-30.48" y="111.76" smashed="yes"/>
+<instance part="JP12" gate="A" x="33.02" y="96.52" smashed="yes">
+<attribute name="NAME" x="26.67" y="102.235" size="1.778" layer="95"/>
+<attribute name="VALUE" x="26.67" y="88.9" size="1.778" layer="96"/>
+</instance>
+<instance part="SUPPLY16" gate="GND" x="20.32" y="83.82" smashed="yes">
+<attribute name="VALUE" x="18.415" y="80.645" size="1.778" layer="96"/>
+</instance>
+<instance part="U$40" gate="G$1" x="20.32" y="109.22" smashed="yes"/>
 </instances>
 <busses>
 </busses>
@@ -7626,16 +7633,20 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <segment>
 <pinref part="SUPPLY56" gate="GND" pin="GND"/>
 <pinref part="JP6" gate="G$1" pin="7"/>
-<wire x1="0" y1="88.9" x2="0" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="0" y1="86.36" x2="0" y2="81.28" width="0.1524" layer="91"/>
-<wire x1="17.78" y1="88.9" x2="0" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="88.9" x2="-25.4" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="86.36" x2="-25.4" y2="81.28" width="0.1524" layer="91"/>
+<wire x1="-7.62" y1="88.9" x2="-25.4" y2="88.9" width="0.1524" layer="91"/>
 <pinref part="JP6" gate="G$1" pin="8"/>
-<wire x1="17.78" y1="86.36" x2="0" y2="86.36" width="0.1524" layer="91"/>
-<junction x="0" y="86.36"/>
+<wire x1="-7.62" y1="86.36" x2="-25.4" y2="86.36" width="0.1524" layer="91"/>
+<junction x="-25.4" y="86.36"/>
 <pinref part="JP6" gate="G$1" pin="6"/>
-<wire x1="17.78" y1="91.44" x2="0" y2="91.44" width="0.1524" layer="91"/>
-<wire x1="0" y1="91.44" x2="0" y2="88.9" width="0.1524" layer="91"/>
-<junction x="0" y="88.9"/>
+<wire x1="-7.62" y1="91.44" x2="-25.4" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="91.44" x2="-25.4" y2="88.9" width="0.1524" layer="91"/>
+<junction x="-25.4" y="88.9"/>
+<pinref part="JP6" gate="G$1" pin="5"/>
+<wire x1="-7.62" y1="93.98" x2="-25.4" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="93.98" x2="-25.4" y2="91.44" width="0.1524" layer="91"/>
+<junction x="-25.4" y="91.44"/>
 </segment>
 <segment>
 <pinref part="JP15" gate="G$1" pin="10"/>
@@ -7648,6 +7659,12 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="43.18" y1="-325.12" x2="30.48" y2="-325.12" width="0.1524" layer="91"/>
 <pinref part="SUPPLY59" gate="GND" pin="GND"/>
 <wire x1="30.48" y1="-325.12" x2="30.48" y2="-327.66" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="JP12" gate="A" pin="3"/>
+<wire x1="30.48" y1="93.98" x2="20.32" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="20.32" y1="93.98" x2="20.32" y2="86.36" width="0.1524" layer="91"/>
+<pinref part="SUPPLY16" gate="GND" pin="GND"/>
 </segment>
 </net>
 <net name="ADC1_SE6_/_ACMP1_IN6_/_FTM0_FLT3" class="0">
@@ -7862,36 +7879,39 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </net>
 <net name="+VDD" class="0">
 <segment>
-<wire x1="17.78" y1="101.6" x2="0" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="17.78" y1="104.14" x2="0" y2="104.14" width="0.1524" layer="91"/>
-<label x="2.54" y="106.68" size="1.778" layer="95"/>
-<wire x1="0" y1="101.6" x2="0" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="0" y1="104.14" x2="0" y2="111.76" width="0.1524" layer="91"/>
-<junction x="0" y="104.14"/>
+<wire x1="-7.62" y1="101.6" x2="-25.4" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="-7.62" y1="104.14" x2="-25.4" y2="104.14" width="0.1524" layer="91"/>
+<label x="-22.86" y="106.68" size="1.778" layer="95"/>
+<wire x1="-25.4" y1="101.6" x2="-25.4" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="104.14" x2="-25.4" y2="111.76" width="0.1524" layer="91"/>
+<junction x="-25.4" y="104.14"/>
 <pinref part="U$46" gate="G$1" pin="+VDD"/>
 <pinref part="JP6" gate="G$1" pin="1"/>
 <pinref part="JP6" gate="G$1" pin="2"/>
 <pinref part="JP6" gate="G$1" pin="3"/>
-<wire x1="17.78" y1="99.06" x2="0" y2="99.06" width="0.1524" layer="91"/>
-<wire x1="0" y1="99.06" x2="0" y2="101.6" width="0.1524" layer="91"/>
-<junction x="0" y="101.6"/>
-</segment>
-</net>
-<net name="+3V3" class="0">
-<segment>
-<wire x1="17.78" y1="96.52" x2="-7.62" y2="96.52" width="0.1524" layer="91"/>
-<pinref part="JP6" gate="G$1" pin="4"/>
-<label x="-2.54" y="96.52" size="1.778" layer="95"/>
-<wire x1="-7.62" y1="96.52" x2="-7.62" y2="111.76" width="0.1524" layer="91"/>
-<pinref part="U$47" gate="G$1" pin="+3V3"/>
+<wire x1="-7.62" y1="99.06" x2="-25.4" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="-25.4" y1="99.06" x2="-25.4" y2="101.6" width="0.1524" layer="91"/>
+<junction x="-25.4" y="101.6"/>
 </segment>
 </net>
 <net name="+1.8V" class="0">
 <segment>
-<pinref part="JP6" gate="G$1" pin="5"/>
-<wire x1="17.78" y1="93.98" x2="-15.24" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="-15.24" y1="93.98" x2="-15.24" y2="111.76" width="0.1524" layer="91"/>
 <pinref part="U$29" gate="G$1" pin="+1.8V"/>
+<pinref part="JP6" gate="G$1" pin="4"/>
+<wire x1="-30.48" y1="96.52" x2="-30.48" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="-7.62" y1="96.52" x2="-30.48" y2="96.52" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="+3V3" class="0">
+<segment>
+<pinref part="U$40" gate="G$1" pin="+3V3"/>
+<wire x1="20.32" y1="109.22" x2="20.32" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="JP12" gate="A" pin="1"/>
+<wire x1="20.32" y1="99.06" x2="30.48" y2="99.06" width="0.1524" layer="91"/>
+<pinref part="JP12" gate="A" pin="2"/>
+<wire x1="30.48" y1="96.52" x2="20.32" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="20.32" y1="96.52" x2="20.32" y2="99.06" width="0.1524" layer="91"/>
+<junction x="20.32" y="99.06"/>
 </segment>
 </net>
 </nets>
