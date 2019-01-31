@@ -3542,7 +3542,6 @@ With round pins</description>
 <part name="U$62" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="J16" library="RobotRacing2019_Master" deviceset="PINHEAD-2-VERTICAL" device="" value="7.2V_INPUT"/>
 <part name="C23" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="TBD"/>
-<part name="L3" library="RobotRacing2019_Master" deviceset="IND0603" device="" value="TBD"/>
 <part name="R42" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="TBD"/>
 <part name="SUPPLY42" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY40" library="RobotRacing2019_Master" deviceset="GND" device=""/>
@@ -3607,12 +3606,15 @@ With round pins</description>
 <part name="U$21" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="U$29" library="RobotRacing2019_Master" deviceset="+1V8" device=""/>
 <part name="RC/AUTO" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
-<part name="S3" library="RobotRacing2019_Master" deviceset="M9040P" device="" package3d_urn="urn:adsk.eagle:package:27676/1" value="ON/OFF"/>
-<part name="DEBUD/RACE" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
+<part name="S3" library="RobotRacing2019_Master" deviceset="M9040P" device="" package3d_urn="urn:adsk.eagle:package:27676/1" value="OFF/ON"/>
+<part name="DEBUG/RACE" library="special" library_urn="urn:adsk.eagle:library:367" deviceset="SW_DIP-1" device="" package3d_urn="urn:adsk.eagle:package:26661/1"/>
 <part name="JP12" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="PINHD-1X3" device="" package3d_urn="urn:adsk.eagle:package:6240710/1" value="POWER2"/>
 <part name="SUPPLY16" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="U$40" library="RobotRacing2019_Master" deviceset="+3V3" device=""/>
 <part name="U$44" library="RobotRacing2019_Master" deviceset="TEAM_LOGO" device=""/>
+<part name="R7" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="TBD"/>
+<part name="U$47" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
+<part name="SUPPLY20" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -3920,7 +3922,7 @@ VDD = MOS_OFF</text>
 <attribute name="NAME" x="-315.595" y="-1.27" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="-312.42" y="16.51" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="DEBUD/RACE" gate="G$1" x="-271.78" y="-78.74" smashed="yes" rot="R270">
+<instance part="DEBUG/RACE" gate="G$1" x="-271.78" y="-78.74" smashed="yes" rot="R270">
 <attribute name="NAME" x="-268.605" y="-71.12" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="-276.86" y="-73.66" size="1.778" layer="96" rot="R270"/>
 </instance>
@@ -4057,7 +4059,7 @@ VDD = MOS_OFF</text>
 <wire x1="-325.12" y1="-86.36" x2="-325.12" y2="-91.44" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="DEBUD/RACE" gate="G$1" pin="1"/>
+<pinref part="DEBUG/RACE" gate="G$1" pin="1"/>
 <pinref part="SUPPLY35" gate="GND" pin="GND"/>
 <wire x1="-271.78" y1="-86.36" x2="-271.78" y2="-91.44" width="0.1524" layer="91"/>
 </segment>
@@ -4285,7 +4287,7 @@ VDD = MOS_OFF</text>
 <net name="N$26" class="0">
 <segment>
 <pinref part="R15" gate="G$1" pin="1"/>
-<pinref part="DEBUD/RACE" gate="G$1" pin="2"/>
+<pinref part="DEBUG/RACE" gate="G$1" pin="2"/>
 <wire x1="-271.78" y1="-71.12" x2="-271.78" y2="-68.58" width="0.1524" layer="91"/>
 <pinref part="C22" gate="G$1" pin="1"/>
 <wire x1="-271.78" y1="-68.58" x2="-271.78" y2="-63.5" width="0.1524" layer="91"/>
@@ -7093,13 +7095,9 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <attribute name="NAME" x="120.396" y="18.415" size="1.778" layer="95"/>
 <attribute name="VALUE" x="120.396" y="11.049" size="1.778" layer="96"/>
 </instance>
-<instance part="L3" gate="G$1" x="109.22" y="22.86" smashed="yes" rot="R90">
-<attribute name="NAME" x="102.87" y="25.4" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="115.57" y="25.4" size="1.778" layer="96" rot="R90"/>
-</instance>
-<instance part="R42" gate="G$1" x="93.98" y="22.86" smashed="yes" rot="R180">
-<attribute name="NAME" x="97.79" y="21.3614" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="97.79" y="26.162" size="1.778" layer="96" rot="R180"/>
+<instance part="R42" gate="G$1" x="106.68" y="22.86" smashed="yes" rot="R180">
+<attribute name="NAME" x="110.49" y="21.3614" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="110.49" y="26.162" size="1.778" layer="96" rot="R180"/>
 </instance>
 <instance part="SUPPLY42" gate="GND" x="45.72" y="5.08" smashed="yes">
 <attribute name="VALUE" x="43.815" y="1.905" size="1.778" layer="96"/>
@@ -7119,6 +7117,14 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <instance part="U$25" gate="G$1" x="-86.36" y="33.02" smashed="yes"/>
 <instance part="U$32" gate="G$1" x="-17.78" y="33.02" smashed="yes"/>
 <instance part="U$63" gate="G$1" x="129.54" y="27.94" smashed="yes"/>
+<instance part="R7" gate="G$1" x="30.48" y="-121.92" smashed="yes" rot="R180">
+<attribute name="NAME" x="34.29" y="-123.4186" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="34.29" y="-118.618" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="U$47" gate="G$1" x="2.54" y="-127" smashed="yes"/>
+<instance part="SUPPLY20" gate="GND" x="38.1" y="-99.06" smashed="yes">
+<attribute name="VALUE" x="36.195" y="-102.235" size="1.778" layer="96"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -7173,6 +7179,13 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <pinref part="J11" gate="G$1" pin="3"/>
 <wire x1="-86.36" y1="17.78" x2="-76.2" y2="17.78" width="0.1524" layer="91"/>
 </segment>
+<segment>
+<pinref part="J21" gate="G$1" pin="1"/>
+<wire x1="50.8" y1="-106.68" x2="43.18" y2="-106.68" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="-106.68" x2="43.18" y2="-96.52" width="0.1524" layer="91"/>
+<pinref part="SUPPLY20" gate="GND" pin="GND"/>
+<wire x1="38.1" y1="-96.52" x2="43.18" y2="-96.52" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="FTM2_QD_PHA_/_TCLK2" class="0">
 <segment>
@@ -7204,16 +7217,16 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </net>
 <net name="FTM1_CH2_/_ADC0_SE12" class="0">
 <segment>
-<wire x1="50.8" y1="-106.68" x2="-20.32" y2="-106.68" width="0.1524" layer="91"/>
-<label x="-20.32" y="-106.68" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="J21" gate="G$1" pin="1"/>
+<label x="22.86" y="-109.22" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="J21" gate="G$1" pin="2"/>
+<wire x1="50.8" y1="-109.22" x2="22.86" y2="-109.22" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="FTM1_CH3_/_ADC0_SE13" class="0">
 <segment>
-<wire x1="50.8" y1="-109.22" x2="40.64" y2="-109.22" width="0.1524" layer="91"/>
-<label x="40.64" y="-109.22" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="J21" gate="G$1" pin="2"/>
+<label x="-20.32" y="-111.76" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="J21" gate="G$1" pin="3"/>
+<wire x1="50.8" y1="-111.76" x2="-20.32" y2="-111.76" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="FTM1_QD_PHA_/_ADC0_SE7" class="0">
@@ -7234,9 +7247,9 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </net>
 <net name="FTM1_CH6_/_ADC0_SE8" class="0">
 <segment>
-<label x="-20.32" y="-111.76" size="1.778" layer="95" rot="R180" xref="yes"/>
-<pinref part="J21" gate="G$1" pin="3"/>
-<wire x1="-20.32" y1="-111.76" x2="50.8" y2="-111.76" width="0.1524" layer="91"/>
+<label x="22.86" y="-114.3" size="1.778" layer="95" rot="R180" xref="yes"/>
+<pinref part="J21" gate="G$1" pin="4"/>
+<wire x1="50.8" y1="-114.3" x2="22.86" y2="-114.3" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="FTM1_CH7_/_ADC0_SE9" class="0">
@@ -7255,30 +7268,16 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="83.82" y1="-60.96" x2="81.28" y2="-60.96" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="PTA11_/_FTM1_CH5" class="0">
-<segment>
-<pinref part="J21" gate="G$1" pin="4"/>
-<wire x1="50.8" y1="-114.3" x2="40.64" y2="-114.3" width="0.1524" layer="91"/>
-<label x="40.64" y="-114.3" size="1.778" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
-<net name="ADC0_SE1_/_ACMP0_IN1_/_FTM1_CH1" class="0">
-<segment>
-<pinref part="J21" gate="G$1" pin="6"/>
-<wire x1="50.8" y1="-119.38" x2="40.64" y2="-119.38" width="0.1524" layer="91"/>
-<label x="40.64" y="-119.38" size="1.778" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
 <net name="+7.2V" class="0">
 <segment>
 <pinref part="C23" gate="G$1" pin="1"/>
 <wire x1="119.38" y1="22.86" x2="129.54" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="119.38" y1="19.05" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="L3" gate="G$1" pin="2"/>
-<wire x1="116.84" y1="22.86" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
 <junction x="119.38" y="22.86"/>
 <pinref part="U$63" gate="G$1" pin="+7.2V"/>
 <wire x1="129.54" y1="22.86" x2="129.54" y2="27.94" width="0.1524" layer="91"/>
+<pinref part="R42" gate="G$1" pin="1"/>
+<wire x1="111.76" y1="22.86" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U$25" gate="G$1" pin="+7.2V"/>
@@ -7296,15 +7295,8 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <net name="N$34" class="0">
 <segment>
 <pinref part="J16" gate="G$1" pin="1"/>
-<wire x1="78.74" y1="22.86" x2="88.9" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="78.74" y1="22.86" x2="101.6" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="R42" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$36" class="0">
-<segment>
-<pinref part="L3" gate="G$1" pin="1"/>
-<wire x1="101.6" y1="22.86" x2="99.06" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="R42" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="+VDD" class="0">
@@ -7319,6 +7311,22 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="96.52" y1="-53.34" x2="86.36" y2="-53.34" width="0.1524" layer="91"/>
 <wire x1="86.36" y1="-53.34" x2="86.36" y2="-43.18" width="0.1524" layer="91"/>
 <pinref part="U$39" gate="G$1" pin="+VDD"/>
+</segment>
+<segment>
+<pinref part="R7" gate="G$1" pin="2"/>
+<wire x1="7.62" y1="-121.92" x2="25.4" y2="-121.92" width="0.1524" layer="91"/>
+<wire x1="7.62" y1="-121.92" x2="7.62" y2="-129.54" width="0.1524" layer="91"/>
+<pinref part="U$47" gate="G$1" pin="+VDD"/>
+<wire x1="2.54" y1="-129.54" x2="7.62" y2="-129.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$4" class="0">
+<segment>
+<pinref part="R7" gate="G$1" pin="1"/>
+<wire x1="35.56" y1="-121.92" x2="43.18" y2="-121.92" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="-121.92" x2="43.18" y2="-119.38" width="0.1524" layer="91"/>
+<pinref part="J21" gate="G$1" pin="6"/>
+<wire x1="43.18" y1="-119.38" x2="50.8" y2="-119.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
