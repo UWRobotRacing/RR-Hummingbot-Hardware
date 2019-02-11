@@ -3542,7 +3542,6 @@ With round pins</description>
 <part name="U$62" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="J16" library="RobotRacing2019_Master" deviceset="PINHEAD-2-VERTICAL" device="" value="7.2V_INPUT"/>
 <part name="C23" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="TBD"/>
-<part name="R42" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="TBD"/>
 <part name="SUPPLY42" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY40" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="SUPPLY41" library="RobotRacing2019_Master" deviceset="GND" device=""/>
@@ -7095,10 +7094,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <attribute name="NAME" x="120.396" y="18.415" size="1.778" layer="95"/>
 <attribute name="VALUE" x="120.396" y="11.049" size="1.778" layer="96"/>
 </instance>
-<instance part="R42" gate="G$1" x="106.68" y="22.86" smashed="yes" rot="R180">
-<attribute name="NAME" x="110.49" y="21.3614" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="110.49" y="26.162" size="1.778" layer="96" rot="R180"/>
-</instance>
 <instance part="SUPPLY42" gate="GND" x="45.72" y="5.08" smashed="yes">
 <attribute name="VALUE" x="43.815" y="1.905" size="1.778" layer="96"/>
 </instance>
@@ -7276,8 +7271,8 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <junction x="119.38" y="22.86"/>
 <pinref part="U$63" gate="G$1" pin="+7.2V"/>
 <wire x1="129.54" y1="22.86" x2="129.54" y2="27.94" width="0.1524" layer="91"/>
-<pinref part="R42" gate="G$1" pin="1"/>
-<wire x1="111.76" y1="22.86" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
+<pinref part="J16" gate="G$1" pin="1"/>
+<wire x1="78.74" y1="22.86" x2="119.38" y2="22.86" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U$25" gate="G$1" pin="+7.2V"/>
@@ -7290,13 +7285,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="-17.78" y1="33.02" x2="-17.78" y2="22.86" width="0.1524" layer="91"/>
 <pinref part="J12" gate="G$1" pin="1"/>
 <wire x1="-17.78" y1="22.86" x2="-7.62" y2="22.86" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$34" class="0">
-<segment>
-<pinref part="J16" gate="G$1" pin="1"/>
-<wire x1="78.74" y1="22.86" x2="101.6" y2="22.86" width="0.1524" layer="91"/>
-<pinref part="R42" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="+VDD" class="0">
