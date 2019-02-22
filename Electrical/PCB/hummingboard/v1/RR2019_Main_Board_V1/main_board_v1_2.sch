@@ -3381,8 +3381,8 @@ With round pins</description>
 <part name="R4" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="300"/>
 <part name="D4" library="RobotRacing2019_Master" deviceset="LED0603" device="" value="LED_GREEN"/>
 <part name="Q3" library="RobotRacing2019_Master" deviceset="PMOS_SOT23" device="" value="DMP2066LSN"/>
-<part name="C13" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="TBD"/>
-<part name="L1" library="RobotRacing2019_Master" deviceset="IND0603" device="" value="TBD"/>
+<part name="C13" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="100ohm"/>
+<part name="L1" library="RobotRacing2019_Master" deviceset="IND0603" device="" value="4.7u"/>
 <part name="C17" library="RobotRacing2019_Master" deviceset="CAP0603" device="" value="0.1uF">
 <attribute name="SPICEPREFIX" value="C"/>
 </part>
@@ -3449,7 +3449,7 @@ With round pins</description>
 <part name="SUPPLY27" library="RobotRacing2019_Master" deviceset="GND" device=""/>
 <part name="J14" library="RobotRacing2019_Master" deviceset="PINHEAD-2-VERTICAL" device="" value="5V_INPUT"/>
 <part name="SUPPLY43" library="RobotRacing2019_Master" deviceset="GND" device=""/>
-<part name="R23" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="TBD"/>
+<part name="R23" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="0"/>
 <part name="U$35" library="RobotRacing2019_Master" deviceset="+VDD" device=""/>
 <part name="R24" library="RobotRacing2019_Master" deviceset="RES0603" device="" value="100K"/>
 <part name="S2" library="RobotRacing2019_Master" deviceset="TACT_SWITCH_6X6_SMT" device="" value="RESET"/>
@@ -5391,6 +5391,7 @@ VDD = MOS_OFF</text>
 <plain>
 <text x="-10.16" y="15.24" size="1.778" layer="97">5V - 3.3 V LDO </text>
 <text x="-7.62" y="-30.48" size="1.778" layer="97">5V - 1.8 V LDO </text>
+<text x="-114.3" y="15.24" size="1.778" layer="91">Cut off frequency: 1Mhz</text>
 </plain>
 <instances>
 <instance part="VR1" gate="G$1" x="0" y="0" smashed="yes">
