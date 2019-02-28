@@ -1,0 +1,7 @@
+ExitOnError 1
+r
+h
+loadfile "/Users/tsugumi/MCUXpresso_Code/hummingbot_firmware/Hummingbot_firmware/Debug/Hummingbot_firmware.hex"
+qc
+
+qc
