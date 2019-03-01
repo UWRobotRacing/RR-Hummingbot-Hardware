@@ -114,7 +114,7 @@ int main(void) {
 	uint8_t txbuff[] = "Hello \r\n";
 	//uint8_t rxbuff[20] = {0};
 
-	lpuartConfig.baudRate_Bps = 9600U;
+	lpuartConfig.baudRate_Bps = 115200U;
 	lpuartConfig.parityMode = kLPUART_ParityDisabled;
 	lpuartConfig.stopBitCount = kLPUART_OneStopBit;
 	lpuartConfig.txFifoWatermark = 0;
@@ -126,14 +126,12 @@ int main(void) {
 	//NOTE: clock frequency needs to match the clock register
 	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
 
-#endif
+
 
 	 ////////////////////////////////////////////////////////////
 	 ////////////////////////////////////////////////////////////
 
-
-	// TODO: make printf work
-	//PRINTF("Tsugumi was here!!\n");
+	char arr[10];
 
     while(1) {
 
@@ -157,6 +155,48 @@ int main(void) {
 
         //UART transmit (polling)
         LPUART_WriteBlocking(LPUART1, txbuff, sizeof(txbuff)-1);
+        SCANF("%s", arr);
+        PRINTF("%s", arr);
     }
+#endif
+
+    	/////////////////////////////////////////////////////
+    	//////////////* Button & Timer TEST CODE*/////////////////////
+        ///////////////////////////////////////////////////
+#if 0
+    gpio_pin_config_t button_config = {
+    		kGPIO_DigitalInput, 0,
+    	};
+    GPIO_PinInit(GPIOB, 1U, &button_config);
+
+    lpuart_config_t lpuartConfig;
+    uint8_t txbuff[] = "Hello \r\n";
+
+	lpuartConfig.baudRate_Bps = 115200U;
+	lpuartConfig.parityMode = kLPUART_ParityDisabled;
+	lpuartConfig.stopBitCount = kLPUART_OneStopBit;
+	lpuartConfig.txFifoWatermark = 0;
+	lpuartConfig.rxFifoWatermark = 1;
+	lpuartConfig.enableRx = true;
+	lpuartConfig.enableTx = true;
+
+	// TODO: optimize clock frequency
+	//NOTE: clock frequency needs to match the clock register
+	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
+
+    while(1) {
+    	if(!GPIO_PinRead(GPIOB, 1U)) {
+    		if(!GPIO_PinRead(GPIOC, 12U)) GPIO_PortSet(GPIOC, 1u << 12U);
+    		// TODO: Below prints garbage, investigate why
+//    		PRINTF("test\r\n");
+    		LPUART_WriteBlocking(LPUART1, txbuff, sizeof(txbuff)-1);
+    	} else {
+    		if(GPIO_PinRead(GPIOC, 12U)) GPIO_PortClear(GPIOC, 1u << 12U);
+    	}
+    	//delay .1 second
+		SysTick_DelayTicks(100U);
+    }
+
+#endif
     return 0 ;
 }
