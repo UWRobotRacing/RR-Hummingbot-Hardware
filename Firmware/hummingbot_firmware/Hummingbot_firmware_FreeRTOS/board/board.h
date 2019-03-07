@@ -42,17 +42,17 @@
  * @brief	The board name 
  */
 #define BOARD_NAME "hummingboard_v1"
-//
-///*! @brief The UART to use for debug messages. */
-//#define BOARD_DEBUG_UART_TYPE 		kSerialPort_Uart
-//#define BOARD_DEBUG_UART_BASEADDR 	(uint32_t) LPUART1
-//#define BOARD_DEBUG_UART_INSTANCE 	1U
-//#define BOARD_DEBUG_UART_CLKSRC 	kCLOCK_ScgSysPllAsyncDiv2Clk
-//#define BOARD_DEBUG_UART_CLK_FREQ 	CLOCK_GetIpFreq(kCLOCK_Lpuart1)
-//
-//#ifndef BOARD_DEBUG_UART_BAUDRATE
-//#define BOARD_DEBUG_UART_BAUDRATE 115200U
-//#endif /* BOARD_DEBUG_UART_BAUDRATE */
+
+/*! @brief The UART to use for debug messages. */
+#define BOARD_DEBUG_UART_TYPE 		kSerialPort_Uart
+#define BOARD_DEBUG_UART_BASEADDR 	(uint32_t) LPUART1
+#define BOARD_DEBUG_UART_INSTANCE 	1U
+#define BOARD_DEBUG_UART_CLKSRC 	kCLOCK_ScgSysPllAsyncDiv2Clk
+#define BOARD_DEBUG_UART_CLK_FREQ 	CLOCK_GetIpFreq(kCLOCK_Lpuart1)
+
+#ifndef BOARD_DEBUG_UART_BAUDRATE
+#define BOARD_DEBUG_UART_BAUDRATE 115200U
+#endif /* BOARD_DEBUG_UART_BAUDRATE */
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */

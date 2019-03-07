@@ -36,6 +36,8 @@
 /* This is a template for board specific configuration created by MCUXpresso IDE Project Wizard.*/
 
 #include <stdint.h>
+#include "fsl_common.h"
+#include "fsl_debug_console.h"
 #include "board.h"
 
 /**
@@ -43,9 +45,9 @@
  */
 void BOARD_InitDebugConsole(void) {
 	/* The user initialization should be placed here */
-//	CLOCK_SetIpSrc(kCLOCK_Lpuart1, kCLOCK_IpSrcSysPllAsync);
-//
-//	uint32_t uartClkSrcFreq = BOARD_DEBUG_UART_CLK_FREQ;
-//
-//	DbgConsole_Init(BOARD_DEBUG_UART_INSTANCE, BOARD_DEBUG_UART_BAUDRATE, BOARD_DEBUG_UART_TYPE, uartClkSrcFreq);
+	CLOCK_SetIpSrc(kCLOCK_Lpuart1, kCLOCK_IpSrcSysPllAsync);
+
+	uint32_t uartClkSrcFreq = BOARD_DEBUG_UART_CLK_FREQ;
+
+	DbgConsole_Init(BOARD_DEBUG_UART_INSTANCE, BOARD_DEBUG_UART_BAUDRATE, BOARD_DEBUG_UART_TYPE, uartClkSrcFreq);
 }
