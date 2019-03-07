@@ -120,7 +120,9 @@ outputs:
 - {id: PCC.PCC_LPI2C0_CLK.outFreq, value: 500 kHz}
 - {id: PCC.PCC_LPI2C1_CLK.outFreq, value: 500 kHz}
 - {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 12 MHz}
+- {id: PCC.PCC_LPUART0_CLK.outFreq, value: 16 MHz}
 - {id: PCC.PCC_LPUART1_CLK.outFreq, value: 16 MHz}
+- {id: PCC.PCC_LPUART2_CLK.outFreq, value: 16 MHz}
 - {id: PLLDIV2_CLK.outFreq, value: 16 MHz}
 - {id: SIRCDIV1_CLK.outFreq, value: 1 MHz}
 - {id: SIRCDIV2_CLK.outFreq, value: 500 kHz}
@@ -130,7 +132,9 @@ settings:
 - {id: PCC.PCC_LPI2C0_SEL.sel, value: SCG.SIRCDIV2_CLK}
 - {id: PCC.PCC_LPI2C1_SEL.sel, value: SCG.SIRCDIV2_CLK}
 - {id: PCC.PCC_LPSPI0_SEL.sel, value: SCG.FIRCDIV2_CLK}
+- {id: PCC.PCC_LPUART0_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_LPUART1_SEL.sel, value: SCG.PLLDIV2_CLK}
+- {id: PCC.PCC_LPUART2_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: SCG.FIRCDIV1.scale, value: '4', locked: true}
 - {id: SCG.FIRCDIV2.scale, value: '4', locked: true}
 - {id: SCG.PREDIV.scale, value: '3'}
@@ -214,7 +218,11 @@ void BOARD_BootClockRUN(void)
     CLOCK_SetIpSrc(kCLOCK_Lpi2c0, kCLOCK_IpSrcSircAsync);
     /* Set PCC LPI2C1 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpi2c1, kCLOCK_IpSrcSircAsync);
+    /* Set PCC LPUART0 selection */
+    CLOCK_SetIpSrc(kCLOCK_Lpuart0, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC LPUART1 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpuart1, kCLOCK_IpSrcSysPllAsync);
+    /* Set PCC LPUART2 selection */
+    CLOCK_SetIpSrc(kCLOCK_Lpuart2, kCLOCK_IpSrcSysPllAsync);
 }
 

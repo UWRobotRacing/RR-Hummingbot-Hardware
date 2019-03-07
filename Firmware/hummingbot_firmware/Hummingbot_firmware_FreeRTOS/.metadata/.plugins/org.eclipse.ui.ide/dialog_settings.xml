@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<list key="installedFeatures">
+		<item value="com.crt.lpcxpresso.feature.product:10.2.1.201807111214"/>
+		<item value="com.crt.lpcxpresso.feature:10.2.1.201807251003"/>
+		<item value="com.nxp.mcuxpresso.addons.feature:10.2.0.201807161014"/>
+		<item value="com.nxp.mcuxpresso.core.datamodels.feature:10.2.1.201807191204"/>
+		<item value="com.nxp.swtools.clocks.feature:4.1.0.201805101316"/>
+		<item value="com.nxp.swtools.framework.feature:4.1.0.201805101316"/>
+		<item value="com.nxp.swtools.periphs.feature:4.1.0.201805101316"/>
+		<item value="com.nxp.swtools.pins.feature:4.1.0.201805101316"/>
+		<item value="org.eclipse.cdt.debug.gdbjtag:9.4.3.201802261533"/>
+		<item value="org.eclipse.cdt.gdb:9.4.3.201802261533"/>
+		<item value="org.eclipse.cdt:9.4.3.201802261533"/>
+		<item value="org.eclipse.cvs:1.4.404.v20180330-0640"/>
+		<item value="org.eclipse.draw2d:3.10.100.201606061308"/>
+		<item value="org.eclipse.egit:4.9.2.201712150930-r"/>
+		<item value="org.eclipse.emf.common:2.13.0.v20170609-0707"/>
+		<item value="org.eclipse.emf.ecore:2.13.0.v20170609-0707"/>
+		<item value="org.eclipse.epp.mpc:1.6.4.v20180214-1810"/>
+		<item value="org.eclipse.gef:3.11.0.201606061308"/>
+		<item value="org.eclipse.help:2.2.104.v20180330-0640"/>
+		<item value="org.eclipse.jgit:4.9.2.201712150930-r"/>
+		<item value="org.eclipse.platform:4.7.3.v20180330-0640"/>
+		<item value="org.eclipse.rcp:4.7.3.v20180330-0640"/>
+		<item value="org.eclipse.tm.terminal.control.feature:4.3.0.201706140544"/>
+		<item value="org.eclipse.tm.terminal.feature:4.3.0.201706140544"/>
+		<item value="org.eclipse.tm.terminal.view.feature:4.3.0.201706140544"/>
+		<item value="org.eclipse.userstorage:1.1.0.v20170526-1605"/>
+		<item value="org.eclipse.wst.xml.xpath2.processor.feature:2.0.301.v201409111854"/>
+		<item value="org.eclipse.wst.xml_ui.feature:3.9.2.v201803221834"/>
+		<item value="org.eclipse.wst.xsl.feature:1.3.401.v201509231858"/>
+	</list>
+	<section name="ExternalProjectImportWizard">
+		<item value="false" key="WizardProjectsImportPage.STORE_NESTED_PROJECTS"/>
+		<item value="true" key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID"/>
+		<item value="false" key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED"/>
+		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="/Users/tsugumi/Documents/GitHub/RobotRacing2019-Hardware/Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS"/>
+		</list>
+		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
+			<item value=""/>
+		</list>
+	</section>
+	<section name="NewWizardAction">
+	</section>
+</section>

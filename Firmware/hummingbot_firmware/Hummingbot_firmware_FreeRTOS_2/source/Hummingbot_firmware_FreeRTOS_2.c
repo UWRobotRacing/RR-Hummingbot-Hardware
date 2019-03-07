@@ -39,10 +39,17 @@
 #include "clock_config.h"
 #include "MKE14F16.h"
 #include "fsl_debug_console.h"
+#include "fsl_device_registers.h"
+#include "fsl_gpio.h"
+#include "fsl_lpuart.h"
 /* TODO: insert other include files here. */
 #include "FreeRTOS.h"
 #include "task.h"
+
 /* TODO: insert other definitions and declarations here. */
+
+
+
 #define my_task_PRIORITY (configMAX_PRIORITIES - 1)
 
 static void my_task(void *pvParameters);
