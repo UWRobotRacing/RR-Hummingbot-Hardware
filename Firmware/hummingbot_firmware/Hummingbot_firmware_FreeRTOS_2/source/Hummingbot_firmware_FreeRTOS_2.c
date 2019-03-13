@@ -42,6 +42,10 @@
 #include "fsl_device_registers.h"
 #include "fsl_gpio.h"
 #include "fsl_lpuart.h"
+#include "fsl_lpspi.h"
+#include "fsl_lpspi_freertos.h"
+#include "fsl_lpi2c.h"
+#include "fsl_lpi2c_freertos.h"
 /* TODO: insert other include files here. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -65,7 +69,8 @@ static void my_task(void *pvParameters)
     for (;;)
     {
         PRINTF("Hello World! In new task!\r\n");
-        vTaskSuspend(NULL);
+//        vTaskSuspend(NULL);
+
     }
 }
 /*
@@ -78,6 +83,39 @@ int main(void) {
     BOARD_InitBootPeripherals();
   	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+
+	lpspi_rtos_handle_t spi0_handle;
+	lpspi_master_config_t spi0_master_config;
+	lpspi_transfer_t spi0_transfer;
+	LPSPI_MasterGetDefaultConfig(&spi0_master_config);
+	spi0_master_config.baudRate = 10000000U;
+	spi0_master_config.direction = kLPSPI_MsbFirst;
+	spi0_transfer.txData = calloc(20, sizeof(int));
+	spi0_transfer.txData[0] = 'f';
+	spi0_transfer.txData[1] = 'a';
+	spi0_transfer.txData[2] = 'f';
+	spi0_transfer.txData[3] = 'a';
+	spi0_transfer.rxData = malloc(sizeof(int) * 20);
+	LPSPI_RTOS_Init(&spi0_handle, LPSPI0, &spi0_master_config, 12000000U);
+	for(int i=0;i<10;i++) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
+	LPSPI_RTOS_Deinit(&spi0_handle);
+
+
+	lpi2c_rtos_handle_t i2c0_handle;
+	lpi2c_master_config_t i2c0_master_config;
+	lpi2c_master_transfer_t i2c0_transfer;
+	LPI2C_MasterGetDefaultConfig(&i2c0_master_config);
+	i2c0_transfer.flags = kLPI2C_TransferDefaultFlag;
+	i2c0_transfer.slaveAddress = 0x70;
+	i2c0_transfer.direction = kLPI2C_Write;
+	i2c0_transfer.subaddress = 0xfafa0000;
+	i2c0_transfer.subaddressSize = 2;
+	char i2c0_data[] = {'b', 'a', 'b', 'e'};
+	i2c0_transfer.data = (void *) i2c0_data;
+	i2c0_transfer.dataSize = 4 * sizeof(char);
+	LPI2C_RTOS_Init(&i2c0_handle, LPI2C0, &i2c0_master_config, 500000U);
+	for(int i=0;i<10;i++) LPI2C_RTOS_Transfer(&i2c0_handle, &i2c0_transfer);
+	LPI2C_RTOS_Deinit(&i2c0_handle);
 
     PRINTF("Hello World\n");
     if (xTaskCreate(my_task, "my_task", configMINIMAL_STACK_SIZE + 10, NULL, my_task_PRIORITY, NULL) != pdPASS)
