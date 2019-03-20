@@ -113,19 +113,19 @@ outputs:
 - {id: Bus_clock.outFreq, value: 48 MHz}
 - {id: Core_clock.outFreq, value: 48 MHz}
 - {id: FIRCDIV1_CLK.outFreq, value: 12 MHz}
-- {id: FIRCDIV2_CLK.outFreq, value: 12 MHz}
+- {id: FIRCDIV2_CLK.outFreq, value: 3 MHz}
 - {id: Flash_clock.outFreq, value: 24 MHz}
 - {id: LPO1KCLK.outFreq, value: 1 kHz}
 - {id: LPO_clock.outFreq, value: 128 kHz}
-- {id: PCC.PCC_LPI2C0_CLK.outFreq, value: 500 kHz}
-- {id: PCC.PCC_LPI2C1_CLK.outFreq, value: 500 kHz}
-- {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 12 MHz}
+- {id: PCC.PCC_LPI2C0_CLK.outFreq, value: 1 MHz}
+- {id: PCC.PCC_LPI2C1_CLK.outFreq, value: 1 MHz}
+- {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 3 MHz}
 - {id: PCC.PCC_LPUART0_CLK.outFreq, value: 16 MHz}
 - {id: PCC.PCC_LPUART1_CLK.outFreq, value: 16 MHz}
 - {id: PCC.PCC_LPUART2_CLK.outFreq, value: 16 MHz}
 - {id: PLLDIV2_CLK.outFreq, value: 16 MHz}
 - {id: SIRCDIV1_CLK.outFreq, value: 1 MHz}
-- {id: SIRCDIV2_CLK.outFreq, value: 500 kHz}
+- {id: SIRCDIV2_CLK.outFreq, value: 1 MHz}
 - {id: SIRC_CLK.outFreq, value: 8 MHz}
 - {id: System_clock.outFreq, value: 48 MHz}
 settings:
@@ -136,10 +136,10 @@ settings:
 - {id: PCC.PCC_LPUART1_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: PCC.PCC_LPUART2_SEL.sel, value: SCG.PLLDIV2_CLK}
 - {id: SCG.FIRCDIV1.scale, value: '4', locked: true}
-- {id: SCG.FIRCDIV2.scale, value: '4', locked: true}
+- {id: SCG.FIRCDIV2.scale, value: '16', locked: true}
 - {id: SCG.PREDIV.scale, value: '3'}
 - {id: SCG.SIRCDIV1.scale, value: '8', locked: true}
-- {id: SCG.SIRCDIV2.scale, value: '16', locked: true}
+- {id: SCG.SIRCDIV2.scale, value: '8', locked: true}
 - {id: SCG.SPLLDIV2.scale, value: '8', locked: true}
 - {id: SCG.SPLLSRCSEL.sel, value: SCG.FIRC}
 - {id: SCG_SPLLCSR_SPLLEN_CFG, value: Enabled}
@@ -169,14 +169,14 @@ const scg_sirc_config_t g_scgSircConfig_BOARD_BootClockRUN =
     {
         .enableMode = kSCG_SircEnable | kSCG_SircEnableInLowPower,/* Enable SIRC clock, Enable SIRC in low power mode */
         .div1 = kSCG_AsyncClkDivBy8,              /* Slow IRC Clock Divider 1: divided by 8 */
-        .div2 = kSCG_AsyncClkDivBy16,             /* Slow IRC Clock Divider 2: divided by 16 */
+        .div2 = kSCG_AsyncClkDivBy8,              /* Slow IRC Clock Divider 2: divided by 8 */
         .range = kSCG_SircRangeHigh,              /* Slow IRC high range clock (8 MHz) */
     };
 const scg_firc_config_t g_scgFircConfig_BOARD_BootClockRUN =
     {
         .enableMode = kSCG_FircEnable,            /* Enable FIRC clock */
         .div1 = kSCG_AsyncClkDivBy4,              /* Fast IRC Clock Divider 1: divided by 4 */
-        .div2 = kSCG_AsyncClkDivBy4,              /* Fast IRC Clock Divider 2: divided by 4 */
+        .div2 = kSCG_AsyncClkDivBy16,             /* Fast IRC Clock Divider 2: divided by 16 */
         .range = kSCG_FircRange48M,               /* Fast IRC is trimmed to 48MHz */
         .trimConfig = NULL,                       /* Fast IRC Trim disabled */
     };

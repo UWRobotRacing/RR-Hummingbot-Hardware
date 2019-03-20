@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2016-2018 NXP
  * All rights reserved.
@@ -59,9 +60,7 @@
 static void my_task(void *pvParameters);
 
 /*!
-
  * @brief Task responsible for printing of "Hello world." message.
-
  */
 
 static void my_task(void *pvParameters)
@@ -88,7 +87,9 @@ int main(void) {
 	lpspi_master_config_t spi0_master_config;
 	lpspi_transfer_t spi0_transfer;
 	LPSPI_MasterGetDefaultConfig(&spi0_master_config);
-	spi0_master_config.baudRate = 10000000U;
+	spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveHigh;
+	spi0_master_config.baudRate = 100000U;
+	spi0_master_config.whichPcs = kLPSPI_Pcs3;
 	spi0_master_config.direction = kLPSPI_MsbFirst;
 	spi0_transfer.txData = calloc(20, sizeof(int));
 	spi0_transfer.txData[0] = 'f';
@@ -96,8 +97,9 @@ int main(void) {
 	spi0_transfer.txData[2] = 'f';
 	spi0_transfer.txData[3] = 'a';
 	spi0_transfer.rxData = malloc(sizeof(int) * 20);
-	LPSPI_RTOS_Init(&spi0_handle, LPSPI0, &spi0_master_config, 12000000U);
-	for(int i=0;i<10;i++) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
+	LPSPI_RTOS_Init(&spi0_handle, LPSPI0, &spi0_master_config, 3000000U);
+//	for(int i=0;i<10;i++) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
+	while(1) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
 	LPSPI_RTOS_Deinit(&spi0_handle);
 
 
@@ -106,15 +108,17 @@ int main(void) {
 	lpi2c_master_transfer_t i2c0_transfer;
 	LPI2C_MasterGetDefaultConfig(&i2c0_master_config);
 	i2c0_transfer.flags = kLPI2C_TransferDefaultFlag;
-	i2c0_transfer.slaveAddress = 0x70;
+	i2c0_master_config.baudRate_Hz = 100000U;
+	i2c0_transfer.slaveAddress = 0x71;
 	i2c0_transfer.direction = kLPI2C_Write;
 	i2c0_transfer.subaddress = 0xfafa0000;
 	i2c0_transfer.subaddressSize = 2;
 	char i2c0_data[] = {'b', 'a', 'b', 'e'};
 	i2c0_transfer.data = (void *) i2c0_data;
 	i2c0_transfer.dataSize = 4 * sizeof(char);
-	LPI2C_RTOS_Init(&i2c0_handle, LPI2C0, &i2c0_master_config, 500000U);
-	for(int i=0;i<10;i++) LPI2C_RTOS_Transfer(&i2c0_handle, &i2c0_transfer);
+	LPI2C_RTOS_Init(&i2c0_handle, LPI2C0, &i2c0_master_config, 1000000U);
+//	for(int i=0;i<10;i++) LPI2C_RTOS_Transfer(&i2c0_handle, &i2c0_transfer);
+	while(1) LPI2C_RTOS_Transfer(&i2c0_handle, &i2c0_transfer);
 	LPI2C_RTOS_Deinit(&i2c0_handle);
 
     PRINTF("Hello World\n");
@@ -134,3 +138,5 @@ int main(void) {
     }
     return 0 ;
 }
+
+
