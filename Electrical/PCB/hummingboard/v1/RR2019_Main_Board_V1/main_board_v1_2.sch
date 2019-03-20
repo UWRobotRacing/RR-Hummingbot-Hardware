@@ -4190,13 +4190,6 @@ VDD = MOS_OFF</text>
 </net>
 <net name="SPI0_MISO" class="0">
 <segment>
-<pinref part="U$1" gate="G$1" pin="PTE2"/>
-<wire x1="7.62" y1="45.72" x2="7.62" y2="48.26" width="0.1524" layer="91"/>
-<label x="7.62" y="48.26" size="1.778" layer="95" rot="R90" xref="yes"/>
-</segment>
-</net>
-<net name="SPI0_MOSI" class="0">
-<segment>
 <pinref part="U$1" gate="G$1" pin="PTE1"/>
 <wire x1="-12.7" y1="45.72" x2="-12.7" y2="48.26" width="0.1524" layer="91"/>
 <label x="-12.7" y="48.26" size="1.778" layer="95" rot="R90" xref="yes"/>
@@ -5048,6 +5041,13 @@ VDD = MOS_OFF</text>
 <junction x="-187.96" y="7.62"/>
 <pinref part="U$4" gate="G$1" pin="+VDD"/>
 <label x="-185.42" y="7.62" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="SPI0_MOSI" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="PTE2"/>
+<wire x1="7.62" y1="45.72" x2="7.62" y2="48.26" width="0.1524" layer="91"/>
+<label x="7.62" y="48.26" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 </nets>
@@ -6297,7 +6297,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <junction x="-93.98" y="-15.24"/>
 </segment>
 </net>
-<net name="SPI0_MOSI" class="0">
+<net name="SPI0_MISO" class="0">
 <segment>
 <pinref part="Q5" gate="G$1" pin="D"/>
 <pinref part="R34" gate="G$1" pin="1"/>
@@ -6308,7 +6308,7 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <label x="-10.16" y="10.16" size="1.778" layer="95" xref="yes"/>
 </segment>
 </net>
-<net name="3V3_SPI0_MOSI" class="0">
+<net name="3V3_SPI0_MISO" class="0">
 <segment>
 <pinref part="Q5" gate="G$1" pin="S"/>
 <wire x1="-25.4" y1="-2.54" x2="-25.4" y2="-15.24" width="0.1524" layer="91"/>
@@ -6318,29 +6318,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <label x="-43.18" y="-15.24" size="1.778" layer="95" rot="R180" xref="yes"/>
 <wire x1="-35.56" y1="-15.24" x2="-43.18" y2="-15.24" width="0.1524" layer="91"/>
 <junction x="-35.56" y="-15.24"/>
-</segment>
-</net>
-<net name="SPI0_MISO" class="0">
-<segment>
-<pinref part="R37" gate="G$1" pin="1"/>
-<pinref part="Q6" gate="G$1" pin="D"/>
-<label x="48.26" y="10.16" size="1.778" layer="95" xref="yes"/>
-<wire x1="35.56" y1="12.7" x2="35.56" y2="10.16" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="10.16" x2="35.56" y2="7.62" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="10.16" x2="35.56" y2="10.16" width="0.1524" layer="91"/>
-<junction x="35.56" y="10.16"/>
-</segment>
-</net>
-<net name="3V3_SPI0_MISO" class="0">
-<segment>
-<pinref part="Q6" gate="G$1" pin="S"/>
-<wire x1="35.56" y1="-2.54" x2="35.56" y2="-15.24" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="-15.24" x2="22.86" y2="-15.24" width="0.1524" layer="91"/>
-<pinref part="R39" gate="G$1" pin="1"/>
-<wire x1="22.86" y1="-15.24" x2="15.24" y2="-15.24" width="0.1524" layer="91"/>
-<wire x1="22.86" y1="-12.7" x2="22.86" y2="-15.24" width="0.1524" layer="91"/>
-<junction x="22.86" y="-15.24"/>
-<label x="15.24" y="-15.24" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SPI0_PCS0" class="0">
@@ -6405,6 +6382,29 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <junction x="86.36" y="0"/>
 <pinref part="U$57" gate="G$1" pin="+3V3"/>
 <label x="76.2" y="2.54" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="3V3_SPI0_MOSI" class="0">
+<segment>
+<pinref part="Q6" gate="G$1" pin="S"/>
+<wire x1="35.56" y1="-2.54" x2="35.56" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="-15.24" x2="22.86" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="R39" gate="G$1" pin="1"/>
+<wire x1="22.86" y1="-15.24" x2="15.24" y2="-15.24" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="-12.7" x2="22.86" y2="-15.24" width="0.1524" layer="91"/>
+<junction x="22.86" y="-15.24"/>
+<label x="15.24" y="-15.24" size="1.778" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="SPI0_MOSI" class="0">
+<segment>
+<pinref part="R37" gate="G$1" pin="1"/>
+<pinref part="Q6" gate="G$1" pin="D"/>
+<label x="48.26" y="10.16" size="1.778" layer="95" xref="yes"/>
+<wire x1="35.56" y1="12.7" x2="35.56" y2="10.16" width="0.1524" layer="91"/>
+<wire x1="35.56" y1="10.16" x2="35.56" y2="7.62" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="10.16" x2="35.56" y2="10.16" width="0.1524" layer="91"/>
+<junction x="35.56" y="10.16"/>
 </segment>
 </net>
 </nets>
@@ -6927,14 +6927,6 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 </net>
 <net name="3V3_SPI0_MOSI" class="0">
 <segment>
-<wire x1="-33.02" y1="25.4" x2="-10.16" y2="25.4" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="25.4" x2="-10.16" y2="40.64" width="0.1524" layer="91"/>
-<label x="-10.16" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
-<pinref part="J6" gate="G$1" pin="4"/>
-</segment>
-</net>
-<net name="3V3_SPI0_MISO" class="0">
-<segment>
 <wire x1="-33.02" y1="22.86" x2="-5.08" y2="22.86" width="0.1524" layer="91"/>
 <wire x1="-5.08" y1="22.86" x2="-5.08" y2="40.64" width="0.1524" layer="91"/>
 <label x="-5.08" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
@@ -6949,20 +6941,12 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <pinref part="J6" gate="G$1" pin="6"/>
 </segment>
 </net>
-<net name="SPI0_MISO" class="0">
+<net name="SPI0_MOSI" class="0">
 <segment>
 <wire x1="7.62" y1="22.86" x2="7.62" y2="40.64" width="0.1524" layer="91"/>
 <label x="7.62" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
 <pinref part="J5" gate="G$1" pin="5"/>
 <wire x1="7.62" y1="22.86" x2="40.64" y2="22.86" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="SPI0_MOSI" class="0">
-<segment>
-<wire x1="12.7" y1="25.4" x2="12.7" y2="40.64" width="0.1524" layer="91"/>
-<label x="12.7" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
-<pinref part="J5" gate="G$1" pin="4"/>
-<wire x1="40.64" y1="25.4" x2="12.7" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SPI0_SCK" class="0">
@@ -7022,6 +7006,22 @@ if AD0 -&gt; VDD, i2c address = 1101001</text>
 <wire x1="48.26" y1="-111.76" x2="48.26" y2="-106.68" width="0.1524" layer="91"/>
 <junction x="48.26" y="-111.76"/>
 <pinref part="U$21" gate="G$1" pin="+1.8V"/>
+</segment>
+</net>
+<net name="SPI0_MISO" class="0">
+<segment>
+<wire x1="12.7" y1="25.4" x2="12.7" y2="40.64" width="0.1524" layer="91"/>
+<label x="12.7" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
+<pinref part="J5" gate="G$1" pin="4"/>
+<wire x1="40.64" y1="25.4" x2="12.7" y2="25.4" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="3V3_SPI0_MISO" class="0">
+<segment>
+<wire x1="-33.02" y1="25.4" x2="-10.16" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="25.4" x2="-10.16" y2="40.64" width="0.1524" layer="91"/>
+<label x="-10.16" y="40.64" size="1.778" layer="95" rot="R90" xref="yes"/>
+<pinref part="J6" gate="G$1" pin="4"/>
 </segment>
 </net>
 </nets>
