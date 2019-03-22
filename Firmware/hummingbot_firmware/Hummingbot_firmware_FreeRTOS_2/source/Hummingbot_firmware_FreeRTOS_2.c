@@ -50,15 +50,14 @@
 #include "fsl_lpi2c_freertos.h"
 
 //libraries for nRF24L01 test
-#include <HB19_nRF24L01.h>
-
+#include "HB19_nRF24L01.h"
+#include "HB19_RF24.h"
 
 //libraries for freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
 
 /* TODO: insert other definitions and declarations here. */
-
 
 
 #define my_task_PRIORITY (configMAX_PRIORITIES - 1)

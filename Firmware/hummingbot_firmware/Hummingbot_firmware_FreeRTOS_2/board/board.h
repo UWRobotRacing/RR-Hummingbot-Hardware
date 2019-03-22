@@ -42,8 +42,6 @@
  * @brief	The board name 
  */
 #define BOARD_NAME "hummingboard_v1"
-
-#ifndef HUMMINGBOARD_V1
 #define HUMMINGBOARD_V1
 
 /*! @brief The UART to use for debug messages. */
