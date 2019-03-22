@@ -33,6 +33,7 @@
  * @file    Hummingbot_firmware_FreeRTOS.c
  * @brief   Application entry point.
  */
+
 #include <stdio.h>
 #include "board.h"
 #include "peripherals.h"
@@ -47,7 +48,12 @@
 #include "fsl_lpspi_freertos.h"
 #include "fsl_lpi2c.h"
 #include "fsl_lpi2c_freertos.h"
-/* TODO: insert other include files here. */
+
+//libraries for nRF24L01 test
+#include <HB19_nRF24L01.h>
+
+
+//libraries for freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -83,14 +89,24 @@ int main(void) {
   	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
 
+	//:TODO : change the SPI communication freq
+	//:TODO : try to modify the communication timing (CS trigger before CLK)
+
 	lpspi_rtos_handle_t spi0_handle;
 	lpspi_master_config_t spi0_master_config;
 	lpspi_transfer_t spi0_transfer;
+
 	LPSPI_MasterGetDefaultConfig(&spi0_master_config);
-	spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveHigh;
-	spi0_master_config.baudRate = 100000U;
+
+	//initialize the SPI0 configuration
+	spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveLow;
+	spi0_master_config.baudRate = 500000U;
+	spi0_master_config.pcsToSckDelayInNanoSec = 1000000000 / spi0_master_config.baudRate * 2;
+	spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000 / spi0_master_config.baudRate * 2;
+	spi0_master_config.betweenTransferDelayInNanoSec = 1000000000 / spi0_master_config.baudRate * 2;
 	spi0_master_config.whichPcs = kLPSPI_Pcs3;
 	spi0_master_config.direction = kLPSPI_MsbFirst;
+
 	spi0_transfer.txData = calloc(20, sizeof(int));
 	spi0_transfer.txData[0] = 'f';
 	spi0_transfer.txData[1] = 'a';
@@ -101,7 +117,6 @@ int main(void) {
 //	for(int i=0;i<10;i++) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
 	while(1) LPSPI_RTOS_Transfer(&spi0_handle, &spi0_transfer);
 	LPSPI_RTOS_Deinit(&spi0_handle);
-
 
 	lpi2c_rtos_handle_t i2c0_handle;
 	lpi2c_master_config_t i2c0_master_config;

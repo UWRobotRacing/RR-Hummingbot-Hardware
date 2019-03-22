@@ -43,6 +43,9 @@
  */
 #define BOARD_NAME "hummingboard_v1"
 
+#ifndef HUMMINGBOARD_V1
+#define HUMMINGBOARD_V1
+
 /*! @brief The UART to use for debug messages. */
 #define BOARD_DEBUG_UART_TYPE 		kSerialPort_Uart
 #define BOARD_DEBUG_UART_BASEADDR 	(uint32_t) LPUART1
