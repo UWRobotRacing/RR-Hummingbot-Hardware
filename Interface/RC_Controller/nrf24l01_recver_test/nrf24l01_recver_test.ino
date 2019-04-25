@@ -7,17 +7,27 @@ Servo myservo;
 Servo firstESC;
 
 RF24 radio(7, 8); // CE, CSN
-const byte address[6] = "00001";
-uint16_t buf[2]= {0};
+const byte address[6] = "00101";
 
-#define SPECIAL_PATTERN_MASK  0xFAE0 //lower 2 bit has to be 00,   
+// 32 bit Frame Structure
+uint32_t buf = 0;//[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
+#define MASK_UNIQUE_PATTERN   0xA4 //8 bit for flags (6 pattern + 2 bit switch state)  101001XX  
+#define MASK_BUFFER_FLAG      0x000000FF  
+#define MASK_BUFFER_SPD       0x000FFF00
+#define MASK_BUFFER_STEER     0xFFF00000   
+//macro access funcs
+#define GET_SPD(x)    (((x)&MASK_BUFFER_SPD)>>8)
+#define GET_STEER(x)  (((x)&MASK_BUFFER_STEER)>>20)
+#define GET_FLAG(x)   ((x)&MASK_BUFFER_FLAG)
 
 void setup() {
   Serial.begin(9600);
   radio.begin();
-//  radio.setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+  radio.setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+  radio.enableAckPayload();
+  radio.setRetries(3,2);
   radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_HIGH);
   radio.startListening();
 //  myservo.attach(9);
 //  firstESC.attach(11);
@@ -26,10 +36,10 @@ void setup() {
 void loop() {
   if (radio.available()) {
     radio.read(&buf, sizeof(buf));
-    uint8_t temp1 = ((buf[1]) & 0xFF);
-    uint8_t temp2 = buf[1]>>8;
-    uint16_t temp3 = (buf[0]);
-    if(temp3&SPECIAL_PATTERN_MASK){
+    uint16_t temp1 = GET_SPD(buf);//spd
+    uint16_t temp2 = GET_STEER(buf);//steer
+    uint8_t temp3 =  GET_FLAG(buf);
+    if(temp3&MASK_UNIQUE_PATTERN){
       Serial.print(temp1,DEC);  
       Serial.print(",");  
       Serial.print(temp2,DEC);
