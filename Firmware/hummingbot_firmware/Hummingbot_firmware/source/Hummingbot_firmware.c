@@ -95,7 +95,7 @@ int main(void) {
      GPIO_PinInit(GPIOC, 13U, &led_config);
 
      /* Init LPUART Clock. */
-    // CLOCK_SetLpuartClock(1U);
+//     CLOCK_SetLpuartClock(1U);
 
 	/* Set systick reload value to generate 1ms interrupt */
 	if(SysTick_Config(SystemCoreClock / 1000U))
@@ -105,6 +105,22 @@ int main(void) {
 		}
 	}
 
+	while(0) {
+ 	//delay 1 second
+     SysTick_DelayTicks(1000U);
+
+     //toggle LED
+     GPIO_PortToggle(GPIOC, 1u << 12U);
+
+     //delay 1 second
+     SysTick_DelayTicks(1000U);
+
+    // if (kStatus_LPUART_TxBusy)
+     GPIO_PortToggle(GPIOC, 1u << 13U);
+	}
+
+
+//
 	/////////////////////////////////////////////////////
 	//////////////* UART TEST CODE*/////////////////////
     ///////////////////////////////////////////////////
@@ -132,6 +148,20 @@ int main(void) {
 	 ////////////////////////////////////////////////////////////
 
 	char arr[10];
+
+	//delay 1 second
+    SysTick_DelayTicks(1000U);
+
+    //toggle LED
+    GPIO_PortToggle(GPIOC, 1u << 12U);
+
+    //delay 1 second
+    SysTick_DelayTicks(1000U);
+
+   // if (kStatus_LPUART_TxBusy)
+    GPIO_PortToggle(GPIOC, 1u << 13U);
+
+
 
     while(1) {
 

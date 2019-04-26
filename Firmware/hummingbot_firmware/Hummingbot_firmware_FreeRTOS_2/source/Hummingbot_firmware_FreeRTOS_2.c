@@ -34,12 +34,15 @@
  * @brief   Application entry point.
  */
 
+
 #include <stdio.h>
 #include "board.h"
 #include "peripherals.h"
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MKE14F16.h"
+
+
 #include "fsl_debug_console.h"
 #include "fsl_device_registers.h"
 #include "fsl_gpio.h"
@@ -48,6 +51,9 @@
 #include "fsl_lpspi_freertos.h"
 #include "fsl_lpi2c.h"
 #include "fsl_lpi2c_freertos.h"
+#include "fsl_ftm.h"
+
+#include "servo2.h"
 
 //libraries for nRF24L01 test
 #include "HB19_nRF24L01.h"
@@ -56,27 +62,72 @@
 //libraries for freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
+#include "FreeRTOSConfig.h"
 
 /* TODO: insert other definitions and declarations here. */
 
-
+//#define xDelay (TickType_t)(1000 / portTICK_PERIOD_MS)
 #define my_task_PRIORITY (configMAX_PRIORITIES - 1)
+#define SERVO_PWM_PERIOD_MS				(uint8_t)20
+#define SERVO_PWM_PERIOD_TICKS  		(int) (SERVO_PWM_PERIOD_MS * ((float)configTICK_RATE_HZ / 1000))
+//#define SERVO_MIN_DUTY_CYCLE			(float)5.54 //55 degrees
+//#define SERVO_MAX_DUTY_CYCLE			(float)8.64 //115 degrees
+#define SERVO_MIN_ANGLE					60
+#define SERVO_MAX_ANGLE					110
+#define SERVO_CONVERT_CYCLE_2_TICKS(c) 	(int)(SERVO_PWM_PERIOD_MS * (c / (float) 100) * (configTICK_RATE_HZ / 1000))
+//#define SERVO_MIN_TICKS					(int)(SERVO_PWM_PERIOD_MS * (SERVO_MIN_DUTY_CYCLE / 100) * (configTICK_RATE_HZ / 1000))
+//#define SERVO_MAX_TICKS					(int)(SERVO_PWM_PERIOD_MS * (SERVO_MAX_DUTY_CYCLE / 100) * (configTICK_RATE_HZ / 1000))
+#define SERVO_CONVERT_ANGLE_2_TICKS(a) 	SERVO_CONVERT_CYCLE_2_TICKS((float)(2.6986 + (7.346 - 2.6986) / 90.0 * a))
+#define SERVO_MIN_TICKS					SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MIN_ANGLE)
+#define SERVO_MAX_TICKS					SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MAX_ANGLE)
 
-static void my_task(void *pvParameters);
+
+static void task_steering_control(void *pvParameters);
+static void task_uart_receive(void *pvParameters);
 
 /*!
- * @brief Task responsible for printing of "Hello world." message.
+ * @brief Task responsible for outputting PWM signal to steering servo.
  */
-
-static void my_task(void *pvParameters)
+static void task_steering_control(void *pvParameters)
 {
-    for (;;)
-    {
-        PRINTF("Hello World! In new task!\r\n");
-//        vTaskSuspend(NULL);
+//    for (;;)
+//    {
+//        PRINTF("Hello World! In new task!\r\n");
+////        vTaskSuspend(NULL);
+//
+//   }
 
-    }
+	// WARNING: DO NOT ADD ANY vTaskDelay() OTHER THAN FOR
+	// PWM PURPOSES (PULL HIGH AND LOW) AS THAT WILL MESS UP THE PWM CYCLE.
+
+//	PRINTF(" ticks: %d\r\n", SERVO_CONVERT_ANGLE_2_TICKS(115));
+//	PRINTF("Max ticks: %d\r\n", SERVO_MAX_TICKS);
+//	PRINTF(" ticks: %d\r\n", SERVO_CONVERT_ANGLE_2_TICKS(55));
+//		PRINTF("Min ticks: %d\r\n", SERVO_MIN_TICKS);
+//	PRINTF("20ms ticks: %d\r\n", SERVO_PWM_PERIOD_TICKS);
+	while(1) {
+//		for(int angle = 60; angle <=60; angle += 5) {
+//		for(int angle = 60; angle <=85; angle += 5) {
+		//toggle High
+		GPIO_PortSet(GPIOC, 1u << 7U);
+
+		//delay ticks
+//		vTaskDelay(SERVO_CONVERT_ANGLE_2_TICKS(angle));
+		vTaskDelay(SERVO_MIN_TICKS);
+//		vTaskDelay(1000);
+
+		// Toggle Low
+		GPIO_PortClear(GPIOC, 1u << 7U);
+
+		 //delay 20ms - ticks
+//		 vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
+		vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_MIN_TICKS);
+//		 vTaskDelay(5000);
+	}
+
 }
+
+
 /*
  * @brief   Application entry point.
  */
@@ -85,9 +136,131 @@ int main(void) {
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
+    BOARD_BootClockRUN();
   	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+//
+//	/* Set systick reload value to generate 1ms interrupt */
+//	if(SysTick_Config(SystemCoreClock / 1000U))
+//	{
+//		while(1)
+//		{
+//		}
+//	}
 
+
+
+	/* Define the init structure for the output LED pin*/
+	gpio_pin_config_t led_config = {
+		kGPIO_DigitalOutput, 0,
+	};
+	/* Init output LED GPIO. */
+//	 GPIO_PinInit(GPIOC, 12U, &led_config);
+//	 GPIO_PinInit(GPIOC, 13U, &led_config);
+
+	// INIT Servo PWM GPIO Pin
+	 GPIO_PinInit(GPIOC, 7U, &led_config);
+
+//
+//	 lpuart_config_t lpuartConfig;
+//	 uint8_t txbuff[] = "Hello \r\n";
+//	 //uint8_t rxbuff[20] = {0};
+//
+//	 lpuartConfig.baudRate_Bps = 115200U;
+//	 lpuartConfig.parityMode = kLPUART_ParityDisabled;
+//	 lpuartConfig.stopBitCount = kLPUART_OneStopBit;
+//	 lpuartConfig.txFifoWatermark = 0;
+//	 lpuartConfig.rxFifoWatermark = 1;
+//	 lpuartConfig.enableRx = true;
+//	 lpuartConfig.enableTx = true;
+//
+//	 // TODO: optimize clock frequency
+//	 //NOTE: clock frequency needs to match the clock register
+//	 LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
+//	 LPUART_EnableInterrupts(LPUART1,kLPUART_RxActiveEdgeInterruptEnable);
+
+
+
+	if (xTaskCreate(task_steering_control, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, my_task_PRIORITY, NULL) != pdPASS)
+	{
+		PRINTF("Task creation failed!.\r\n");
+		while (1);
+	}
+
+	vTaskStartScheduler();
+#if 0
+
+
+	Init_PWM_Servo();
+	int arr[5] = {15, 30, 45, 60, 75};
+	while(1) {
+		int i=0;
+		for(;i<5; i++) {
+			//delay 0.5 second
+			vTaskDelay( xDelay );
+			PWM_Servo_Angle(arr[i]);
+		}
+	}
+#endif
+#if 0
+	//Servo angles can be stored in a look-up table for steering the car.
+	float table[4] = { 0.0,
+	   30.0,
+	   60.0,
+	   90.0
+	};
+
+	float Steering_Angle = table[1];
+	PWM_Servo_Angle(Steering_Angle); // Call PWM_Servo_Angle function.
+
+#endif
+
+#if 0
+	uint8_t ADDR[] = { 'n', 'R', 'F', '2', '4' }; // the address for RX pipe
+	nRF24_DisableAA(0xFF); // disable ShockBurst
+	nRF24_SetRFChannel(90); // set RF channel to 2490MHz
+	nRF24_SetDataRate(nRF24_DR_2Mbps); // 2Mbit/s data rate
+	nRF24_SetCRCScheme(nRF24_CRC_1byte); // 1-byte CRC scheme
+	nRF24_SetAddrWidth(5); // address width is 5 bytes
+	nRF24_SetAddr(nRF24_PIPE1, ADDR); // program pipe address
+	nRF24_SetRXPipe(nRF24_PIPE1, nRF24_AA_OFF, 10); // enable RX pipe#1 with Auto-ACK: disabled, payload length: 10 bytes
+	nRF24_SetOperationalMode(nRF24_MODE_RX); // switch transceiver to the RX mode
+	nRF24_SetPowerMode(nRF24_PWR_UP); // wake-up transceiver (in case if it sleeping)
+	// then pull CE pin to HIGH, and the nRF24 will start a receive...
+#endif
+#if 0
+	ftm_config_t ftmConfigStruct;
+		ftm_chnl_pwm_signal_param_t pwmParam;
+		ftm_pwm_level_select_t pwmLevel = kFTM_HighTrue;
+
+		/* Initialize FTM module. */
+		FTM_GetDefaultConfig(&ftmConfigStruct);
+		ftmConfigStruct.extTriggers = kFTM_Chnl0Trigger; /* Enable to output the trigger. */
+		FTM_Init(FTM0, &ftmConfigStruct);
+
+		/* Configure ftm params with frequency 24kHz */
+		pwmParam.chnlNumber = kFTM_Chnl_0;
+		pwmParam.level = pwmLevel;
+		pwmParam.dutyCyclePercent = 15; /* Percent: 0 - 100. */
+		pwmParam.firstEdgeDelayPercent = 0U;
+		FTM_SetupPwm(FTM0, &pwmParam, 1U, kFTM_CenterAlignedPwm, 10000U, CLOCK_GetFreq(kCLOCK_CoreSysClk));
+
+
+	//	FTM_SetupOutputCompare(FTM0, 0U, kFTM_ToggleOnMatch, 0xFFFF);
+		FTM_StartTimer(FTM0, kFTM_SystemClock);
+
+	//    while (1)
+//    {
+//        GETCHAR();
+//        /*
+//        * Start the FTM counter and finally trigger the ADC12's conversion.
+//        * FTM_StartTimer() -> PDB PreTrigger -> ADC conversion done interrupt -> FTM_StopTimer().
+//        */
+//        FTM_StartTimer(FTM0, DEMO_FTM_COUNTER_CLOCK_SOURCE);
+//        FTM_SetupOutputCompare(FTM0, 0U, kFTM_ToggleOnMatch, 0xFFFF);
+//    }
+#endif
+#ifdef SPI
 	//:TODO : change the SPI communication freq
 	//:TODO : try to modify the communication timing (CS trigger before CLK)
 
@@ -150,6 +323,7 @@ int main(void) {
     while(1) {
         i++ ;
     }
+#endif
     return 0 ;
 }
 
