@@ -1,3 +1,4 @@
 .DS_Store
  
 Firmware/hummingbot_firmware/Hummingbot_firmware/Debug/
+*.vscode
