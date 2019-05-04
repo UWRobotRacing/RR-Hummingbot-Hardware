@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding= "UTF-8" ?>
-<configuration name="" version="1.4" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4.xsd" uuid="c8572152-0cda-4dd6-835e-5864a4a8e3d7" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<configuration name="" version="1.5" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.5 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.5.xsd" uuid="c8572152-0cda-4dd6-835e-5864a4a8e3d7" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <common>
       <processor>MKE14F512xxx16</processor>
       <package>MKE14F512VLL16</package>
@@ -15,13 +15,13 @@
       <generate_extended_information>false</generate_extended_information>
    </preferences>
    <tools>
-      <pins name="Pins" version="4.1" enabled="true" update_project_code="true">
+      <pins name="Pins" version="5.0" enabled="true" update_project_code="true">
          <pins_profile>
-            <processor_version>4.0.0</processor_version>
+            <processor_version>5.0.0</processor_version>
          </pins_profile>
          <functions_list>
             <function name="BOARD_InitPins">
-               <description>Configures pin routing and optionally pin electrical features.&amp;lt;br/&amp;gt;</description>
+               <description>Configures pin routing and optionally pin electrical features.</description>
                <options>
                   <callFromInitBoot>true</callFromInitBoot>
                   <coreID>core0</coreID>
@@ -253,9 +253,9 @@
             </function>
          </functions_list>
       </pins>
-      <clocks name="Clocks" version="4.1" enabled="true" update_project_code="true">
+      <clocks name="Clocks" version="5.0" enabled="true" update_project_code="true">
          <clocks_profile>
-            <processor_version>4.0.0</processor_version>
+            <processor_version>5.0.0</processor_version>
          </clocks_profile>
          <clock_configurations>
             <clock_configuration name="BOARD_BootClockRUN">

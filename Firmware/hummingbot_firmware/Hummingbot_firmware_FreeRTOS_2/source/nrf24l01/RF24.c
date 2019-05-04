@@ -7,10 +7,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nrf24l01.h"
-#include "RF24.h"
 
 #include "fsl_lpspi_cmsis.h"
+
+#include "common.h"
+#include "nrf24l01.h"
+#include "RF24.h"
 
 /*******************************************************************************
  * Definitions
@@ -54,7 +56,7 @@ volatile bool isTransferCompleted = false;
 volatile bool isMasterOnTransmit = false;
 volatile bool isMasterOnReceive = false;
 
-
+uint32_t txDelay;
 /****************************************************************************/
 static const uint8_t child_pipe[6] =
 {
@@ -128,6 +130,13 @@ uint8_t SPI_Transfer_Lite(uint8_t data){
 /*******************************************************************************
  * Private Functions
  ******************************************************************************/
+void delay_ms(uint16_t time){
+ for (uint8_t i = 0; i < SystemCoreClock / 1000U*time; i++)
+ {
+     __NOP();
+ }
+}
+
 void ce(bool level)
 {
   if (SAME_GPIO(ce_pin, csn_pin))
@@ -183,6 +192,7 @@ uint8_t write_register_buf(uint8_t reg, const uint8_t* buf, uint8_t len)
     /* Wait transfer complete */
     while (!isTransferCompleted);
     /* TODO: Do we need>???? Delay to wait slave is ready */
+    delay_ms(5);
     return true;
   }
   return false;
@@ -274,9 +284,37 @@ uint8_t read_payload(void* buf, uint8_t data_len)
   return status;
 }
 
+
+void powerUp(void)
+{
+   uint8_t cfg = read_register(NRF_CONFIG);
+
+   // if not powered up then power up and wait for the radio to initialize
+   if (!(cfg & _BV(PWR_UP))){
+      write_register(NRF_CONFIG, cfg | _BV(PWR_UP));
+
+      // For nRF24L01+ to go from power down mode to TX or RX mode it must first pass through stand-by mode.
+    // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
+    // the CEis set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
+      delay_ms(5U);
+   }
+}
+
+
+void closeReadingPipe( uint8_t pipe )
+{
+  write_register(EN_RXADDR,read_register(EN_RXADDR) & ~_BV(pgm_read_byte(&child_pipe_enable[pipe])));
+}
+
 /*******************************************************************************
  * Public Functions
  ******************************************************************************/
+void RF24_toggle_features(void)
+{
+  SPI_Transfer_Lite( ACTIVATE );
+  SPI_Transfer_Lite( 0x73 );
+}
+
 void RF24_onDestroy(void){
   ce_pin = NULL;
   csn_pin = NULL;
@@ -331,7 +369,7 @@ void RF24_powerUp(void)
       // For nRF24L01+ to go from power down mode to TX or RX mode it must first pass through stand-by mode.
 	  // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
 	  // the CEis set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
-      delay(5);
+      delay_ms(5U);
    }
 }
 
@@ -341,11 +379,7 @@ void RF24_enableAckPayload(void)
   // enable ack payload and dynamic payload features
   //
 
-    //toggle_features();
     write_register(FEATURE,read_register(FEATURE) | _BV(EN_ACK_PAY) | _BV(EN_DPL) );
-
-  IF_SERIAL_DEBUG(printf("FEATURE=%i\r\n",read_register(FEATURE)));
-
   //
   // Enable dynamic payload on pipes 0 & 1
   //
@@ -355,7 +389,7 @@ void RF24_enableAckPayload(void)
 }
 
 
-void RF24_openReadingPipe(uint8_t child, uint64_t address)
+void RF24_openReadingPipe(uint8_t child, const uint8_t *address)
 {
   // If this is pipe 0, cache the address.  This is needed because
   // openWritingPipe() will overwrite the pipe 0 address, so
@@ -367,7 +401,7 @@ void RF24_openReadingPipe(uint8_t child, uint64_t address)
   if (child <= 6)
   {
     // For pipes 2-5, only write the LSB
-    write_register_buf(pgm_read_byte(&child_pipe[child]), (const uint8_t*)(&address), ((child < 2)?addr_width:1));
+    write_register_buf(pgm_read_byte(&child_pipe[child]), (address), ((child < 2)?addr_width:1));
     write_register(pgm_read_byte(&child_payload_size[child]), payload_size);
 
     // Note it would be more efficient to set all of the bits for all open
@@ -394,9 +428,7 @@ void RF24_setPALevel(uint8_t level)
 
 void RF24_startListening(void)
 {
- #if !defined (RF24_TINY) && ! defined(LITTLEWIRE)
   powerUp();
- #endif
   write_register(NRF_CONFIG, read_register(NRF_CONFIG) | _BV(PRIM_RX));
   write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
   ce(HIGH);
@@ -424,6 +456,45 @@ bool RF24_available(void)
 
 
 /****************************************************************************/
+bool RF24_setDataRate(rf24_datarate_e speed)
+{
+  bool result = false;
+  uint8_t setup = read_register(RF_SETUP) ;
+
+  // HIGH and LOW '00' is 1Mbs - our default
+  setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH)) ;
+
+  txDelay=250;
+
+  if( speed == RF24_250KBPS )
+  {
+    // Must set the RF_DR_LOW to 1; RF_DR_HIGH (used to be RF_DR) is already 0
+    // Making it '10'.
+    setup |= _BV( RF_DR_LOW ) ;
+    txDelay=450;
+
+  }
+  else
+  {
+    // Set 2Mbs, RF_DR (RF_DR_HIGH) is set 1
+    // Making it '01'
+    if ( speed == RF24_2MBPS )
+    {
+      setup |= _BV(RF_DR_HIGH);
+      txDelay=190;
+    }
+  }
+  write_register(RF_SETUP,setup);
+
+  // Verify our result
+  if ( read_register(RF_SETUP) == setup )
+  {
+    result = true;
+  }
+  return result;
+}
+
+
 bool RF24_init(void)
 {
   uint8_t setup=0;
@@ -441,7 +512,7 @@ bool RF24_init(void)
   csn(HIGH);
   
   // Delay 5ms (for the chip to settle)
-  delay( 5 ) ; 
+  delay_ms( 5U ) ;
 
   // Reset NRF_CONFIG and enable 16-bit CRC.
   write_register( NRF_CONFIG, 0x0C ) ;
@@ -449,10 +520,10 @@ bool RF24_init(void)
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
   // sizes must never be used. See documentation for a more complete explanation.
-  setRetries(5,15);
+  RF24_setRetries(5,15);
 
   // check for connected module and if this is a p nRF24l01 variant
-  if( setDataRate( RF24_250KBPS ) )
+  if(RF24_setDataRate( RF24_250KBPS ) )
   {
     p_variant = true ;
   }
@@ -464,13 +535,13 @@ bool RF24_init(void)
   
   // Then set the data rate to the slowest (and most reliable) speed supported by all
   // hardware.
-  setDataRate( RF24_1MBPS ) ;
+  RF24_setDataRate( RF24_1MBPS ) ;
 
   // Initialize CRC and request 2-byte (16bit) CRC
   //setCRCLength( RF24_CRC_16 ) ;
 
   // Disable dynamic payloads, to match dynamic_payloads_enabled setting - Reset value is 0
-  toggle_features();
+  RF24_toggle_features();
   write_register(FEATURE,0 );
   write_register(DYNPD,0);
   dynamic_payloads_enabled = false;

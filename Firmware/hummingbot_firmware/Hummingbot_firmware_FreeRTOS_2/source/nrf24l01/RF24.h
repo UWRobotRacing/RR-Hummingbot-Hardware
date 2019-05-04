@@ -8,7 +8,6 @@
 #ifndef RF24_H_
   #define RF24_H_
 
-  #include "common.h"
   /************* Macro Preference ***************/
   #define USE_SPI_BUFFER        0
   #define RF24_SPI_TRANSACTIONS 1
@@ -43,6 +42,7 @@
   /************* Public Functions ***************/
   void RF24_onDestroy(void);
   /**
+   * @param _cepin The pin attached to Chip Enable on the RF module
    * @param _cspin The pin attached to Chip Select
    * @param spispeed For RPi, the SPI speed in MHZ ie: BCM2835_SPI_SPEED_8MHZ
    */
@@ -50,13 +50,13 @@
 
   uint8_t RF24_getChannel(void);
   bool RF24_isChipConnected(void);
-  bool setDataRate(rf24_datarate_e speed);
+  bool RF24_setDataRate(rf24_datarate_e speed);
   void RF24_setRetries(uint8_t delay, uint8_t count);
   void RF24_powerDown(void);
   void RF24_powerUp(void);
 
   void RF24_enableAckPayload(void);
-  void RF24_openReadingPipe(uint8_t child, uint64_t address);
+  void RF24_openReadingPipe(uint8_t child, const uint8_t *address);
   void RF24_setPALevel(uint8_t level);
   void RF24_startListening(void);
 

@@ -41,7 +41,8 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MKE14F16.h"
-
+#include "common.h"
+#include "nrf24l01/RF24.h"
 
 #include "fsl_debug_console.h"
 #include "fsl_device_registers.h"
@@ -53,15 +54,15 @@
 #include "fsl_lpi2c_freertos.h"
 #include "fsl_ftm.h"
 
-#include "nrf24l01/RF24.h"
-
 //libraries for freeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
 #include "FreeRTOSConfig.h"
 
 /* TODO: insert other definitions and declarations here. */
-
+/************* Macro Preference ***************/
+#define USE_NRF24L01          1
+/************* Definitions ***************/
 //#define xDelay (TickType_t)(1000 / portTICK_PERIOD_MS)
 #define my_task_PRIORITY (configMAX_PRIORITIES - 1)
 
@@ -192,6 +193,33 @@ static void task_steering_control(void *pvParameters)
 }
 #endif
 
+/***
+ *
+ *  CONFIGURATION nrf24l01
+ *
+ ***/
+#if USE_NRF24L01
+  // TODO: To be determined
+  pin_t nrf24_ce = {GPIOB, 0};
+  // TODO: whats difference btwn PortB and GPIOB
+  pin_t nrf24_csn = {GPIOB, 0};
+  const char address[6] = "00101";
+
+  /****** Macros ****/
+  // TODO: These should be under rf24_common.h shared btwn arduino&m4
+  // 32 bit Frame Structure
+  uint32_t buf = 0;//[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
+  #define MASK_UNIQUE_PATTERN   0xA4 //8 bit for flags (6 pattern + 2 bit switch state)  101001XX
+  #define MASK_BUFFER_FLAG      0x000000FF
+  #define MASK_BUFFER_SPD       0x000FFF00
+  #define MASK_BUFFER_STEER     0xFFF00000
+  //macro access funcs
+  #define GET_SPD(x)    (((x)&MASK_BUFFER_SPD)>>8)
+  #define GET_STEER(x)  (((x)&MASK_BUFFER_STEER)>>20)
+  #define GET_FLAG(x)   ((x)&MASK_BUFFER_FLAG)
+#endif
+
+
 /*
  * @brief   Application entry point.
  */
@@ -202,7 +230,7 @@ int main(void) {
     BOARD_InitBootPeripherals();
     BOARD_BootClockRUN();
   	/* Init FSL debug console. */
-	BOARD_InitDebugConsole();
+    BOARD_InitDebugConsole();
 //
 //	/* Set systick reload value to generate 1ms interrupt */
 //	if(SysTick_Config(SystemCoreClock / 1000U))
@@ -211,8 +239,16 @@ int main(void) {
 //		{
 //		}
 //	}
-
-
+#if USE_NRF24L01
+    RF24_config(&nrf24_ce, &nrf24_csn);
+    RF24_init();
+    RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+    RF24_enableAckPayload();
+    RF24_setRetries(3,2);
+    RF24_openReadingPipe(0, address);
+    RF24_setPALevel(RF24_PA_HIGH);
+    RF24_startListening();
+#endif
 
 	/* Define the init structure for the output LED pin*/
 	gpio_pin_config_t servo_motor_gpio_config = {

@@ -17,5 +17,4 @@ typedef struct{
 
 #define SAME_GPIO(x, y) (((x)->port==(y)->port) && ((x)->pin==(y)->pin))
 
-
 #endif /* COMMON_H_ */
