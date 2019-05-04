@@ -53,11 +53,7 @@
 #include "fsl_lpi2c_freertos.h"
 #include "fsl_ftm.h"
 
-#include "servo2.h"
-
-//libraries for nRF24L01 test
-#include "HB19_nRF24L01.h"
-#include "HB19_RF24.h"
+#include "nrf24l01/RF24.h"
 
 //libraries for freeRTOS
 #include "FreeRTOS.h"
