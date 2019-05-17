@@ -98,12 +98,14 @@
 #define ESC_CONVERT_MS_HIGH_2_TICKS(ms) 	ESC_CONVERT_CYCLE_2_TICKS(ms/(float)ESC_PWM_PERIOD_MS)
 
 static void task_steering_control(void *pvParameters);
-static void task_motor_control(void *pvParameters);
-static void task_uart_receive(void *pvParameters);
-
+#if 0
+  static void task_motor_control(void *pvParameters);
+  static void task_uart_receive(void *pvParameters);
+#endif
 volatile char inputCh = ' ';
 volatile int inputChChanged = 1;
 
+uint16_t m_buf[2]= {0};
 
 void lpuart1_callback (LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData) {
 	inputChChanged = 1;
@@ -124,6 +126,7 @@ void lpuart1_callback (LPUART_Type *base, lpuart_handle_t *handle, status_t stat
 static void task_steering_control(void *pvParameters)
 {
 	while(1) {
+#if DEMO_PWM
 		//toggle High
 		GPIO_PortSet(ESC_GPIO_PORT, 1u << ESC_GPIO_PIN);
 
@@ -137,6 +140,10 @@ static void task_steering_control(void *pvParameters)
 
 		 //delay 20ms - ticks
 		 vTaskDelay(ESC_PWM_PERIOD_TICKS - ESC_CONVERT_CYCLE_2_TICKS(9));
+#endif
+
+
+	  vTaskDelay(20);
 	}
 }
 #endif
@@ -199,10 +206,7 @@ static void task_steering_control(void *pvParameters)
  *
  ***/
 #if USE_NRF24L01
-  // TODO: To be determined
-  pin_t nrf24_ce = {GPIOB, 0};
-  // TODO: whats difference btwn PortB and GPIOB
-  pin_t nrf24_csn = {GPIOB, 0};
+  pin_t nrf24_ce = {GPIOA, 0};
   const char address[6] = "00101";
 
   /****** Macros ****/
@@ -239,15 +243,20 @@ int main(void) {
 //		{
 //		}
 //	}
+
+
 #if USE_NRF24L01
-    RF24_config(&nrf24_ce, &nrf24_csn);
-    RF24_init();
-    RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
-    RF24_enableAckPayload();
-    RF24_setRetries(3,2);
-    RF24_openReadingPipe(0, address);
-    RF24_setPALevel(RF24_PA_HIGH);
-    RF24_startListening();
+    RF24_config(&nrf24_ce);
+    RF24_INIT_STATUS_E status = RF24_init();
+    if(status == RF24_INIT_STATUS_SUCCESS)
+    {
+      RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+      RF24_enableAckPayload();
+      RF24_setRetries(3,2);
+      RF24_openReadingPipe(0, address);
+      RF24_setPALevel(RF24_PA_HIGH);
+      RF24_startListening();
+    }
 #endif
 
 	/* Define the init structure for the output LED pin*/
@@ -266,8 +275,6 @@ int main(void) {
 
 
 	 lpuart_config_t lpuartConfig;
-	 uint8_t txbuff[] = "Hello \r\n";
-	 //uint8_t rxbuff[20] = {0};
 
 	 lpuartConfig.baudRate_Bps = 115200U;
 	 lpuartConfig.parityMode = kLPUART_ParityDisabled;
@@ -281,7 +288,45 @@ int main(void) {
 	 LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
 //	 LPUART_EnableInterrupts(LPUART1,kLPUART_RxActiveEdgeInterruptEnable);
 
-
+#if USE_NRF24L01
+   switch(status)
+   {
+     case RF24_INIT_STATUS_SUCCESS:
+       PRINTF(" + Successfully loaded RF24 module \r\n");
+       break;
+     case RF24_INIT_STATUS_SETUP_ERR:
+       PRINTF("[E] Error loading RF24 module \r\n");
+       break;
+     case RF24_INIT_STATUS_CONFIG_ERR:
+       PRINTF("[E] No Config. found for RF24 module \r\n");
+       break;
+     default:
+       PRINTF("[E] UNKNOWN ERR \r\n");
+       break;
+   }
+   // Testing case
+   while(1)
+   {
+     if (RF24_available) {
+         RF24_read(&m_buf, sizeof(m_buf));
+         uint8_t temp1 = ((m_buf[1]) & 0xFF);
+         uint8_t temp2 = m_buf[1]>>8;
+         uint16_t temp3 = (m_buf[0]);
+         if(temp3!=0)
+         {
+           PRINTF(temp1);
+           PRINTF(",");
+           PRINTF(temp2);
+           PRINTF(",");
+           PRINTF(temp3);
+           PRINTF("\r\n");
+         }else{
+           PRINTF(temp3);
+           PRINTF(" Invalid msg\r\n");
+         }
+       }
+   }
+#endif
 
 	if (xTaskCreate(task_steering_control, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, my_task_PRIORITY, NULL) != pdPASS)
 	{

@@ -38,6 +38,12 @@
    */
   typedef enum { RF24_CRC_DISABLED = 0, RF24_CRC_8, RF24_CRC_16 } rf24_crclength_e;
 
+  typedef enum 
+  {
+    RF24_INIT_STATUS_CONFIG_ERR,
+    RF24_INIT_STATUS_SETUP_ERR,
+    RF24_INIT_STATUS_SUCCESS
+  } RF24_INIT_STATUS_E;
 
   /************* Public Functions ***************/
   void RF24_onDestroy(void);
@@ -46,7 +52,7 @@
    * @param _cspin The pin attached to Chip Select
    * @param spispeed For RPi, the SPI speed in MHZ ie: BCM2835_SPI_SPEED_8MHZ
    */
-  void RF24_config(pin_t* _cepin, pin_t* _cspin);
+  void RF24_config(pin_t* _cepin);
 
   uint8_t RF24_getChannel(void);
   bool RF24_isChipConnected(void);
@@ -59,9 +65,10 @@
   void RF24_openReadingPipe(uint8_t child, const uint8_t *address);
   void RF24_setPALevel(uint8_t level);
   void RF24_startListening(void);
+  void RF24_setPayloadSize(uint8_t size);
 
   bool RF24_available(void);
-  bool RF24_init(void);
+  RF24_INIT_STATUS_E RF24_init(void);
   
   void RF24_read( void* buf, uint8_t len );
 #endif /* RF24_H_ */
