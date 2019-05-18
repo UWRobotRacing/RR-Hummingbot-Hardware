@@ -64,11 +64,19 @@
  ********* Macro Preference ********** 
  *************************************/
 #define ENABLE_TASK_RF24								1
+#define ENABLE_FEATURE_DEBUG_PRINT      1
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
 #define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
 
+/* Debug PRINTF helper functions */
+#define DEBUG_PRINT_ERR(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]", fmt, ##__VA_ARGS__); } while (0)
+#define DEBUG_PRINT_WRN(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]", fmt, ##__VA_ARGS__); } while (0)
+#define DEBUG_PRINT_INFO(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]", fmt, ##__VA_ARGS__); } while (0)
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -108,7 +116,9 @@ static void task_rf24(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
+  DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
 	/*---- INIT --------------------------------------------------------*/
+  DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init board hardware. */
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
@@ -126,17 +136,34 @@ int main(void) {
 #endif 
 
 	/*---- CONFIG --------------------------------------------------------*/
-
+	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
+	/* Config rf24 */
+#if ENABLE_TASK_RF24
+//    RF24_config(&nrf24_ce);
+//    RF24_INIT_STATUS_E status = RF24_init();
+//    if(status == RF24_INIT_STATUS_SUCCESS)
+//    {
+//      RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+//      RF24_enableAckPayload();
+//      RF24_setRetries(3,2);
+//      RF24_openReadingPipe(0, address);
+//      RF24_setPALevel(RF24_PA_HIGH);
+//      RF24_startListening();
+//    }
+#endif
 
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
+  DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
+#if ENABLE_TASK_RF24
 	if (xTaskCreate(task_rf24, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
 		PRINTF("Task creation failed!.\r\n");
 		while (1);
 	}
-
+#endif
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
+	 DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
 	vTaskStartScheduler();
 	return 0;
 }
