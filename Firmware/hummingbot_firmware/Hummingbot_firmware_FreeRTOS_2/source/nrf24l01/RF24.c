@@ -216,7 +216,7 @@ static uint8_t available(uint8_t* pipe_num)
 
     // If the caller wants the pipe number, include that
     if ( pipe_num ){
-	  uint8_t status = get_status();
+	    uint8_t status = get_status();
       *pipe_num = ( status >> RX_P_NO ) & 0x07;
   	}
   	return 1;
@@ -438,7 +438,7 @@ void RF24_startListening(void)
   //delayMicroseconds(100);
 }
 
-bool RF24_available(void)
+volatile bool RF24_available(void)
 {
   return available(NULL);
 }
