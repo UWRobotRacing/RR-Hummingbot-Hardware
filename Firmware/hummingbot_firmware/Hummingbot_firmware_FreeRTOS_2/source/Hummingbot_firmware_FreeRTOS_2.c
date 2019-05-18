@@ -83,7 +83,7 @@
 typedef struct{
 	uint16_t 	rf24_buf[2]; //[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
   pin_t 		rf24_ce;
-  char 			rf24_address[RF24_COMMON_ADDRESS_SIZE];
+  uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
 }Hummingbot_firmware_FreeRTOS_2_S;
 
 /***************************************  
@@ -104,8 +104,20 @@ static void task_rf24(void *pvParameters)
 {
 	while(1) 
 	{
-			// TODO: do sth.
-			//vTaskDelay(20);
+		if (RF24_available) 
+		{
+			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
+			uint8_t temp1 = ((m_data.rf24_buf[1]) & 0xFF);
+			uint8_t temp2 = m_data.rf24_buf[1]>>8;
+			uint16_t temp3 = (m_data.rf24_buf[0]);
+			if(temp3!=0) //TODO: filter out with pattern
+			{
+				DEBUG_PRINT_INFO(temp1, ",", temp2, ",", temp3);
+			}else{
+				DEBUG_PRINT_ERR(temp3, "Invalid Message");
+			}
+		}
+		vTaskDelay(20);
 	}
 }
 
@@ -139,17 +151,21 @@ int main(void) {
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
 #if ENABLE_TASK_RF24
-//    RF24_config(&nrf24_ce);
-//    RF24_INIT_STATUS_E status = RF24_init();
-//    if(status == RF24_INIT_STATUS_SUCCESS)
-//    {
-//      RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
-//      RF24_enableAckPayload();
-//      RF24_setRetries(3,2);
-//      RF24_openReadingPipe(0, address);
-//      RF24_setPALevel(RF24_PA_HIGH);
-//      RF24_startListening();
-//    }
+   RF24_config(&m_data.rf24_ce);
+   RF24_INIT_STATUS_E status = RF24_init();
+   if(status == RF24_INIT_STATUS_SUCCESS)
+   {
+     RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+     RF24_enableAckPayload();
+     RF24_setRetries(3,2);
+     RF24_openReadingPipe(0, m_data.rf24_address);
+     RF24_setPALevel(RF24_PA_HIGH);
+     RF24_startListening();
+   }
+	 else
+	 {
+			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
+	 }
 #endif
 
 
