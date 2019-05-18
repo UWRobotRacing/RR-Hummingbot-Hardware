@@ -1,0 +1,7 @@
+ExitOnError 1
+r
+h
+loadfile "/Users/jackxu/JXPlatform/RR2019/RR2019-Hummingbot-Hardware/Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS_2/Debug/Hummingbot_firmware_FreeRTOS_2.hex"
+qc
+
+qc

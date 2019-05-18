@@ -1,0 +1,7 @@
+ExitOnError 1
+r
+h
+loadfile "C:\robotracing\RR2019-Hummingbot-Hardware\Firmware\hummingbot_firmware\Hummingbot_firmware\Debug\Hummingbot_firmware.hex"
+qc
+
+qc

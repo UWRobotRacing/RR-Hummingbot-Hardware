@@ -1,0 +1,7 @@
+.DS_Store
+ 
+Firmware/hummingbot_firmware/Hummingbot_firmware/Debug/
+*.vscode
+Firmware/hummingbot_firmware/FreeRTOS_TAD_logs
+Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS_2/Hummingbot_firmware_FreeRTOS_2 JLink Debug.launch
+Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS_2/script.jlink
