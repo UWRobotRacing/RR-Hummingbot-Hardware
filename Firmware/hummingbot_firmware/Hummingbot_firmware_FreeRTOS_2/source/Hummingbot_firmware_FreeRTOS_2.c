@@ -63,12 +63,31 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_TASK_RF24								1
+
+#define ENABLE_TASK_RF24				1
 #define ENABLE_FEATURE_DEBUG_PRINT      1
+#define ENABLE_PWM_STEERING_SERVO		1
+
+// Servo Macros
+#define SERVO_PWM_PERIOD_MS       (uint8_t)20
+#define SERVO_MIN_ANGLE         60
+#define SERVO_MAX_ANGLE         110
+#define SERVO_GPIO_PORT         GPIOB
+#define SERVO_GPIO_PIN          12U // Servo connected to SERVO LEFT connector on hummingboard.
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
 #define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
+
+//Servo Definitions
+#define SERVO_PWM_PERIOD_TICKS      (int) (SERVO_PWM_PERIOD_MS * ((float)configTICK_RATE_HZ / 1000))
+#define SERVO_CONVERT_CYCLE_2_TICKS(c)  (int)(SERVO_PWM_PERIOD_MS * (c / (float) 100) * (configTICK_RATE_HZ / 1000))
+#define SERVO_CONVERT_ANGLE_2_TICKS(a)  SERVO_CONVERT_CYCLE_2_TICKS((float)(2.6986 + (7.346 - 2.6986) / 90.0 * a))
+#define SERVO_MIN_TICKS         SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MIN_ANGLE)
+#define SERVO_MAX_TICKS         SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MAX_ANGLE)
+
+#define TASK_PWM_STEERING_SERVO_PRIORITY 							(configMAX_PRIORITIES - 1)
+
 
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINT_ERR(fmt, ...) \
@@ -85,6 +104,7 @@ typedef struct{
   pin_t 		rf24_ce;
   char 			rf24_address[RF24_COMMON_ADDRESS_SIZE];
 }Hummingbot_firmware_FreeRTOS_2_S;
+//TODO: change name of struct??
 
 /***************************************  
  *********  Private Variable ********** 
@@ -95,6 +115,7 @@ Hummingbot_firmware_FreeRTOS_2_S m_data;
  ********* Private Function Prototypes ********** 
  ***********************************************/
 static void task_rf24(void *pvParameters);
+static void task_steering_control(void *pvParameters);
 
 /**************************************  
  ********* Private Functions ********** 
@@ -108,6 +129,29 @@ static void task_rf24(void *pvParameters)
 			//vTaskDelay(20);
 	}
 }
+
+static void task_steering_control(void *pvParameters)
+{
+	int angle = 85;
+
+	while(1) {
+#if ENABLE_PWM_STEERING_SERVO
+	  //toggle High
+	  GPIO_PortSet(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
+
+	  //delay ticks
+	  vTaskDelay(SERVO_CONVERT_ANGLE_2_TICKS(angle));
+
+	  // Toggle Low
+	  GPIO_PortClear(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
+
+	   //delay 20ms - ticks
+	   vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
+#endif ENABLE_PWM_STEERING_SERVO
+
+	}
+}
+
 
 /*********************** 
  ********* APP ********* 
@@ -152,6 +196,15 @@ int main(void) {
 //    }
 #endif
 
+#if ENABLE_PWM_STEERING_SERVO
+	 /* Define the init structure for the output LED pin*/
+	   gpio_pin_config_t servo_motor_gpio_config = {
+	     kGPIO_DigitalOutput, 0,
+	   };
+
+	 // INIT Servo PWM GPIO Pin
+	 GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
+#endif ENABLE_PWM_STEERING_SERVO
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
@@ -162,6 +215,13 @@ int main(void) {
 		while (1);
 	}
 #endif
+	if (xTaskCreate(task_steering_control, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
+	  {
+	    PRINTF("Task creation failed!.\r\n");
+	    while (1);
+	  }
+
+
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
 	vTaskStartScheduler();
