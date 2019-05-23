@@ -91,10 +91,10 @@ static inline void RF24_LPSPI_RTOS_transfer(void);
  * Private Functions
  ******************************************************************************/
 static inline void RF24_LPSPI_RTOS_setup(uint8_t len){
-  uint8_t size = rf24_min(len, MAX_SPI_MSG_SIZE_IN_BYTE);
-  memset(m_rf24.spi.spi0_transfer.txData, 0, size+1);
-  memset(m_rf24.spi.spi0_transfer.rxData, 0, size+1);
-  m_rf24.spi.spi0_transfer.dataSize = sizeof(uint8_t);
+  // uint8_t size = rf24_min(len, MAX_SPI_MSG_SIZE_IN_BYTE);
+  memset(m_rf24.spi.spi0_transfer.txData, 0, MAX_SPI_MSG_SIZE_IN_BYTE);
+  memset(m_rf24.spi.spi0_transfer.rxData, 0, MAX_SPI_MSG_SIZE_IN_BYTE);
+  // m_rf24.spi.spi0_transfer.dataSize = sizeof(uint8_t);
 }
 
 static inline void RF24_LPSPI_RTOS_transfer(void){

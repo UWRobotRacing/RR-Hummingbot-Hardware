@@ -61,20 +61,10 @@
 #include "FreeRTOSConfig.h"
 
 /*************************************  
- ********* Macro Preference ********** 
- *************************************/
-#define ENABLE_TASK_RF24								0
-#define ENABLE_TASK_TESTSPI             1
-#define ENABLE_FEATURE_DEBUG_PRINT      1
-/*************************************  
  ********* Macro Definitions ********** 
  *************************************/
-/* Task Priority */
-#define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
-
-/* Task Frequency */
-#define TASK_TESTSPI_FREQ               (configTICK_RATE_HZ/10)     //10Hz
-
+/* Task Tick calculation */
+#define HELPER_TASK_FREQUENCY_HZ(x)     (configTICK_RATE_HZ/(x))
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINTLN(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
@@ -84,6 +74,24 @@
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_INFO(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+
+/*************************************
+ ********* Macro Preference **********
+ *************************************/
+#define ENABLE_TASK_RF24								0
+#define ENABLE_TASK_TESTSPI             1
+#define ENABLE_FEATURE_DEBUG_PRINT      1
+
+/***********************************
+ ********* Macro Settings **********
+ ***********************************/
+/* Task Priority */
+#define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
+
+/* Task Frequency */
+#define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(2)) //Hz
+#define TASK_TESTSPI_FREQ               (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -91,6 +99,9 @@ typedef struct{
 	uint16_t 	rf24_buf[2]; //[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
   pin_t 		rf24_ce;
   uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
+	lpspi_t   spi;
+	uint8_t   buf_rx[9];
+	uint8_t   buf_tx[9];
 }Hummingbot_firmware_FreeRTOS_2_S;
 
 
@@ -126,6 +137,9 @@ static void task_rf24(void *pvParameters);
 #if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
+  TickType_t xLastWakeTime;
+  // Initialize the xLastWakeTime variable with the current time.
+  xLastWakeTime = xTaskGetTickCount();
 	while(1) 
 	{
 		if (RF24_available)
@@ -141,7 +155,7 @@ static void task_rf24(void *pvParameters)
 				DEBUG_PRINT_ERR("Invalid Message %d", temp3);
 			}
 		}
-		vTaskDelay(20);
+		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_FREQ);
 	}
 }
 #endif
@@ -153,7 +167,9 @@ static void task_testspi(void *pvParameters)
   xLastWakeTime = xTaskGetTickCount();
   while(1)
   {
-    DEBUG_PRINT_INFO("tick ...%d", configTICK_RATE_HZ);
+    m_data.buf_tx[0] = 9;
+    LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
+    DEBUG_PRINT_INFO("tick ...%d", m_data.spi.spi0_transfer.txData[0]);
 //    vTaskDelay(configTICK_RATE_HZ);
     vTaskDelayUntil(&xLastWakeTime, TASK_TESTSPI_FREQ);
   }
@@ -188,6 +204,33 @@ int main(void) {
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
 #endif 
 
+#if ENABLE_TASK_TESTSPI
+	 uint32_t sourceClock = kCLOCK_Lpspi0;
+			/*LPSPI master init*/
+			//initialize the SPI0 configuration
+		LPSPI_MasterGetDefaultConfig(&m_data.spi.spi0_master_config);
+		m_data.spi.spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveLow; //because it is csn
+		m_data.spi.spi0_master_config.baudRate = 500000U;
+		m_data.spi.spi0_master_config.pcsToSckDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.betweenTransferDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.whichPcs = kLPSPI_Pcs3;
+		m_data.spi.spi0_master_config.direction = kLPSPI_MsbFirst;
+//		m_data.spi.spi0_master_config.pinCfg = kLPSPI_SdiInSdoOut;
+	//   masterConfig.cpol = kLPSPI_ClockPolarityActiveHigh;
+	//   masterConfig.cpha = kLPSPI_ClockPhaseFirstEdge;
+   LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
+   m_data.spi.spi0_transfer.txData = (m_data.buf_tx);
+   m_data.spi.spi0_transfer.rxData = (m_data.buf_rx);
+   m_data.spi.spi0_transfer.configFlags = kLPSPI_Pcs3;
+
+   LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
+
+   m_data.buf_tx[0] = 'f';
+   LPSPI_RTOS_Transfer(&m_data.spi.spi0_handle, &m_data.spi.spi0_transfer);
+
+//   LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
+#endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
