@@ -72,11 +72,11 @@
 
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINT_ERR(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_WRN(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_INFO(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -104,7 +104,7 @@ static void task_rf24(void *pvParameters)
 {
 	while(1) 
 	{
-		if (RF24_available) 
+		if (RF24_available)
 		{
 			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
 			uint8_t temp1 = ((m_data.rf24_buf[1]) & 0xFF);
@@ -112,9 +112,9 @@ static void task_rf24(void *pvParameters)
 			uint16_t temp3 = (m_data.rf24_buf[0]);
 			if(temp3!=0) //TODO: filter out with pattern
 			{
-				DEBUG_PRINT_INFO(temp1, ",", temp2, ",", temp3);
+				DEBUG_PRINT_INFO("RCV: %d | %d | %d", temp1, temp2, temp3);
 			}else{
-				DEBUG_PRINT_ERR(temp3, "Invalid Message");
+				DEBUG_PRINT_ERR("Invalid Message %d", temp3);
 			}
 		}
 		vTaskDelay(20);
@@ -128,9 +128,7 @@ static void task_rf24(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
-  DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
 	/*---- INIT --------------------------------------------------------*/
-  DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init board hardware. */
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
@@ -138,6 +136,10 @@ int main(void) {
 	BOARD_BootClockRUN();
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+	DEBUG_PRINT_INFO(" ****** ******************* ******");
+	DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
+  /*---- Custom INIT --------------------------------------------------*/
+	DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init private data */
 	memset(&m_data, 0, sizeof(m_data));
 	/* Init rf24 */
@@ -150,7 +152,7 @@ int main(void) {
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
-#if ENABLE_TASK_RF24
+#if (ENABLE_TASK_RF24)
    RF24_config(&m_data.rf24_ce);
    RF24_INIT_STATUS_E status = RF24_init();
    if(status == RF24_INIT_STATUS_SUCCESS)
