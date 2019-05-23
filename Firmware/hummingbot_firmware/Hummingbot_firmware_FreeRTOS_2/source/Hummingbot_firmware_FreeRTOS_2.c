@@ -64,9 +64,11 @@
  ********* Macro Preference ********** 
  *************************************/
 
-#define ENABLE_TASK_RF24				1
+//#define ENABLE_TASK_RF24				1
 #define ENABLE_FEATURE_DEBUG_PRINT      1
-#define ENABLE_PWM_STEERING_SERVO		1
+//#define ENABLE_PWM_STEERING_SERVO		1
+#define ENABLE_LED						1
+#define ENABLE_UART_TEST				1
 
 // Servo Macros
 #define SERVO_PWM_PERIOD_MS       (uint8_t)20
@@ -74,6 +76,11 @@
 #define SERVO_MAX_ANGLE         110
 #define SERVO_GPIO_PORT         GPIOB
 #define SERVO_GPIO_PIN          12U // Servo connected to SERVO LEFT connector on hummingboard.
+
+// LED Macro
+#define LED_GPIO_PORT			GPIOC
+#define LED_GPIO_PIN0			12U
+#define LED_GPIO_PIN1			13U
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
@@ -88,14 +95,13 @@
 
 #define TASK_PWM_STEERING_SERVO_PRIORITY 							(configMAX_PRIORITIES - 1)
 
-
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINT_ERR(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.] " fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_WRN(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN] " fmt "\r\n", fmt, ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_INFO(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]", fmt, ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO] " fmt "\r\n", fmt, ##__VA_ARGS__); } while (0)
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -116,7 +122,7 @@ Hummingbot_firmware_FreeRTOS_2_S m_data;
  ***********************************************/
 static void task_rf24(void *pvParameters);
 static void task_steering_control(void *pvParameters);
-
+static void task_test_timed_interrupt(void *pvParameters);
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
@@ -152,6 +158,28 @@ static void task_steering_control(void *pvParameters)
 	}
 }
 
+static void task_test_timed_interrupt(void *pvParameters)
+{
+	while(1) {
+#if ENABLE_LED
+		GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
+		//delay 1 second
+		vTaskDelay(configTICK_RATE_HZ);
+#endif
+	}
+}
+
+static void task_test_timed_interrupt2(void *pvParameters)
+{
+	char arr[10];
+	while(1) {
+#if ENABLE_UART_TEST
+		SCANF("%s", arr);
+		arr[9] = '\0';
+		PRINTF("%s\r\n", arr);
+#endif
+	}
+}
 
 /*********************** 
  ********* APP ********* 
@@ -160,9 +188,9 @@ static void task_steering_control(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
-  DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
+//  DEBUG_PRINT_INFO(" ****** Hummingboard begin ******"); //doing this breaks the code
 	/*---- INIT --------------------------------------------------------*/
-  DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
+//  DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******"); //doing this breaks the code
 	/* Init board hardware. */
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
@@ -170,10 +198,12 @@ int main(void) {
 	BOARD_BootClockRUN();
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+
+#if ENABLE_TASK_RF24
 	/* Init private data */
 	memset(&m_data, 0, sizeof(m_data));
 	/* Init rf24 */
-#if ENABLE_TASK_RF24
+
 	m_data.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;
 	m_data.rf24_ce.pin = RF24_COMMON_DEFAULT_CE_PIN;
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
@@ -204,27 +234,65 @@ int main(void) {
 
 	 // INIT Servo PWM GPIO Pin
 	 GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
-#endif ENABLE_PWM_STEERING_SERVO
+#endif
 
+#if ENABLE_LED
+	/* Define the init structure for the output LED pin*/
+	gpio_pin_config_t led_config = {
+		kGPIO_DigitalOutput, 0,
+	};
+	GPIO_PinInit(LED_GPIO_PORT, LED_GPIO_PIN0, &led_config);
+	GPIO_PinInit(LED_GPIO_PORT, LED_GPIO_PIN1, &led_config);
+#endif
+
+#if ENABLE_UART_TEST
+	lpuart_config_t lpuartConfig;
+	lpuartConfig.baudRate_Bps = 115200U;
+	lpuartConfig.parityMode = kLPUART_ParityDisabled;
+	lpuartConfig.stopBitCount = kLPUART_OneStopBit;
+	lpuartConfig.txFifoWatermark = 0;
+	lpuartConfig.rxFifoWatermark = 1;
+	lpuartConfig.enableRx = true;
+	lpuartConfig.enableTx = true;
+
+	// TODO: optimize clock frequency
+	//NOTE: clock frequency needs to match the clock register
+	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
+#endif
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
 #if ENABLE_TASK_RF24
-	if (xTaskCreate(task_rf24, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_rf24, "task_rf24", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
-		PRINTF("Task creation failed!.\r\n");
+		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
 		while (1);
 	}
 #endif
+#if ENABLE_PWM_STEERING_SERVO
 	if (xTaskCreate(task_steering_control, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
 	  {
-	    PRINTF("Task creation failed!.\r\n");
+		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
 	    while (1);
 	  }
-
-
+#endif
+#if ENABLE_LED
+	if (xTaskCreate(task_test_timed_interrupt, "task_test_timed_interrupt", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
+	{
+		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
+		while (1);
+	}
+#endif
+#if ENABLE_UART_TEST
+	if (xTaskCreate(task_test_timed_interrupt2, "task_test_timed_interrupt2", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
+	{
+		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
+		while (1);
+	}
+#endif
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
-	vTaskStartScheduler();
+	vTaskStartScheduler(); // timer interrupts are enabled here (https://www.freertos.org/FreeRTOS_Support_Forum_Archive/May_2008/freertos_vTaskDelay_stuck_2052592.html)
+
 	return 0;
 }
 
