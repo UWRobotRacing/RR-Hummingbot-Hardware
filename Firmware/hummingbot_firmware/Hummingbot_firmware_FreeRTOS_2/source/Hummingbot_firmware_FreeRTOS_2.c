@@ -63,14 +63,21 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_TASK_RF24								1
+#define ENABLE_TASK_RF24								0
+#define ENABLE_TASK_TESTSPI             1
 #define ENABLE_FEATURE_DEBUG_PRINT      1
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
+/* Task Priority */
 #define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
 
+/* Task Frequency */
+#define TASK_TESTSPI_FREQ               (configTICK_RATE_HZ/10)     //10Hz
+
 /* Debug PRINTF helper functions */
+#define DEBUG_PRINTLN(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_ERR(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_WRN(fmt, ...) \
@@ -86,6 +93,23 @@ typedef struct{
   uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
 }Hummingbot_firmware_FreeRTOS_2_S;
 
+
+/*************************************
+ ********* Inline Definitions **********
+ *************************************/
+static inline void printHummingBoardLogo(void)
+{
+  DEBUG_PRINTLN("#############################################################################################");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ## #### ##    ##  ######   ########   #######  ######## ");
+  DEBUG_PRINTLN("##     ## ##     ## ###   ### ###   ###  ##  ###   ## ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## #### #### #### ####  ##  ####  ## ##        ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("######### ##     ## ## ### ## ## ### ##  ##  ## ## ## ##   #### ########  ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ##  ##  ##  #### ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ##  ##  ##   ### ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ##  #######  ##     ## ##     ## #### ##    ##  ######   ########   #######     ##    ");
+  DEBUG_PRINTLN("#############################################################################################");
+}
+
 /***************************************  
  *********  Private Variable ********** 
  ***************************************/
@@ -99,7 +123,7 @@ static void task_rf24(void *pvParameters);
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
-
+#if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
 	while(1) 
@@ -120,6 +144,20 @@ static void task_rf24(void *pvParameters)
 		vTaskDelay(20);
 	}
 }
+#endif
+
+static void task_testspi(void *pvParameters)
+{
+  TickType_t xLastWakeTime;
+  // Initialize the xLastWakeTime variable with the current time.
+  xLastWakeTime = xTaskGetTickCount();
+  while(1)
+  {
+    DEBUG_PRINT_INFO("tick ...%d", configTICK_RATE_HZ);
+//    vTaskDelay(configTICK_RATE_HZ);
+    vTaskDelayUntil(&xLastWakeTime, TASK_TESTSPI_FREQ);
+  }
+}
 
 /*********************** 
  ********* APP ********* 
@@ -136,6 +174,7 @@ int main(void) {
 	BOARD_BootClockRUN();
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+	printHummingBoardLogo();
 	DEBUG_PRINT_INFO(" ****** ******************* ******");
 	DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
   /*---- Custom INIT --------------------------------------------------*/
@@ -170,18 +209,30 @@ int main(void) {
 	 }
 #endif
 
+#if (ENABLE_TASK_TESTSPI)
+
+#endif
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
-#if ENABLE_TASK_RF24
-	if (xTaskCreate(task_rf24, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
+#if (ENABLE_TASK_RF24)
+	if (xTaskCreate(task_rf24, "task_rf24", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
-		PRINTF("Task creation failed!.\r\n");
+	  DEBUG_PRINT_ERR("Task creation failed!.");
 		while (1);
 	}
 #endif
+
+#if (ENABLE_TASK_TESTSPI)
+  if (xTaskCreate(task_testspi, "task_testingspi", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
+  {
+    DEBUG_PRINT_ERR("Task creation failed!.");
+    while (1);
+  }
+#endif
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
-	 DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
+  DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
+  DEBUG_PRINT_INFO(" ****** ******************* ******");
 	vTaskStartScheduler();
 	return 0;
 }
