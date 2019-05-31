@@ -92,6 +92,20 @@
 #define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(2)) //Hz
 #define TASK_TESTSPI_FREQ               (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 
+
+//dsadsfdasf
+#define EXAMPLE_LPSPI_MASTER_BASEADDR LPSPI0
+#define EXAMPLE_LPSPI_MASTER_CLOCK_NAME kCLOCK_Lpspi0
+#define LPSPI_MASTER_CLK_FREQ (CLOCK_GetIpFreq(EXAMPLE_LPSPI_MASTER_CLOCK_NAME))
+#define EXAMPLE_LPSPI_MASTER_CLOCK_SOURCE (kCLOCK_IpSrcFircAsync)
+#define EXAMPLE_LPSPI_MASTER_PCS_FOR_INIT kLPSPI_Pcs3
+#define EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER kLPSPI_MasterPcs3
+
+#define EXAMPLE_LPSPI_DEALY_COUNT 0xfffff
+#define TRANSFER_SIZE 64U         /*! Transfer dataSize */
+#define TRANSFER_BAUDRATE 500000U /*! Transfer baudrate - 500k */
+uint8_t masterRxData[TRANSFER_SIZE] = {0U};
+uint8_t masterTxData[TRANSFER_SIZE] = {0U};
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -182,6 +196,105 @@ static void task_testspi(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
+#if 1
+      BOARD_InitPins();
+      BOARD_BootClockRUN();
+      BOARD_InitDebugConsole();
+
+      /*Set clock source for LPSPI and get master clock source*/
+      CLOCK_SetIpSrc(EXAMPLE_LPSPI_MASTER_CLOCK_NAME, EXAMPLE_LPSPI_MASTER_CLOCK_SOURCE);
+
+      uint32_t srcClock_Hz;
+      uint32_t errorCount;
+      uint32_t loopCount = 1U;
+      uint32_t i;
+      lpspi_master_config_t masterConfig;
+      lpspi_transfer_t masterXfer;
+
+      /*Master config*/
+      masterConfig.baudRate = TRANSFER_BAUDRATE;
+      masterConfig.bitsPerFrame = 8 * TRANSFER_SIZE;
+      masterConfig.cpol = kLPSPI_ClockPolarityActiveHigh;
+      masterConfig.cpha = kLPSPI_ClockPhaseFirstEdge;
+      masterConfig.direction = kLPSPI_MsbFirst;
+
+      masterConfig.pcsToSckDelayInNanoSec = 1000000000 / masterConfig.baudRate;
+      masterConfig.lastSckToPcsDelayInNanoSec = 1000000000 / masterConfig.baudRate;
+      masterConfig.betweenTransferDelayInNanoSec = 1000000000 / masterConfig.baudRate;
+
+      masterConfig.whichPcs = EXAMPLE_LPSPI_MASTER_PCS_FOR_INIT;
+      masterConfig.pcsActiveHighOrLow = kLPSPI_PcsActiveLow;
+
+      masterConfig.pinCfg = kLPSPI_SdiInSdoOut;
+      masterConfig.dataOutConfig = kLpspiDataOutRetained;
+
+      srcClock_Hz = LPSPI_MASTER_CLK_FREQ;
+      LPSPI_MasterInit(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterConfig, srcClock_Hz);
+
+      while (1)
+      {
+          /* Set up the transfer data */
+          for (i = 0U; i < TRANSFER_SIZE; i++)
+          {
+              masterTxData[i] = (i + loopCount) % 256U;
+              masterRxData[i] = 0U;
+          }
+
+          /* Print out transmit buffer */
+          for (i = 0U; i < TRANSFER_SIZE; i++)
+          {
+              /* Print 16 numbers in a line */
+              if ((i & 0x0FU) == 0U)
+              {
+              }
+          }
+
+          /*Start master transfer, transfer data to slave.*/
+          masterXfer.txData = masterTxData;
+          masterXfer.rxData = NULL;
+          masterXfer.dataSize = TRANSFER_SIZE;
+          masterXfer.configFlags =
+              EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap;
+
+          LPSPI_MasterTransferBlocking(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterXfer);
+
+          /* Delay to wait slave is ready */
+          for (i = 0U; i < EXAMPLE_LPSPI_DEALY_COUNT; i++)
+          {
+              __NOP();
+          }
+
+          /* Start master transfer, receive data from slave */
+          masterXfer.txData = NULL;
+          masterXfer.rxData = masterRxData;
+          masterXfer.dataSize = TRANSFER_SIZE;
+          masterXfer.configFlags =
+              EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap;
+          LPSPI_MasterTransferBlocking(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterXfer);
+
+          errorCount = 0U;
+          for (i = 0U; i < TRANSFER_SIZE; i++)
+          {
+              if (masterTxData[i] != masterRxData[i])
+              {
+                  errorCount++;
+              }
+          }
+
+          if (errorCount == 0U)
+          {
+              for (i = 0U; i < TRANSFER_SIZE; i++)
+              {
+                  /* Print 16 numbers in a line */
+                  if ((i & 0x0FU) == 0U)
+                  {}
+              }
+          }
+          /* Increase loop count to change transmit buffer */
+          loopCount++;
+      }
+#else
+
 	/*---- INIT --------------------------------------------------------*/
 	/* Init board hardware. */
 	BOARD_InitBootPins();
@@ -205,29 +318,27 @@ int main(void) {
 #endif 
 
 #if ENABLE_TASK_TESTSPI
+	/*
 	 uint32_t sourceClock = kCLOCK_Lpspi0;
-			/*LPSPI master init*/
+			//LPSPI master init
 			//initialize the SPI0 configuration
 		LPSPI_MasterGetDefaultConfig(&m_data.spi.spi0_master_config);
 		m_data.spi.spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveLow; //because it is csn
 		m_data.spi.spi0_master_config.baudRate = 500000U;
-		m_data.spi.spi0_master_config.pcsToSckDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
-		m_data.spi.spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
-		m_data.spi.spi0_master_config.betweenTransferDelayInNanoSec = 1000000000 / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.pcsToSckDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.betweenTransferDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
 		m_data.spi.spi0_master_config.whichPcs = kLPSPI_Pcs3;
 		m_data.spi.spi0_master_config.direction = kLPSPI_MsbFirst;
-//		m_data.spi.spi0_master_config.pinCfg = kLPSPI_SdiInSdoOut;
-	//   masterConfig.cpol = kLPSPI_ClockPolarityActiveHigh;
-	//   masterConfig.cpha = kLPSPI_ClockPhaseFirstEdge;
+
    LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
    m_data.spi.spi0_transfer.txData = (m_data.buf_tx);
    m_data.spi.spi0_transfer.rxData = (m_data.buf_rx);
-   m_data.spi.spi0_transfer.configFlags = kLPSPI_Pcs3;
-
-   LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
 
    m_data.buf_tx[0] = 'f';
-   LPSPI_RTOS_Transfer(&m_data.spi.spi0_handle, &m_data.spi.spi0_transfer);
+   while(1) LPSPI_RTOS_Transfer(&m_data.spi.spi0_handle, &m_data.spi.spi0_transfer);
+   */
+
 
 //   LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
 #endif
@@ -277,6 +388,7 @@ int main(void) {
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");
 	vTaskStartScheduler();
+#endif
 	return 0;
 }
 
