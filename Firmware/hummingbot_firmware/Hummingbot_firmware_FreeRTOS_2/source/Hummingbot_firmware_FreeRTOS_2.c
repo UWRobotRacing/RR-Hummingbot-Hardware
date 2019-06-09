@@ -61,30 +61,66 @@
 #include "FreeRTOSConfig.h"
 
 /*************************************  
- ********* Macro Preference ********** 
- *************************************/
-#define ENABLE_TASK_RF24								1
-#define ENABLE_FEATURE_DEBUG_PRINT      1
-/*************************************  
  ********* Macro Definitions ********** 
  *************************************/
+/* Task Tick calculation */
+#define HELPER_TASK_FREQUENCY_HZ(x)     (configTICK_RATE_HZ/(x))
+/* Debug PRINTF helper functions */
+#define DEBUG_PRINTLN(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
+#define DEBUG_PRINT_ERR(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+#define DEBUG_PRINT_WRN(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+#define DEBUG_PRINT_INFO(fmt, ...) \
+            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+
+/*************************************
+ ********* Macro Preference **********
+ *************************************/
+#define ENABLE_TASK_RF24								1
+#define ENABLE_TASK_TESTSPI             0
+#define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
+//define TEMPORARY_TEST                   1
+
+/***********************************
+ ********* Macro Settings **********
+ ***********************************/
+/* Task Priority */
 #define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
 
-/* Debug PRINTF helper functions */
-#define DEBUG_PRINT_ERR(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]", fmt, ##__VA_ARGS__); } while (0)
-#define DEBUG_PRINT_WRN(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]", fmt, ##__VA_ARGS__); } while (0)
-#define DEBUG_PRINT_INFO(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]", fmt, ##__VA_ARGS__); } while (0)
+/* Task Frequency */
+#define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TASK_TESTSPI_FREQ               (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
 typedef struct{
 	uint16_t 	rf24_buf[2]; //[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
   pin_t 		rf24_ce;
-  char 			rf24_address[RF24_COMMON_ADDRESS_SIZE];
+  uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
+	lpspi_t   spi;
+	uint8_t   buf_rx[9];
+	uint8_t   buf_tx[9];
 }Hummingbot_firmware_FreeRTOS_2_S;
+
+
+/*************************************
+ ********* Inline Definitions **********
+ *************************************/
+static inline void printHummingBoardLogo(void)
+{
+  DEBUG_PRINTLN("#############################################################################################");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ## #### ##    ##  ######   ########   #######  ######## ");
+  DEBUG_PRINTLN("##     ## ##     ## ###   ### ###   ###  ##  ###   ## ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## #### #### #### ####  ##  ####  ## ##        ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("######### ##     ## ## ### ## ## ### ##  ##  ## ## ## ##   #### ########  ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ##  ##  ##  #### ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ##  ##  ##   ### ##    ##  ##     ## ##     ##    ##    ");
+  DEBUG_PRINTLN("##     ##  #######  ##     ## ##     ## #### ##    ##  ######   ########   #######     ##    ");
+  DEBUG_PRINTLN("#############################################################################################");
+}
 
 /***************************************  
  *********  Private Variable ********** 
@@ -99,16 +135,52 @@ static void task_rf24(void *pvParameters);
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
-
+#if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
+  TickType_t xLastWakeTime;
+  // Initialize the xLastWakeTime variable with the current time.
+  xLastWakeTime = xTaskGetTickCount();
 	while(1) 
 	{
-			// TODO: do sth.
-			//vTaskDelay(20);
+	  DEBUG_PRINT_INFO("Scanning");
+		if (RF24_available())
+		{
+//		    char text[32] = "";
+//		    RF24_read(&text, sizeof(text));
+//		    DEBUG_PRINT_INFO("RCV: %s",text);
+			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
+			uint8_t temp1 = ((m_data.rf24_buf[1]) & 0xFF);
+			uint8_t temp2 = m_data.rf24_buf[1]>>8;
+			uint16_t temp3 = (m_data.rf24_buf[0]);
+			if(temp3!=0) //TODO: filter out with pattern
+			{
+				DEBUG_PRINT_INFO("RCV: %d | %d | %d", temp1, temp2, temp3);
+			}else{
+				DEBUG_PRINT_ERR("Invalid Message %d", temp3);
+			}
+		}
+		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_FREQ);
 	}
 }
+#endif
 
+#ifdef TEMPORARY_TEST
+static void task_testspi(void *pvParameters)
+{
+  TickType_t xLastWakeTime;
+  // Initialize the xLastWakeTime variable with the current time.
+  xLastWakeTime = xTaskGetTickCount();
+  while(1)
+  {
+    m_data.buf_tx[0] = 9;
+    LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
+    DEBUG_PRINT_INFO("tick ...%d", m_data.spi.spi0_transfer.txData[0]);
+//    vTaskDelay(configTICK_RATE_HZ);
+    vTaskDelayUntil(&xLastWakeTime, TASK_TESTSPI_FREQ);
+  }
+}
+#endif
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -116,9 +188,14 @@ static void task_rf24(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
-  DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
+#ifdef TEMPORARY_TEST
+      BOARD_InitPins();
+      BOARD_BootClockRUN();
+      BOARD_InitDebugConsole();
+
+#else
+
 	/*---- INIT --------------------------------------------------------*/
-  DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init board hardware. */
 	BOARD_InitBootPins();
 	BOARD_InitBootClocks();
@@ -126,6 +203,11 @@ int main(void) {
 	BOARD_BootClockRUN();
 	/* Init FSL debug console. */
 	BOARD_InitDebugConsole();
+	printHummingBoardLogo();
+	DEBUG_PRINT_INFO(" ****** ******************* ******");
+	DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
+  /*---- Custom INIT --------------------------------------------------*/
+	DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init private data */
 	memset(&m_data, 0, sizeof(m_data));
 	/* Init rf24 */
@@ -135,36 +217,90 @@ int main(void) {
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
 #endif 
 
+#if ENABLE_TASK_TESTSPI
+	/*
+	 uint32_t sourceClock = kCLOCK_Lpspi0;
+			//LPSPI master init
+			//initialize the SPI0 configuration
+		LPSPI_MasterGetDefaultConfig(&m_data.spi.spi0_master_config);
+		m_data.spi.spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveLow; //because it is csn
+		m_data.spi.spi0_master_config.baudRate = 500000U;
+		m_data.spi.spi0_master_config.pcsToSckDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.betweenTransferDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
+		m_data.spi.spi0_master_config.whichPcs = kLPSPI_Pcs3;
+		m_data.spi.spi0_master_config.direction = kLPSPI_MsbFirst;
+
+   LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
+   m_data.spi.spi0_transfer.txData = (m_data.buf_tx);
+   m_data.spi.spi0_transfer.rxData = (m_data.buf_rx);
+
+   m_data.buf_tx[0] = 'f';
+   while(1) LPSPI_RTOS_Transfer(&m_data.spi.spi0_handle, &m_data.spi.spi0_transfer);
+   */
+
+
+//   LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
+#endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
-#if ENABLE_TASK_RF24
-//    RF24_config(&nrf24_ce);
-//    RF24_INIT_STATUS_E status = RF24_init();
-//    if(status == RF24_INIT_STATUS_SUCCESS)
-//    {
-//      RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
-//      RF24_enableAckPayload();
-//      RF24_setRetries(3,2);
-//      RF24_openReadingPipe(0, address);
-//      RF24_setPALevel(RF24_PA_HIGH);
-//      RF24_startListening();
-//    }
+#if (ENABLE_TASK_RF24)
+   RF24_config(&m_data.rf24_ce);
+   RF24_INIT_STATUS_E status = RF24_init();
+   if(status == RF24_INIT_STATUS_SUCCESS)
+   {
+     RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
+     RF24_enableAckPayload();
+     RF24_setRetries(3,2);
+     RF24_openReadingPipe(0, m_data.rf24_address);
+     RF24_setPALevel(RF24_PA_LOW);
+     RF24_startListening();
+//     RF24_openReadingPipe(0, m_data.rf24_address);
+//     RF24_setPALevel(RF24_PA_MIN);
+//     RF24_startListening();
+   }
+	 else
+	 {
+			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
+	 }
+
+
+ // TODO: remove these testing code
+//  uint8_t temp = 10;
+//  RF24_DEBUG_spiTestingCode();
+//   while(1){
+//     DEBUG_PRINT_INFO(" Ticking ...");
+//     write_register_buf(1, &temp, 1);
+//   }
 #endif
 
+#if (ENABLE_TASK_TESTSPI)
+
+#endif
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
-#if ENABLE_TASK_RF24
-	if (xTaskCreate(task_rf24, "task_steering_control", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
+#if (ENABLE_TASK_RF24)
+	if (xTaskCreate(task_rf24, "task_rf24", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
-		PRINTF("Task creation failed!.\r\n");
+	  DEBUG_PRINT_ERR("Task creation failed!.");
 		while (1);
 	}
 #endif
+
+#if (ENABLE_TASK_TESTSPI)
+  if (xTaskCreate(task_testspi, "task_testingspi", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
+  {
+    DEBUG_PRINT_ERR("Task creation failed!.");
+    while (1);
+  }
+#endif
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
-	 DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
+  DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
+  DEBUG_PRINT_INFO(" ****** ******************* ******");
 	vTaskStartScheduler();
+#endif
 	return 0;
 }
 

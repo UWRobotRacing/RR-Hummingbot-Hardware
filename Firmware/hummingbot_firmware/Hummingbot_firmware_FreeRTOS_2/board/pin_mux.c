@@ -219,10 +219,10 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTA, 9U, kPORT_MuxAlt4);
 
     /* PORTB0 (pin 54) is configured as LPSPI0_PCS0 */
-    PORT_SetPinMux(PORTB, 0U, kPORT_MuxAlt3);
+    PORT_SetPinMux(PORTB, 0U, kPORT_MuxAlt2);
 
     /* PORTB1 (pin 53) is configured as PTB1 */
-    PORT_SetPinMux(PORTB, 1U, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PORTB, 1U, kPORT_MuxAlt2);
 
     /* PORTB10 (pin 75) is configured as ADC2_SE9 */
     PORT_SetPinMux(PORTB, 10U, kPORT_PinDisabledOrAnalog);
@@ -420,7 +420,7 @@ void BOARD_InitPins(void)
     PORT_SetPinMux(PORTE, 5U, kPORT_MuxAlt3);
 
     /* PORTE6 (pin 84) is configured as PTE6 */
-    PORT_SetPinMux(PORTE, 6U, kPORT_MuxAsGpio);
+    PORT_SetPinMux(PORTE, 6U, kPORT_MuxAlt2);
 
     /* PORTE7 (pin 59) is configured as FTM0_CH7 */
     PORT_SetPinMux(PORTE, 7U, kPORT_MuxAlt2);
