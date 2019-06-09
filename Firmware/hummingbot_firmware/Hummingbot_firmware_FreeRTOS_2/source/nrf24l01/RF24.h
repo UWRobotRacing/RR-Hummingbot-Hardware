@@ -41,7 +41,7 @@
   typedef enum 
   {
     RF24_INIT_STATUS_CONFIG_ERR,
-    RF24_INIT_STATUS_SETUP_ERR,
+    RF24_INIT_STATUS_SETUP_NO_RESPONSE_ERR,
     RF24_INIT_STATUS_SUCCESS
   } RF24_INIT_STATUS_E;
 
@@ -66,9 +66,10 @@
   void RF24_setPALevel(uint8_t level);
   void RF24_startListening(void);
   void RF24_setPayloadSize(uint8_t size);
-
+  void RF24_DEBUG_spiTestingCode(void);
   bool RF24_available(void);
   RF24_INIT_STATUS_E RF24_init(void);
   
   void RF24_read( void* buf, uint8_t len );
+
 #endif /* RF24_H_ */

@@ -15,8 +15,8 @@
 #define RF24_COMMON_GET_FLAG(x)     ((x)&RF24_COMMON_MASK_BUFFER_FLAG)
 //macro default configs
 #define RF24_COMMON_DEFAULT_CE_PORT       GPIOA
-#define RF24_COMMON_DEFAULT_CE_PIN        0
-#define RF24_COMMON_ADDRESS               "00101"
+#define RF24_COMMON_DEFAULT_CE_PIN        11
+#define RF24_COMMON_ADDRESS               "00000"//"00101"
 #define RF24_COMMON_ADDRESS_SIZE          6
 
 #endif

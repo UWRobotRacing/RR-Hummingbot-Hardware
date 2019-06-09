@@ -78,9 +78,10 @@
 /*************************************
  ********* Macro Preference **********
  *************************************/
-#define ENABLE_TASK_RF24								0
-#define ENABLE_TASK_TESTSPI             1
-#define ENABLE_FEATURE_DEBUG_PRINT      1
+#define ENABLE_TASK_RF24								1
+#define ENABLE_TASK_TESTSPI             0
+#define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
+//define TEMPORARY_TEST                   1
 
 /***********************************
  ********* Macro Settings **********
@@ -89,23 +90,9 @@
 #define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
 
 /* Task Frequency */
-#define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(2)) //Hz
+#define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 #define TASK_TESTSPI_FREQ               (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 
-
-//dsadsfdasf
-#define EXAMPLE_LPSPI_MASTER_BASEADDR LPSPI0
-#define EXAMPLE_LPSPI_MASTER_CLOCK_NAME kCLOCK_Lpspi0
-#define LPSPI_MASTER_CLK_FREQ (CLOCK_GetIpFreq(EXAMPLE_LPSPI_MASTER_CLOCK_NAME))
-#define EXAMPLE_LPSPI_MASTER_CLOCK_SOURCE (kCLOCK_IpSrcFircAsync)
-#define EXAMPLE_LPSPI_MASTER_PCS_FOR_INIT kLPSPI_Pcs3
-#define EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER kLPSPI_MasterPcs3
-
-#define EXAMPLE_LPSPI_DEALY_COUNT 0xfffff
-#define TRANSFER_SIZE 64U         /*! Transfer dataSize */
-#define TRANSFER_BAUDRATE 500000U /*! Transfer baudrate - 500k */
-uint8_t masterRxData[TRANSFER_SIZE] = {0U};
-uint8_t masterTxData[TRANSFER_SIZE] = {0U};
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -156,8 +143,12 @@ static void task_rf24(void *pvParameters)
   xLastWakeTime = xTaskGetTickCount();
 	while(1) 
 	{
-		if (RF24_available)
+	  DEBUG_PRINT_INFO("Scanning");
+		if (RF24_available())
 		{
+//		    char text[32] = "";
+//		    RF24_read(&text, sizeof(text));
+//		    DEBUG_PRINT_INFO("RCV: %s",text);
 			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
 			uint8_t temp1 = ((m_data.rf24_buf[1]) & 0xFF);
 			uint8_t temp2 = m_data.rf24_buf[1]>>8;
@@ -174,6 +165,7 @@ static void task_rf24(void *pvParameters)
 }
 #endif
 
+#ifdef TEMPORARY_TEST
 static void task_testspi(void *pvParameters)
 {
   TickType_t xLastWakeTime;
@@ -188,7 +180,7 @@ static void task_testspi(void *pvParameters)
     vTaskDelayUntil(&xLastWakeTime, TASK_TESTSPI_FREQ);
   }
 }
-
+#endif
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -196,103 +188,11 @@ static void task_testspi(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
-#if 1
+#ifdef TEMPORARY_TEST
       BOARD_InitPins();
       BOARD_BootClockRUN();
       BOARD_InitDebugConsole();
 
-      /*Set clock source for LPSPI and get master clock source*/
-      CLOCK_SetIpSrc(EXAMPLE_LPSPI_MASTER_CLOCK_NAME, EXAMPLE_LPSPI_MASTER_CLOCK_SOURCE);
-
-      uint32_t srcClock_Hz;
-      uint32_t errorCount;
-      uint32_t loopCount = 1U;
-      uint32_t i;
-      lpspi_master_config_t masterConfig;
-      lpspi_transfer_t masterXfer;
-
-      /*Master config*/
-      masterConfig.baudRate = TRANSFER_BAUDRATE;
-      masterConfig.bitsPerFrame = 8 * TRANSFER_SIZE;
-      masterConfig.cpol = kLPSPI_ClockPolarityActiveHigh;
-      masterConfig.cpha = kLPSPI_ClockPhaseFirstEdge;
-      masterConfig.direction = kLPSPI_MsbFirst;
-
-      masterConfig.pcsToSckDelayInNanoSec = 1000000000 / masterConfig.baudRate;
-      masterConfig.lastSckToPcsDelayInNanoSec = 1000000000 / masterConfig.baudRate;
-      masterConfig.betweenTransferDelayInNanoSec = 1000000000 / masterConfig.baudRate;
-
-      masterConfig.whichPcs = EXAMPLE_LPSPI_MASTER_PCS_FOR_INIT;
-      masterConfig.pcsActiveHighOrLow = kLPSPI_PcsActiveLow;
-
-      masterConfig.pinCfg = kLPSPI_SdiInSdoOut;
-      masterConfig.dataOutConfig = kLpspiDataOutRetained;
-
-      srcClock_Hz = LPSPI_MASTER_CLK_FREQ;
-      LPSPI_MasterInit(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterConfig, srcClock_Hz);
-
-      while (1)
-      {
-          /* Set up the transfer data */
-          for (i = 0U; i < TRANSFER_SIZE; i++)
-          {
-              masterTxData[i] = (i + loopCount) % 256U;
-              masterRxData[i] = 0U;
-          }
-
-          /* Print out transmit buffer */
-          for (i = 0U; i < TRANSFER_SIZE; i++)
-          {
-              /* Print 16 numbers in a line */
-              if ((i & 0x0FU) == 0U)
-              {
-              }
-          }
-
-          /*Start master transfer, transfer data to slave.*/
-          masterXfer.txData = masterTxData;
-          masterXfer.rxData = NULL;
-          masterXfer.dataSize = TRANSFER_SIZE;
-          masterXfer.configFlags =
-              EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap;
-
-          LPSPI_MasterTransferBlocking(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterXfer);
-
-          /* Delay to wait slave is ready */
-          for (i = 0U; i < EXAMPLE_LPSPI_DEALY_COUNT; i++)
-          {
-              __NOP();
-          }
-
-          /* Start master transfer, receive data from slave */
-          masterXfer.txData = NULL;
-          masterXfer.rxData = masterRxData;
-          masterXfer.dataSize = TRANSFER_SIZE;
-          masterXfer.configFlags =
-              EXAMPLE_LPSPI_MASTER_PCS_FOR_TRANSFER | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap;
-          LPSPI_MasterTransferBlocking(EXAMPLE_LPSPI_MASTER_BASEADDR, &masterXfer);
-
-          errorCount = 0U;
-          for (i = 0U; i < TRANSFER_SIZE; i++)
-          {
-              if (masterTxData[i] != masterRxData[i])
-              {
-                  errorCount++;
-              }
-          }
-
-          if (errorCount == 0U)
-          {
-              for (i = 0U; i < TRANSFER_SIZE; i++)
-              {
-                  /* Print 16 numbers in a line */
-                  if ((i & 0x0FU) == 0U)
-                  {}
-              }
-          }
-          /* Increase loop count to change transmit buffer */
-          loopCount++;
-      }
 #else
 
 	/*---- INIT --------------------------------------------------------*/
@@ -354,13 +254,25 @@ int main(void) {
      RF24_enableAckPayload();
      RF24_setRetries(3,2);
      RF24_openReadingPipe(0, m_data.rf24_address);
-     RF24_setPALevel(RF24_PA_HIGH);
+     RF24_setPALevel(RF24_PA_LOW);
      RF24_startListening();
+//     RF24_openReadingPipe(0, m_data.rf24_address);
+//     RF24_setPALevel(RF24_PA_MIN);
+//     RF24_startListening();
    }
 	 else
 	 {
 			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
 	 }
+
+
+ // TODO: remove these testing code
+//  uint8_t temp = 10;
+//  RF24_DEBUG_spiTestingCode();
+//   while(1){
+//     DEBUG_PRINT_INFO(" Ticking ...");
+//     write_register_buf(1, &temp, 1);
+//   }
 #endif
 
 #if (ENABLE_TASK_TESTSPI)
