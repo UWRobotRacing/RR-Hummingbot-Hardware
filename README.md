@@ -15,8 +15,8 @@ This repo contains hardware includes mech &amp; electrical. Firmware code will a
     - you can also download the API, which contains chip specific examples \[SDK_2.5.0_MKE14F512xxx16\]
 3. Our M4 chip: MKE14F512xxx16
   
-# Hardware Resources
-## Reedy Sonic 540 Sensor 6Pins
+## Hardware Resources
+### Reedy Sonic 540 Sensor 6Pins
 
 IMHO the connector is "EFRA standard" (RC cars)
 see here page 25
@@ -30,20 +30,17 @@ see here page 25
  - Pin #6 – red wire, sensors feeding, +5.0 V ± 10%.
 (supply voltage for sensors provide controller, don´t connect external voltage !)
 
-### interfacing hall sensors:
+#### interfacing hall sensors:
 https://tutorial.cytron.io/2018/07/04/measuring-dc-motor-rpm-through-built-in-hall-sensor-encoder/
 https://www.nxp.com/docs/en/application-note/AN2892.pdf
 
-## Steering_Encoder:
+### Steering_Encoder:
 https://www.digikey.ca/product-detail/en/cui-inc/AMT203-V/102-2050-ND/2278846
 
-## *ESC Arduino* 
+### ESC Arduino
 https://www.instructables.com/id/ESC-Programming-on-Arduino-Hobbyking-ESC/ 
 
-## nRF24l01
-
-
-### **nRF24L01** ###
+### nRF24L01
 1. [Intro](https://components101.com/wireless/nrf24l01-pinout-features-datasheet)
 2. [DataSheet](https://components101.com/sites/default/files/component_datasheet/nRF24L01%20Datasheet.pdf)
 3. [Enhancing](https://www.instructables.com/id/Enhanced-NRF24L01/)
