@@ -45,7 +45,7 @@ https://www.instructables.com/id/ESC-Programming-on-Arduino-Hobbyking-ESC/
 2. [DataSheet](https://components101.com/sites/default/files/component_datasheet/nRF24L01%20Datasheet.pdf)
 3. [Enhancing](https://www.instructables.com/id/Enhanced-NRF24L01/)
 4. [Detailed Explaination](http://www.diyembedded.com/tutorials/nrf24l01_0/nrf24l01_tutorial_0.pdf)
-5. [Colorful InDepth Descriptions](
+5. [Colorful InDepth Descriptions](https://lastminuteengineers.com/nrf24l01-arduino-wireless-communication/)
 
 
 
