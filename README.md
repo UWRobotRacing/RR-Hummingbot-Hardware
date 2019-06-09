@@ -21,13 +21,13 @@ This repo contains hardware includes mech &amp; electrical. Firmware code will a
 IMHO the connector is "EFRA standard" (RC cars)
 see here page 25
 [http://mgm-compro.com/manuals/en-man...-071011-a1.pdf](http://mgm-compro.com/manuals/en-manual-x-series-071011-a1.pdf)
-**Pin #1 – black wire, ground potential (minus)**
-**Pin #2 – orange wire, sensor phase C**
-**Pin #3 – white wire, sensor phase B**
-**Pin #4 – green wire, sensor phase A**
-**Pin #5 – blue wire, motor temperature sensing, 10 k NTC**
-**(other end of sensor is on ground potential, pin #1)**
-**Pin #6 – red wire, sensors feeding, +5.0 V ± 10%.**
+ - Pin #1 – black wire, ground potential (minus)
+ - Pin #2 – orange wire, sensor phase C
+ - Pin #3 – white wire, sensor phase B
+ - Pin #4 – green wire, sensor phase A
+ - Pin #5 – blue wire, motor temperature sensing, 10 k NTC
+ - (other end of sensor is on ground potential, pin #1)
+ - Pin #6 – red wire, sensors feeding, +5.0 V ± 10%.
 (supply voltage for sensors provide controller, don´t connect external voltage !)
 
 ### interfacing hall sensors:
