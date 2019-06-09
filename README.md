@@ -39,6 +39,17 @@ https://www.digikey.ca/product-detail/en/cui-inc/AMT203-V/102-2050-ND/2278846
 
 ### ESC Arduino
 https://www.instructables.com/id/ESC-Programming-on-Arduino-Hobbyking-ESC/ 
+1000us - 2000us
+
+If a 0-180° servo is designed to respond to 1000-2000 µs pulses, it interprets 1000 µs as “0°” and 2000 µs as “180°.” But, with default pulse width limits range of 544-2400 µs, the Arduino will send a signal of ~1000 µs for an angle of 44°. Sweeping from 1000 to 2000 µs would then only translate to a ~90° swing of the servo arm instead of a full 180°. This, and other potential issues can be avoided if microseconds are used instead of angles in degrees, or if the optional pulse width floor and ceiling parameters are defined in pin setup for each servo.
+```c
+#define Servo_VERSION           2     // software version of this library
+#define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo  
+#define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo 
+#define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
+#define REFRESH_INTERVAL    20000     // minumim time to refresh servos in microseconds 
+
+```
 
 ### nRF24L01
 1. [Intro](https://components101.com/wireless/nrf24l01-pinout-features-datasheet)
