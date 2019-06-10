@@ -151,9 +151,12 @@ Hummingbot_firmware_FreeRTOS_2_S m_data;
 /************************************************  
  ********* Private Function Prototypes ********** 
  ***********************************************/
-static void task_rf24(void *pvParameters);
-static void task_steeringControl(void *pvParameters);
-
+#if (ENABLE_TASK_RF24)
+  static void task_rf24(void *pvParameters);
+#endif // (ENABLE_TASK_RF24)
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+  static void task_steeringControl(void *pvParameters);
+#endif // (ENABLE_TASK_VEHICLE_CONTROL)
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
@@ -189,7 +192,7 @@ static void task_rf24(void *pvParameters)
 #endif
 
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-static void task_steering_control(void *pvParameters)
+static void task_steeringControl(void *pvParameters)
 {
 	int angle = 85;
 
@@ -207,7 +210,7 @@ static void task_steering_control(void *pvParameters)
 	   vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
 	}
 }
-#endif (ENABLE_TASK_VEHICLE_CONTROL)
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 /*********************** 
  ********* APP ********* 
