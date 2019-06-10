@@ -61,10 +61,18 @@
 #include "FreeRTOSConfig.h"
 
 /*************************************  
+ ********* Macro Preference ********** 
+ *************************************/
+#define ENABLE_TASK_RF24								1
+#define ENABLE_FEATURE_DEBUG_PRINT      0 //This will enable uart debug print out
+#define ENABLE_TASK_VEHICLE_CONTROL    	0
+
+/*************************************  
  ********* Macro Definitions ********** 
  *************************************/
 /* Task Tick calculation */
 #define HELPER_TASK_FREQUENCY_HZ(x)     (configTICK_RATE_HZ/(x))
+
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINTLN(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
@@ -75,23 +83,34 @@
 #define DEBUG_PRINT_INFO(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 
-/*************************************
- ********* Macro Preference **********
- *************************************/
-#define ENABLE_TASK_RF24								1
-#define ENABLE_TASK_TESTSPI             0
-#define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
-//define TEMPORARY_TEST                   1
-
 /***********************************
  ********* Macro Settings **********
  ***********************************/
 /* Task Priority */
-#define TASK_RF24_PRIORITY 							(configMAX_PRIORITIES - 1)
-
+#define TASK_RF24_PRIORITY 							 			(configMAX_PRIORITIES - 1)
+#define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
 /* Task Frequency */
-#define TASK_RF24_FREQ                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
-#define TASK_TESTSPI_FREQ               (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TASK_RF24_FREQ                   			(HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TENABLE_TASK_VEHICLE_CONTROL_FREQ     (HELPER_TASK_FREQUENCY_HZ(10)) //Hz //TODO: TBI, to be implemented
+/* Servo Macros */
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+#define SERVO_PWM_PERIOD_MS       (uint8_t)20
+#define SERVO_MIN_ANGLE         	60
+#define SERVO_MAX_ANGLE         	110
+#define SERVO_GPIO_PORT         	GPIOB
+#define SERVO_GPIO_PIN          	12U // Servo connected to SERVO LEFT connector on hummingboard.
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
+
+/***********************************
+ ********* Macro Helpers **********
+ ***********************************/
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+#define SERVO_PWM_PERIOD_TICKS      		(int) (SERVO_PWM_PERIOD_MS * ((float)configTICK_RATE_HZ / 1000))
+#define SERVO_CONVERT_CYCLE_2_TICKS(c)  (int)(SERVO_PWM_PERIOD_MS * (c / (float) 100) * (configTICK_RATE_HZ / 1000))
+#define SERVO_CONVERT_ANGLE_2_TICKS(a)  SERVO_CONVERT_CYCLE_2_TICKS((float)(2.6986 + (7.346 - 2.6986) / 90.0 * a))
+#define SERVO_MIN_TICKS         				SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MIN_ANGLE)
+#define SERVO_MAX_TICKS         				SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MAX_ANGLE)
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 /***************************************  
  *********  Struct/Enums Defs ********** 
@@ -104,6 +123,7 @@ typedef struct{
 	uint8_t   buf_rx[9];
 	uint8_t   buf_tx[9];
 }Hummingbot_firmware_FreeRTOS_2_S;
+//TODO: change name of struct??
 
 
 /*************************************
@@ -111,6 +131,7 @@ typedef struct{
  *************************************/
 static inline void printHummingBoardLogo(void)
 {
+  // will not print, if the (ENABLE_FEATURE_DEBUG_PRINT) is disabled, [implicit relationship]
   DEBUG_PRINTLN("#############################################################################################");
   DEBUG_PRINTLN("##     ## ##     ## ##     ## ##     ## #### ##    ##  ######   ########   #######  ######## ");
   DEBUG_PRINTLN("##     ## ##     ## ###   ### ###   ###  ##  ###   ## ##    ##  ##     ## ##     ##    ##    ");
@@ -131,6 +152,7 @@ Hummingbot_firmware_FreeRTOS_2_S m_data;
  ********* Private Function Prototypes ********** 
  ***********************************************/
 static void task_rf24(void *pvParameters);
+static void task_steeringControl(void *pvParameters);
 
 /**************************************  
  ********* Private Functions ********** 
@@ -166,22 +188,27 @@ static void task_rf24(void *pvParameters)
 }
 #endif
 
-#ifdef TEMPORARY_TEST
-static void task_testspi(void *pvParameters)
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+static void task_steering_control(void *pvParameters)
 {
-  TickType_t xLastWakeTime;
-  // Initialize the xLastWakeTime variable with the current time.
-  xLastWakeTime = xTaskGetTickCount();
-  while(1)
-  {
-    m_data.buf_tx[0] = 9;
-    LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
-    DEBUG_PRINT_INFO("tick ...%d", m_data.spi.spi0_transfer.txData[0]);
-//    vTaskDelay(configTICK_RATE_HZ);
-    vTaskDelayUntil(&xLastWakeTime, TASK_TESTSPI_FREQ);
-  }
+	int angle = 85;
+
+	while(1) {
+	  //toggle High
+	  GPIO_PortSet(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
+
+	  //delay ticks
+	  vTaskDelay(SERVO_CONVERT_ANGLE_2_TICKS(angle));
+
+	  // Toggle Low
+	  GPIO_PortClear(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
+
+	   //delay 20ms - ticks
+	   vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
+	}
 }
-#endif
+#endif (ENABLE_TASK_VEHICLE_CONTROL)
+
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -218,31 +245,6 @@ int main(void) {
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
 #endif 
 
-#if ENABLE_TASK_TESTSPI
-	/*
-	 uint32_t sourceClock = kCLOCK_Lpspi0;
-			//LPSPI master init
-			//initialize the SPI0 configuration
-		LPSPI_MasterGetDefaultConfig(&m_data.spi.spi0_master_config);
-		m_data.spi.spi0_master_config.pcsActiveHighOrLow = kLPSPI_PcsActiveLow; //because it is csn
-		m_data.spi.spi0_master_config.baudRate = 500000U;
-		m_data.spi.spi0_master_config.pcsToSckDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
-		m_data.spi.spi0_master_config.lastSckToPcsDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
-		m_data.spi.spi0_master_config.betweenTransferDelayInNanoSec = 1000000000U / m_data.spi.spi0_master_config.baudRate * 2;
-		m_data.spi.spi0_master_config.whichPcs = kLPSPI_Pcs3;
-		m_data.spi.spi0_master_config.direction = kLPSPI_MsbFirst;
-
-   LPSPI_RTOS_Init(&(m_data.spi.spi0_handle), LPSPI0, &(m_data.spi.spi0_master_config), sourceClock);
-   m_data.spi.spi0_transfer.txData = (m_data.buf_tx);
-   m_data.spi.spi0_transfer.rxData = (m_data.buf_rx);
-
-   m_data.buf_tx[0] = 'f';
-   while(1) LPSPI_RTOS_Transfer(&m_data.spi.spi0_handle, &m_data.spi.spi0_transfer);
-   */
-
-
-//   LPSPI_RTOS_Transfer(&(m_data.spi.spi0_handle), &(m_data.spi.spi0_transfer));
-#endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
@@ -266,7 +268,6 @@ int main(void) {
 			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
 	 }
 
-
  // TODO: remove these testing code
 //  uint8_t temp = 10;
 //  RF24_DEBUG_spiTestingCode();
@@ -275,10 +276,16 @@ int main(void) {
 //     write_register_buf(1, &temp, 1);
 //   }
 #endif
+		/* Config vehicle control steering & motoring */
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+	 /* Define the init structure for the output LED pin*/
+	   gpio_pin_config_t servo_motor_gpio_config = {
+	     kGPIO_DigitalOutput, 0,
+	   };
 
-#if (ENABLE_TASK_TESTSPI)
-
-#endif
+	 // INIT Servo PWM GPIO Pin
+	 GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
@@ -289,14 +296,15 @@ int main(void) {
 		while (1);
 	}
 #endif
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+	if (xTaskCreate(task_steeringControl, "task_steeringControl", configMINIMAL_STACK_SIZE + 10, NULL, ENABLE_TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
+	  {
+	    DEBUG_PRINT_ERR("Task creation failed!.\r\n");
+	    while (1);
+	  }
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
-#if (ENABLE_TASK_TESTSPI)
-  if (xTaskCreate(task_testspi, "task_testingspi", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
-  {
-    DEBUG_PRINT_ERR("Task creation failed!.");
-    while (1);
-  }
-#endif
+
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");
