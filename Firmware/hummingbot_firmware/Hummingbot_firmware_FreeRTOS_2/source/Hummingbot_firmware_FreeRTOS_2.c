@@ -63,10 +63,10 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_TASK_RF24								1
-#define ENABLE_FEATURE_DEBUG_PRINT      0 //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
+#define ENABLE_TASK_RF24								0
 #define ENABLE_TASK_VEHICLE_CONTROL    	0
-
+#define TEST_FTM_PWM										1
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
@@ -93,12 +93,12 @@
 #define TASK_RF24_FREQ                   			(HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 #define TENABLE_TASK_VEHICLE_CONTROL_FREQ     (HELPER_TASK_FREQUENCY_HZ(10)) //Hz //TODO: TBI, to be implemented
 /* Servo Macros */
-#if (ENABLE_TASK_VEHICLE_CONTROL)
+#if (ENABLE_TASK_VEHICLE_CONTROL || TEST_FTM_PWM)
 #define SERVO_PWM_PERIOD_MS       (uint8_t)20
 #define SERVO_MIN_ANGLE         	60
 #define SERVO_MAX_ANGLE         	110
-#define SERVO_GPIO_PORT         	GPIOB
-#define SERVO_GPIO_PIN          	12U // Servo connected to SERVO LEFT connector on hummingboard.
+#define SERVO_GPIO_PORT         	GPIOE
+#define SERVO_GPIO_PIN          	13U // Servo connected to SERVO LEFT connector on hummingboard.
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 /***********************************
@@ -212,6 +212,95 @@ static void task_steeringControl(void *pvParameters)
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
+#if (TEST_FTM_PWM)
+/* The Flextimer instance/channel used for board */
+#define BOARD_FTM_BASEADDR FTM0
+/* Interrupt number and interrupt handler for the FTM instance used */
+#define BOARD_FTM_IRQ_NUM FTM0_IRQn
+#define BOARD_FTM_HANDLER FTM0_IRQHandler
+/* Get source clock for FTM driver */
+#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
+#define US_PER_TICK (10U)
+#define GO_TO_NEXT_STATE(newState) (PWM_Status = (newState))
+#define PWM_SERVO_STEERING_REFRESHING_PERIOD (3003) //us //333Hz
+#define REFRESHING_PERIOD (PWM_SERVO_STEERING_REFRESHING_PERIOD)
+volatile bool ftmIsrFlag = false;
+volatile uint32_t milisecondCounts = 0U;
+volatile uint16_t pulseWidth_us = 1500U;
+volatile uint16_t requestedPulseWidth_us = 1500U; //800us ~ 2200us
+volatile uint32_t PWM_microsecondCounts = 0U;
+typedef enum 
+{
+	PWM_STATUS_UNKNOWN,
+	PWM_STATUS_REINITED,
+	PWM_STATUS_UPDATED,
+	PWM_STATUS_ENABLED,
+	PWM_STATUS_DISABLED,
+	PWM_STATUS_FAULT
+}PWM_STATUS_E; 
+volatile PWM_STATUS_E PWM_Status = PWM_STATUS_REINITED;
+void SERVO_writeMicroseconds(uint16_t newPulseWidth_us)
+{
+	requestedPulseWidth_us = newPulseWidth_us;
+}
+void BOARD_FTM_HANDLER(void)
+{
+    /* Clear interrupt flag.*/
+    FTM_ClearStatusFlags(BOARD_FTM_BASEADDR, kFTM_TimeOverflowFlag);
+    ftmIsrFlag = true;
+		PWM_microsecondCounts ++;
+		//state machine
+		switch(PWM_Status)
+		{
+			case (PWM_STATUS_UNKNOWN):
+				//DO NOTHING
+				break;
+
+			case (PWM_STATUS_REINITED):
+				//toggle High
+				pulseWidth_us = requestedPulseWidth_us;
+				GO_TO_NEXT_STATE(PWM_STATUS_UPDATED);
+				break;
+
+			case (PWM_STATUS_UPDATED):
+				//toggle High
+        GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 1);
+				PWM_microsecondCounts = 0;
+				PWM_Status = (PWM_STATUS_ENABLED);
+				break;
+
+			case (PWM_STATUS_ENABLED):
+				if(PWM_microsecondCounts*US_PER_TICK >= (pulseWidth_us))
+				{
+				  GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 0);
+				  PWM_Status = (PWM_STATUS_DISABLED);
+				}
+				break;
+
+			case (PWM_STATUS_DISABLED):
+				if(PWM_microsecondCounts*US_PER_TICK >= (REFRESHING_PERIOD))
+				{
+					if(pulseWidth_us != requestedPulseWidth_us)
+					{
+					  PWM_Status = (PWM_STATUS_REINITED);
+					}
+					else
+					{
+					  PWM_Status = (PWM_STATUS_UPDATED);
+					}
+				}
+				break;
+
+			case (PWM_STATUS_FAULT):
+			default:
+				// Toggle Low
+			  GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 0);
+				break;
+		}
+
+    __DSB();
+}
+#endif
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -242,12 +331,91 @@ int main(void) {
 	/* Init private data */
 	memset(&m_data, 0, sizeof(m_data));
 	/* Init rf24 */
-#if ENABLE_TASK_RF24
+#if (ENABLE_TASK_RF24)
 	m_data.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;
 	m_data.rf24_ce.pin = RF24_COMMON_DEFAULT_CE_PIN;
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
-#endif 
+#endif // (ENABLE_TASK_RF24)
 
+#if(TEST_FTM_PWM)
+	// INIT =========
+	/* Define the init structure for the output LED pin*/
+		gpio_pin_config_t servo_motor_gpio_config = {
+			kGPIO_DigitalOutput, 0,
+		};
+
+	// INIT Servo PWM GPIO Pin
+	GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
+
+	// CODE ============
+	uint32_t cnt;
+	uint32_t loop = 4U;
+	uint32_t secondLoop = 10000U;//10us
+ 	const char *signals = "-|";
+	ftm_config_t ftmInfo;
+	FTM_GetDefaultConfig(&ftmInfo);
+	/* Divide FTM clock by 4 */
+	ftmInfo.prescale = kFTM_Prescale_Divide_4;
+	/* Initialize FTM module */
+	FTM_Init(BOARD_FTM_BASEADDR, &ftmInfo);
+	/*
+	* Set timer period.
+	*/
+	FTM_SetTimerPeriod(BOARD_FTM_BASEADDR, USEC_TO_COUNT(US_PER_TICK, FTM_SOURCE_CLOCK)); // 10 usec
+
+	FTM_EnableInterrupts(BOARD_FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable);
+
+	EnableIRQ(BOARD_FTM_IRQ_NUM);
+
+	FTM_StartTimer(BOARD_FTM_BASEADDR, kFTM_SystemClock);
+	DEBUG_PRINT_INFO(" ****** Counter begin ******");
+	cnt = 0;
+	volatile uint16_t temp = 600U;
+	bool increment = true;
+    while (true)
+    {
+        if (ftmIsrFlag)
+        {
+            milisecondCounts++;
+            ftmIsrFlag = false;
+            if (milisecondCounts >= secondLoop)//100ms
+            {
+//                DEBUG_PRINT_INFO(" %c", signals[cnt & 1]);
+                cnt++;
+                if (cnt >= loop)
+                {
+                    cnt = 0;
+                }
+                milisecondCounts = 0U;
+//                switch(cnt)
+//                {
+//                  case 0:
+//                    SERVO_writeMicroseconds(1500U);//1250
+//                    break;
+//
+//                  case 1:
+//                    SERVO_writeMicroseconds(2400U);
+//                    break;
+//
+//                  case 2:
+//                    SERVO_writeMicroseconds(1500U);
+//                    break;
+//
+//                  default:
+//                    SERVO_writeMicroseconds(600U);
+//                    break;
+//                }
+                if(temp>=2400)
+                  increment = false;
+                else if (temp<=600)
+                  increment = true;
+                temp += increment?(100):(-100);
+                SERVO_writeMicroseconds(temp);
+            }
+        }
+        __WFI();
+    }
+#endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
