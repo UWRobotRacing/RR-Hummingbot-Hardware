@@ -113,6 +113,11 @@ typedef struct{
 }Hummingbot_firmware_FreeRTOS_2_S;
 //TODO: change name of struct??
 
+typedef struct{
+	uint16_t int1;
+	uint16_t int2;
+}hummingbot_uart_handle_t;
+
 /***************************************  
  *********  Private Variable ********** 
  ***************************************/
@@ -130,27 +135,36 @@ void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t statu
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
 #if ENABLE_UART_TEST
-	char arr[10] = "hello\r\n";
+//	char arr[10] = "hello\r\n";
+	hummingbot_uart_handle_t humuart;
+	humuart.int1 = 0x12;
+	humuart.int2 = 0x34;
 	lpuart_transfer_t lpuart1_transfer;
-	lpuart1_transfer.data = (uint8_t*) arr;
-	lpuart1_transfer.dataSize = 1;
+	lpuart1_transfer.data = (uint8_t*) &humuart;
+	lpuart1_transfer.dataSize = sizeof(hummingbot_uart_handle_t);
+//	lpuart1_transfer.data = (uint8_t*) arr;
+//	lpuart1_transfer.dataSize = 1;
 	size_t bytesReceived = 0;
 	uint8_t next_receive = 1;
+
+
 
 	while(1) {
 #if	ENABLE_LED
 		GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
 #endif
-		if(next_receive) {
-			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
-			next_receive = 0;
-		}
-		if(ready_for_next_transmit) {
-			LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
-			next_receive = 1;
-			ready_for_next_transmit = 0;
-		}
-		vTaskDelay(configTICK_RATE_HZ);
+		LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
+//		if(next_receive) {
+//			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
+//			next_receive = 0;
+//		}
+//		if(ready_for_next_transmit) {
+//			LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
+//			next_receive = 1;
+//			ready_for_next_transmit = 0;
+//		}
+//		vTaskDelay(configTICK_RATE_HZ);
+		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif
 }
