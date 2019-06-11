@@ -150,9 +150,10 @@ static void task_rf24(void *pvParameters)
 //		    RF24_read(&text, sizeof(text));
 //		    DEBUG_PRINT_INFO("RCV: %s",text);
 			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
-			uint8_t temp1 = ((m_data.rf24_buf[1]) & 0xFF);
-			uint8_t temp2 = m_data.rf24_buf[1]>>8;
-			uint16_t temp3 = (m_data.rf24_buf[0]);
+			uint32_t temp = (m_data.rf24_buf[1]<<16) + m_data.rf24_buf[0];
+			uint16_t temp1 = temp >>20;
+			uint16_t temp2 = (temp>>8)&(0xFFF);
+			uint16_t temp3 = temp&(0xFF);
 			if(temp3!=0) //TODO: filter out with pattern
 			{
 				DEBUG_PRINT_INFO("RCV: %d | %d | %d", temp1, temp2, temp3);
