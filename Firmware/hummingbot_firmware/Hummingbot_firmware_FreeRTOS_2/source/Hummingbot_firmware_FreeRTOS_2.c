@@ -137,8 +137,8 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 #if ENABLE_UART_TEST
 //	char arr[10] = "hello\r\n";
 	hummingbot_uart_handle_t humuart;
-	humuart.int1 = 1.1;
-	humuart.int2 = 2.2;
+	humuart.int1 = 0.0;
+	humuart.int2 = 0.0;
 	lpuart_transfer_t lpuart1_transfer;
 	lpuart1_transfer.data = (uint8_t*) &humuart;
 	lpuart1_transfer.dataSize = sizeof(hummingbot_uart_handle_t);
@@ -150,21 +150,36 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 
 
 	while(1) {
+//		LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
+		if(next_receive) {
+			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
+			next_receive = 0;
+		}
+		if(ready_for_next_transmit) {
+			if(humuart.int1 == 1.1) {
 #if	ENABLE_LED
-		GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
+				GPIO_PortSet(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
 #endif
-		LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
-//		if(next_receive) {
-//			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
-//			next_receive = 0;
-//		}
-//		if(ready_for_next_transmit) {
+			} else {
+#if	ENABLE_LED
+				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
+#endif
+			}
+			if(humuart.int2 == 2.2) {
+#if	ENABLE_LED
+				GPIO_PortSet(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
+#endif
+			} else {
+#if	ENABLE_LED
+				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
+#endif
+			}
 //			LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
-//			next_receive = 1;
-//			ready_for_next_transmit = 0;
-//		}
-//		vTaskDelay(configTICK_RATE_HZ);
-		vTaskDelay(configTICK_RATE_HZ*2);
+			next_receive = 1;
+			ready_for_next_transmit = 0;
+		}
+		vTaskDelay(configTICK_RATE_HZ);
+//		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif
 }
