@@ -63,12 +63,11 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-
-//#define ENABLE_TASK_RF24				1
+#define ENABLE_TASK_RF24				0
+#define ENABLE_PWM_STEERING_SERVO		0
 #define ENABLE_FEATURE_DEBUG_PRINT      1
-//#define ENABLE_PWM_STEERING_SERVO		1
-#define ENABLE_LED						1
 #define ENABLE_UART_TEST				1
+#define ENABLE_LED						1
 
 // Servo Macros
 #define SERVO_PWM_PERIOD_MS       (uint8_t)20
@@ -94,6 +93,7 @@
 #define SERVO_MAX_TICKS         SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MAX_ANGLE)
 
 #define TASK_PWM_STEERING_SERVO_PRIORITY 							(configMAX_PRIORITIES - 1)
+#define TASK_UART_TEST 							(configMAX_PRIORITIES - 1)
 
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINT_ERR(fmt, ...) \
@@ -102,6 +102,7 @@
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN] " fmt "\r\n", fmt, ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_INFO(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO] " fmt "\r\n", fmt, ##__VA_ARGS__); } while (0)
+
 /***************************************  
  *********  Struct/Enums Defs ********** 
  ***************************************/
@@ -116,68 +117,51 @@ typedef struct{
  *********  Private Variable ********** 
  ***************************************/
 Hummingbot_firmware_FreeRTOS_2_S m_data;
-
+lpuart_handle_t lpuart1_handle;
+volatile char ready_for_next_transmit;
 /************************************************  
  ********* Private Function Prototypes ********** 
  ***********************************************/
-static void task_rf24(void *pvParameters);
-static void task_steering_control(void *pvParameters);
-static void task_test_timed_interrupt(void *pvParameters);
+static void task_test_lpuart_asyncrhonous_echo(void *pvParameters);
+void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
-
-static void task_rf24(void *pvParameters)
+static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
-	while(1) 
-	{
-			// TODO: do sth.
-			//vTaskDelay(20);
-	}
-}
-
-static void task_steering_control(void *pvParameters)
-{
-	int angle = 85;
-
-	while(1) {
-#if ENABLE_PWM_STEERING_SERVO
-	  //toggle High
-	  GPIO_PortSet(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
-
-	  //delay ticks
-	  vTaskDelay(SERVO_CONVERT_ANGLE_2_TICKS(angle));
-
-	  // Toggle Low
-	  GPIO_PortClear(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
-
-	   //delay 20ms - ticks
-	   vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
-#endif ENABLE_PWM_STEERING_SERVO
-
-	}
-}
-
-static void task_test_timed_interrupt(void *pvParameters)
-{
-	while(1) {
-#if ENABLE_LED
-		GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
-		//delay 1 second
-		vTaskDelay(configTICK_RATE_HZ);
-#endif
-	}
-}
-
-static void task_test_timed_interrupt2(void *pvParameters)
-{
-	char arr[10];
-	while(1) {
 #if ENABLE_UART_TEST
-		SCANF("%s", arr);
-		arr[9] = '\0';
-		PRINTF("%s\r\n", arr);
+	char arr[10] = "hello\r\n";
+	lpuart_transfer_t lpuart1_transfer;
+	lpuart1_transfer.data = (uint8_t*) arr;
+	lpuart1_transfer.dataSize = 1;
+	size_t bytesReceived = 0;
+	uint8_t next_receive = 1;
+
+	while(1) {
+#if	ENABLE_LED
+		GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
 #endif
+		if(next_receive) {
+			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
+			next_receive = 0;
+		}
+		if(ready_for_next_transmit) {
+			LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
+			next_receive = 1;
+			ready_for_next_transmit = 0;
+		}
+		vTaskDelay(configTICK_RATE_HZ);
+	}
+#endif
+}
+
+void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+{
+#if ENABLE_LED
+	GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
+#endif
+	if(status == kStatus_LPUART_RxIdle) {
+		ready_for_next_transmit = 1;
 	}
 }
 
@@ -246,18 +230,21 @@ int main(void) {
 #endif
 
 #if ENABLE_UART_TEST
+	ready_for_next_transmit = 0x00;
+
 	lpuart_config_t lpuartConfig;
 	lpuartConfig.baudRate_Bps = 115200U;
 	lpuartConfig.parityMode = kLPUART_ParityDisabled;
 	lpuartConfig.stopBitCount = kLPUART_OneStopBit;
 	lpuartConfig.txFifoWatermark = 0;
-	lpuartConfig.rxFifoWatermark = 1;
+	lpuartConfig.rxFifoWatermark = 0;
 	lpuartConfig.enableRx = true;
 	lpuartConfig.enableTx = true;
 
 	// TODO: optimize clock frequency
 	//NOTE: clock frequency needs to match the clock register
 	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
+	LPUART_TransferCreateHandle(LPUART1, &lpuart1_handle, lpuart1_callback, NULL);
 #endif
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
@@ -275,15 +262,8 @@ int main(void) {
 	    while (1);
 	  }
 #endif
-#if ENABLE_LED
-	if (xTaskCreate(task_test_timed_interrupt, "task_test_timed_interrupt", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
-	{
-		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
-		while (1);
-	}
-#endif
 #if ENABLE_UART_TEST
-	if (xTaskCreate(task_test_timed_interrupt2, "task_test_timed_interrupt2", configMINIMAL_STACK_SIZE + 10, NULL, TASK_PWM_STEERING_SERVO_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_test_lpuart_asyncrhonous_echo, "task_test_lpuart_asyncrhonous_echo", configMINIMAL_STACK_SIZE + 10, NULL, TASK_UART_TEST, NULL) != pdPASS)
 	{
 		DEBUG_PRINT_ERR("Task creation failed!.\r\n");
 		while (1);
