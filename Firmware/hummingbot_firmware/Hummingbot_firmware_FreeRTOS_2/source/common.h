@@ -14,8 +14,9 @@
 /*************************************
  ********* Macro Definitions **********
  *************************************/
-#define SAME_GPIO(x, y) (((x).port==(y).port) && ((x).pin==(y).pin))
-
+#define SAME_GPIO(x, y)     (((x).port==(y).port) && ((x).pin==(y).pin))
+#define LOW                 (0)
+#define HIGH                (1)
 /*************************************
  ********* Struct Definitions ********
  *************************************/

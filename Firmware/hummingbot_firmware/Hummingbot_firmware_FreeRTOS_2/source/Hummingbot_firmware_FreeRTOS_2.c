@@ -44,6 +44,8 @@
 #include "common.h"
 #include "nrf24l01/RF24_common.h"
 #include "nrf24l01/RF24.h"
+#include "Servo/Servo.h"
+#include "Hummingconfig.h"
 
 #include "fsl_debug_console.h"
 #include "fsl_device_registers.h"
@@ -53,7 +55,6 @@
 #include "fsl_lpspi_freertos.h"
 #include "fsl_lpi2c.h"
 #include "fsl_lpi2c_freertos.h"
-#include "fsl_ftm.h"
 
 //libraries for freeRTOS
 #include "FreeRTOS.h"
@@ -92,14 +93,6 @@
 /* Task Frequency */
 #define TASK_RF24_FREQ                   			(HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 #define TENABLE_TASK_VEHICLE_CONTROL_FREQ     (HELPER_TASK_FREQUENCY_HZ(10)) //Hz //TODO: TBI, to be implemented
-/* Servo Macros */
-#if (ENABLE_TASK_VEHICLE_CONTROL || TEST_FTM_PWM)
-#define SERVO_PWM_PERIOD_MS       (uint8_t)20
-#define SERVO_MIN_ANGLE         	60
-#define SERVO_MAX_ANGLE         	110
-#define SERVO_GPIO_PORT         	GPIOE
-#define SERVO_GPIO_PIN          	13U // Servo connected to SERVO LEFT connector on hummingboard.
-#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 /***********************************
  ********* Macro Helpers **********
@@ -122,9 +115,7 @@ typedef struct{
 	lpspi_t   spi;
 	uint8_t   buf_rx[9];
 	uint8_t   buf_tx[9];
-}Hummingbot_firmware_FreeRTOS_2_S;
-//TODO: change name of struct??
-
+}Hummingbot_firmware_FreeRTOS_2_data_S;
 
 /*************************************
  ********* Inline Definitions **********
@@ -146,14 +137,14 @@ static inline void printHummingBoardLogo(void)
 /***************************************  
  *********  Private Variable ********** 
  ***************************************/
-Hummingbot_firmware_FreeRTOS_2_S m_data;
+Hummingbot_firmware_FreeRTOS_2_data_S m_data;
 
 /************************************************  
  ********* Private Function Prototypes ********** 
  ***********************************************/
 #if (ENABLE_TASK_RF24)
   static void task_rf24(void *pvParameters);
-#endif // (ENABLE_TASK_RF24)
+#endif // (ENABLE_TASK_RF24
 #if (ENABLE_TASK_VEHICLE_CONTROL)
   static void task_steeringControl(void *pvParameters);
 #endif // (ENABLE_TASK_VEHICLE_CONTROL)
@@ -212,95 +203,6 @@ static void task_steeringControl(void *pvParameters)
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
-#if (TEST_FTM_PWM)
-/* The Flextimer instance/channel used for board */
-#define BOARD_FTM_BASEADDR FTM0
-/* Interrupt number and interrupt handler for the FTM instance used */
-#define BOARD_FTM_IRQ_NUM FTM0_IRQn
-#define BOARD_FTM_HANDLER FTM0_IRQHandler
-/* Get source clock for FTM driver */
-#define FTM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
-#define US_PER_TICK (10U)
-#define GO_TO_NEXT_STATE(newState) (PWM_Status = (newState))
-#define PWM_SERVO_STEERING_REFRESHING_PERIOD (3003) //us //333Hz
-#define REFRESHING_PERIOD (PWM_SERVO_STEERING_REFRESHING_PERIOD)
-volatile bool ftmIsrFlag = false;
-volatile uint32_t milisecondCounts = 0U;
-volatile uint16_t pulseWidth_us = 1500U;
-volatile uint16_t requestedPulseWidth_us = 1500U; //800us ~ 2200us
-volatile uint32_t PWM_microsecondCounts = 0U;
-typedef enum 
-{
-	PWM_STATUS_UNKNOWN,
-	PWM_STATUS_REINITED,
-	PWM_STATUS_UPDATED,
-	PWM_STATUS_ENABLED,
-	PWM_STATUS_DISABLED,
-	PWM_STATUS_FAULT
-}PWM_STATUS_E; 
-volatile PWM_STATUS_E PWM_Status = PWM_STATUS_REINITED;
-void SERVO_writeMicroseconds(uint16_t newPulseWidth_us)
-{
-	requestedPulseWidth_us = newPulseWidth_us;
-}
-void BOARD_FTM_HANDLER(void)
-{
-    /* Clear interrupt flag.*/
-    FTM_ClearStatusFlags(BOARD_FTM_BASEADDR, kFTM_TimeOverflowFlag);
-    ftmIsrFlag = true;
-		PWM_microsecondCounts ++;
-		//state machine
-		switch(PWM_Status)
-		{
-			case (PWM_STATUS_UNKNOWN):
-				//DO NOTHING
-				break;
-
-			case (PWM_STATUS_REINITED):
-				//toggle High
-				pulseWidth_us = requestedPulseWidth_us;
-				GO_TO_NEXT_STATE(PWM_STATUS_UPDATED);
-				break;
-
-			case (PWM_STATUS_UPDATED):
-				//toggle High
-        GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 1);
-				PWM_microsecondCounts = 0;
-				PWM_Status = (PWM_STATUS_ENABLED);
-				break;
-
-			case (PWM_STATUS_ENABLED):
-				if(PWM_microsecondCounts*US_PER_TICK >= (pulseWidth_us))
-				{
-				  GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 0);
-				  PWM_Status = (PWM_STATUS_DISABLED);
-				}
-				break;
-
-			case (PWM_STATUS_DISABLED):
-				if(PWM_microsecondCounts*US_PER_TICK >= (REFRESHING_PERIOD))
-				{
-					if(pulseWidth_us != requestedPulseWidth_us)
-					{
-					  PWM_Status = (PWM_STATUS_REINITED);
-					}
-					else
-					{
-					  PWM_Status = (PWM_STATUS_UPDATED);
-					}
-				}
-				break;
-
-			case (PWM_STATUS_FAULT):
-			default:
-				// Toggle Low
-			  GPIO_PinWrite(SERVO_GPIO_PORT, SERVO_GPIO_PIN, 0);
-				break;
-		}
-
-    __DSB();
-}
-#endif
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -308,13 +210,6 @@ void BOARD_FTM_HANDLER(void)
  * @brief   Application entry point.
  */
 int main(void) {
-#ifdef TEMPORARY_TEST
-      BOARD_InitPins();
-      BOARD_BootClockRUN();
-      BOARD_InitDebugConsole();
-
-#else
-
 	/*---- INIT --------------------------------------------------------*/
 	/* Init board hardware. */
 	BOARD_InitBootPins();
@@ -339,45 +234,32 @@ int main(void) {
 
 #if(TEST_FTM_PWM)
 	// INIT =========
-	/* Define the init structure for the output LED pin*/
-		gpio_pin_config_t servo_motor_gpio_config = {
-			kGPIO_DigitalOutput, 0,
-		};
-
-	// INIT Servo PWM GPIO Pin
-	GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
+	SERVO_ServoConfig_S servoConfigs[1];
+	memset(servoConfigs, 0, sizeof(servoConfigs));
+	servoConfigs->gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
+	servoConfigs->gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
+	servoConfigs->refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
+	servoConfigs->defaultPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_DEFAULT_PW;
+	servoConfigs->minPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MIN_PW;
+	servoConfigs->maxPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MAX_PW;
+	SERVO_init(servoConfigs, 1);
 
 	// CODE ============
 	uint32_t cnt;
 	uint32_t loop = 4U;
+	uint32_t milisecondCounts = 0;
 	uint32_t secondLoop = 10000U;//10us
  	const char *signals = "-|";
-	ftm_config_t ftmInfo;
-	FTM_GetDefaultConfig(&ftmInfo);
-	/* Divide FTM clock by 4 */
-	ftmInfo.prescale = kFTM_Prescale_Divide_4;
-	/* Initialize FTM module */
-	FTM_Init(BOARD_FTM_BASEADDR, &ftmInfo);
-	/*
-	* Set timer period.
-	*/
-	FTM_SetTimerPeriod(BOARD_FTM_BASEADDR, USEC_TO_COUNT(US_PER_TICK, FTM_SOURCE_CLOCK)); // 10 usec
-
-	FTM_EnableInterrupts(BOARD_FTM_BASEADDR, kFTM_TimeOverflowInterruptEnable);
-
-	EnableIRQ(BOARD_FTM_IRQ_NUM);
-
-	FTM_StartTimer(BOARD_FTM_BASEADDR, kFTM_SystemClock);
 	DEBUG_PRINT_INFO(" ****** Counter begin ******");
 	cnt = 0;
 	volatile uint16_t temp = 600U;
 	bool increment = true;
+	SERVO_requestStart(0);
     while (true)
     {
-        if (ftmIsrFlag)
+        if (SERVO_getNotifiedByNewTick())
         {
             milisecondCounts++;
-            ftmIsrFlag = false;
             if (milisecondCounts >= secondLoop)//100ms
             {
 //                DEBUG_PRINT_INFO(" %c", signals[cnt & 1]);
@@ -387,6 +269,7 @@ int main(void) {
                     cnt = 0;
                 }
                 milisecondCounts = 0U;
+//                SERVO_write_us(0, 1500U);
 //                switch(cnt)
 //                {
 //                  case 0:
@@ -410,7 +293,7 @@ int main(void) {
                 else if (temp<=600)
                   increment = true;
                 temp += increment?(100):(-100);
-                SERVO_writeMicroseconds(temp);
+                SERVO_write_us(0, temp);
             }
         }
         __WFI();
@@ -480,7 +363,6 @@ int main(void) {
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");
 	vTaskStartScheduler();
-#endif
 	return 0;
 }
 
