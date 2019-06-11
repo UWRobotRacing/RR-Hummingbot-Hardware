@@ -122,7 +122,7 @@ typedef struct{
  *********  Private Variable ********** 
  ***************************************/
 Hummingbot_firmware_FreeRTOS_2_S m_data;
-lpuart_handle_t lpuart1_handle;
+lpuart_handle_t lpuart1_handle, lpuart0_handle;
 volatile char ready_for_next_transmit;
 /************************************************  
  ********* Private Function Prototypes ********** 
@@ -174,7 +174,7 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
 #endif
 			}
-//			LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
+			LPUART_TransferSendNonBlocking(LPUART0, &lpuart0_handle, &lpuart1_transfer);
 			next_receive = 1;
 			ready_for_next_transmit = 0;
 		}
@@ -274,6 +274,8 @@ int main(void) {
 	//NOTE: clock frequency needs to match the clock register
 	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
 	LPUART_TransferCreateHandle(LPUART1, &lpuart1_handle, lpuart1_callback, NULL);
+	LPUART_Init(LPUART0, &lpuartConfig, 16000000U);
+	LPUART_TransferCreateHandle(LPUART0, &lpuart0_handle, NULL, NULL);
 #endif
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
