@@ -114,8 +114,8 @@ typedef struct{
 //TODO: change name of struct??
 
 typedef struct{
-	uint16_t int1;
-	uint16_t int2;
+	float int1;
+	float int2;
 }hummingbot_uart_handle_t;
 
 /***************************************  
@@ -137,8 +137,8 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 #if ENABLE_UART_TEST
 //	char arr[10] = "hello\r\n";
 	hummingbot_uart_handle_t humuart;
-	humuart.int1 = 0x12;
-	humuart.int2 = 0x34;
+	humuart.int1 = 1.1;
+	humuart.int2 = 2.2;
 	lpuart_transfer_t lpuart1_transfer;
 	lpuart1_transfer.data = (uint8_t*) &humuart;
 	lpuart1_transfer.dataSize = sizeof(hummingbot_uart_handle_t);
