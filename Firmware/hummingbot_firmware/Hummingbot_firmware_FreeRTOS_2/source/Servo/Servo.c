@@ -56,11 +56,11 @@ typedef struct{
 } SERVO_pwm_data_S;
 
 typedef struct{
+    const SERVO_ServoConfig_S* configs;
     bool                ftmIsrFlag;
     bool                configed;
     uint8_t             size;
-    SERVO_ServoConfig_S configs[SERVO_MAX_NUM_SERVO];
-    SERVO_pwm_data_S    pwms[SERVO_MAX_NUM_SERVO];
+    SERVO_pwm_data_S     pwms[SERVO_MAX_NUM_SERVO];
 } SERVO_data_S;
 
 /*******************************************************************************
@@ -76,7 +76,12 @@ static inline void runStateMachine(uint8_t index);
 /*******************************************************************************
  * public function
  ******************************************************************************/
-bool SERVO_init(SERVO_ServoConfig_S* configs, uint8_t size)
+void SERVO_onDestroy(void)
+{
+    m_servos.configs = NULL;
+}
+
+bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size)
 {   
     int i = 0;
     gpio_pin_config_t servo_motor_gpio_config = {
@@ -89,7 +94,7 @@ bool SERVO_init(SERVO_ServoConfig_S* configs, uint8_t size)
         // copy device config
         for(i = 0; i < size; i++)
         {
-            m_servos.configs[i] = configs[i];
+            m_servos.configs = configs;
             // init pwms 
             m_servos.pwms[i].status = PWM_STATUS_IDLE;
             m_servos.pwms[i].counter_tick = 0;

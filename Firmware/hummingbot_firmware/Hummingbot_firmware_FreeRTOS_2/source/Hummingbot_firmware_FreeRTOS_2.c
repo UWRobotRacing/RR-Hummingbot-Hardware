@@ -233,71 +233,9 @@ int main(void) {
 #endif // (ENABLE_TASK_RF24)
 
 #if(TEST_FTM_PWM)
-	// INIT =========
-	SERVO_ServoConfig_S servoConfigs[1];
-	memset(servoConfigs, 0, sizeof(servoConfigs));
-	servoConfigs->gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
-	servoConfigs->gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
-	servoConfigs->refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
-	servoConfigs->defaultPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_DEFAULT_PW;
-	servoConfigs->minPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MIN_PW;
-	servoConfigs->maxPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MAX_PW;
-	SERVO_init(servoConfigs, 1);
 
 	// CODE ============
-	uint32_t cnt;
-	uint32_t loop = 4U;
-	uint32_t milisecondCounts = 0;
-	uint32_t secondLoop = 10000U;//10us
- 	const char *signals = "-|";
-	DEBUG_PRINT_INFO(" ****** Counter begin ******");
-	cnt = 0;
-	volatile uint16_t temp = 600U;
-	bool increment = true;
-	SERVO_requestStart(0);
-    while (true)
-    {
-        if (SERVO_getNotifiedByNewTick())
-        {
-            milisecondCounts++;
-            if (milisecondCounts >= secondLoop)//100ms
-            {
-//                DEBUG_PRINT_INFO(" %c", signals[cnt & 1]);
-                cnt++;
-                if (cnt >= loop)
-                {
-                    cnt = 0;
-                }
-                milisecondCounts = 0U;
-//                SERVO_write_us(0, 1500U);
-//                switch(cnt)
-//                {
-//                  case 0:
-//                    SERVO_writeMicroseconds(1500U);//1250
-//                    break;
-//
-//                  case 1:
-//                    SERVO_writeMicroseconds(2400U);
-//                    break;
-//
-//                  case 2:
-//                    SERVO_writeMicroseconds(1500U);
-//                    break;
-//
-//                  default:
-//                    SERVO_writeMicroseconds(600U);
-//                    break;
-//                }
-                if(temp>=2400)
-                  increment = false;
-                else if (temp<=600)
-                  increment = true;
-                temp += increment?(100):(-100);
-                SERVO_write_us(0, temp);
-            }
-        }
-        __WFI();
-    }
+	
 #endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");

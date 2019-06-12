@@ -1,25 +1,43 @@
-// #ifndef VEHICLE_CONTROLLER_H_
-// #define VEHICLE_CONTROLLER_H_
+#ifndef VEHICLE_CONTROLLER_H_
+#define VEHICLE_CONTROLLER_H_
 
-// /***********************************
-//  ********* Macro Settings **********
-//  ***********************************/
-// /* Servo Preference */
-// // #define SERVO_PWM_PERIOD_MS       (uint8_t)20
-// // #define SERVO_MIN_ANGLE         	60
-// // #define SERVO_MAX_ANGLE         	110
-// // #define SERVO_GPIO_PORT         	GPIOE
-// // #define SERVO_GPIO_PIN          	13U // Servo connected to SERVO LEFT connector on hummingboard.
 
-// /*******************************************************************************
-//  * typedef
-//  ******************************************************************************/
-// typedef struct{
-//     pin_t       gpio,
-//     uint16_t    refreshingPeriod,
-//     uint16_t    defaultPulseWidth_us,
-//     uint16_t    minPulseWidth_us,
-//     uint16_t    maxPulseWidth_us
-// } VC_ServoConfig_S;
+#include <stdint.h>
+#include <stdbool.h>
+/***********************************
+ ********* Macro Definition **********
+ ***********************************/
+// define some common metric uint
+typedef int16_t    angle_deg_t; 
+typedef int16_t    dist_mm_t; 
+typedef uint16_t   pulse_us_t;
+typedef int16_t    speed_mm_per_s_t;
 
-// #endif //(VEHICLE_CONTROLLER_H_)
+// some conversion unit
+typedef uint16_t   us_per_deg_t;
+typedef uint16_t   us_s_per_mm_t;
+
+typedef enum{
+    VC_STATE_UNDEFINED,
+    VC_STATE_CONFIGED,
+    VC_STATE_INITED,
+    VC_STATE_IDLE,
+    VC_STATE_RUNNING,
+    VC_STATE_FAULT,
+    VC_STATE_DESTROYED,
+} VC_state_E;
+
+typedef enum{
+    VC_ERROR_FLAG_STEERING_ERR,
+    VC_ERROR_FLAG_THROTTLE_ERR,
+} VC_errorFlag_E;
+/*******************************************************************************
+ * public functions
+ ******************************************************************************/
+void VC_onDestroy(void);
+void VC_Config(void);
+bool VC_Init(void);
+bool VC_Begin(void);
+void VC_dummyTestRun(void);
+
+#endif //(VEHICLE_CONTROLLER_H_)

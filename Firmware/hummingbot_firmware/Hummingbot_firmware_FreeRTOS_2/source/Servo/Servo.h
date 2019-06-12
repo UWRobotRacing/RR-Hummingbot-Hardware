@@ -27,7 +27,8 @@ typedef enum
 /*******************************************************************************
  * public function
  ******************************************************************************/
-bool SERVO_init(SERVO_ServoConfig_S* configs, uint8_t size);
+void SERVO_onDestroy(void);
+bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size);
 
 SERVO_PWM_STATUS_E SERVO_getStatus(uint8_t index);
 bool SERVO_goDefault(uint8_t index);
