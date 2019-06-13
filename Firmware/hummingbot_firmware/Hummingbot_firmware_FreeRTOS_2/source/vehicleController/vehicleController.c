@@ -3,6 +3,15 @@
  *
  *  Created on: Apr 28, 2019
  *      Author: jackxu
+ * 
+ * TODO: 
+ *  1. we can implement hard/soft/variable braking 
+ *  2. we can implement ** sports mode **
+ *  3. we can implement position control here if needed
+ *  4. trajectory based control, a timing based queued speed and angle pairs
+ *  5. fancy drifting control
+ *  6. with encoder feedback, we can do active PID control
+ * 
  */
 #include "vehicleController.h"
 
@@ -13,9 +22,10 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define SET_ERR_FLAG(err)         (m_data.errorFlags |=(1U<<err))
-#define CLEAR_ERR_FLAG(err)       (m_data.errorFlags &=~(1U<<err))
-
+#define SET_ERR_FLAG(err)         (m_vc.errorFlags |=(1U<<err))
+#define CLEAR_ERR_FLAG(err)       (m_vc.errorFlags &=~(1U<<err))
+#define UPDATE_STATE(newState)    ((m_vc.state) = (newState))
+#define VC_OK                     ((m_vc.state < VC_STATE_FAULT)&&(m_vc.state > VC_STATE_INITED))
 /*******************************************************************************
  * typedef
  ******************************************************************************/
@@ -30,23 +40,17 @@ typedef struct{
 } VC_speed_pair_t;
 
 typedef struct{
-    VC_rotation_pair_t neutral;//we are assuming neutral is 0 degree
+    VC_rotation_pair_t neutral;
     VC_rotation_pair_t max;
     VC_rotation_pair_t min;
 } VC_steerCalibration_S;
 
 typedef struct{
-    VC_speed_pair_t max_FWD_hardLimit;
+    VC_speed_pair_t max_FWD_hardLimit; // for sports mode if needed, (unused)
     VC_speed_pair_t max_FWD_softLimit;
     VC_speed_pair_t min_FWD_starting; //due to friction, it requires certain power to move
-    VC_speed_pair_t braking;  
+    VC_speed_pair_t braking;  //TODO: might need a variable/hard/soft braking, TBD
 } VC_throttleCalibration_S;
-
-typedef enum{
-    VC_CHANNEL_NAME_STEER,
-    VC_CHANNEL_NAME_THROTTLE,
-    VC_CHANNEL_NAME_COUNT,
-} VC_channnelName_E;
 
 typedef struct{
     SERVO_ServoConfig_S         deviceConfigs[VC_CHANNEL_NAME_COUNT];
@@ -62,7 +66,7 @@ typedef struct{
 /*******************************************************************************
  * private variables
  ******************************************************************************/
-static VehicleController_data_S    m_data = {0};
+static VehicleController_data_S    m_vc = {0};
 // TODO: please calibrate values
 static const VC_steerCalibration_S    frsky_servo_calib ={
     .neutral = {
@@ -100,65 +104,71 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
 /*******************************************************************************
  * private function prototypes
  ******************************************************************************/
+
+
+/*******************************************************************************
+ * public function
+ ******************************************************************************/
+
 void VC_onDestroy(void)
 {
-    m_data.steering_config = NULL;
-    m_data.throttle_config = NULL;
+    m_vc.steering_config = NULL;
+    m_vc.throttle_config = NULL;
     // free all child modules
     SERVO_onDestroy();
-    m_data.state = VC_STATE_DESTROYED;
+    UPDATE_STATE(VC_STATE_DESTROYED);
 }
 
 void VC_Config(void)
 {
-    m_data.steering_config = &frsky_servo_calib;
-    m_data.throttle_config = &onyx_bldc_esc_calib;
+    m_vc.steering_config = &frsky_servo_calib;
+    m_vc.throttle_config = &onyx_bldc_esc_calib;
     // compute scale factor
-    m_data.us_per_deg = (m_data.steering_config->max.pw_us - m_data.steering_config->min.pw_us)/
-        (m_data.steering_config->max.angle_deg - m_data.steering_config->min.angle_deg);
-    m_data.us_s_per_mm = (m_data.throttle_config->max_FWD_softLimit.pw_us - m_data.throttle_config->min_FWD_starting.pw_us)/
-        (m_data.throttle_config->max_FWD_softLimit.speed_mm_per_s - m_data.throttle_config->min_FWD_starting.speed_mm_per_s);
+    m_vc.us_per_deg = (m_vc.steering_config->max.pw_us - m_vc.steering_config->min.pw_us)/
+        (m_vc.steering_config->max.angle_deg - m_vc.steering_config->min.angle_deg);
+    m_vc.us_s_per_mm = (m_vc.throttle_config->max_FWD_softLimit.pw_us - m_vc.throttle_config->min_FWD_starting.pw_us)/
+        (m_vc.throttle_config->max_FWD_softLimit.speed_mm_per_s - m_vc.throttle_config->min_FWD_starting.speed_mm_per_s);
 
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].defaultPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_DEFAULT_PW;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].minPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MIN_PW;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_STEER].maxPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MAX_PW;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].defaultPulseWidth_us =	m_vc.steering_config->neutral.pw_us; //default is neutral position
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].minPulseWidth_us =	m_vc.steering_config->min.pw_us;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].maxPulseWidth_us =	m_vc.steering_config->max.pw_us;
 
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_DEFAULT_PW;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MIN_PW;
-    m_data.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	HUMMING_CONFIG_EXAMPLE_MAX_PW;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->braking.speed_mm_per_s; // default is active braking
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	0; //make sure is 0, or you wont be able to stop with `write_us`
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_FWD_softLimit.speed_mm_per_s;
     
-    m_data.state = VC_STATE_CONFIGED;
+    UPDATE_STATE(VC_STATE_CONFIGED);
 }
 
 bool VC_Init(void)
 {
-    if(m_data.state == VC_STATE_CONFIGED)
+    if(VC_STATE_CONFIGED == m_vc.state)
     {
-	    SERVO_init(m_data.deviceConfigs, VC_CHANNEL_NAME_COUNT);
-        m_data.state = VC_STATE_INITED;
+	    SERVO_init(m_vc.deviceConfigs, VC_CHANNEL_NAME_COUNT);
+        UPDATE_STATE(VC_STATE_INITED);
     }
-    return (m_data.state == VC_STATE_INITED);
+    return (VC_STATE_INITED == m_vc.state);
 }
 
 bool VC_Begin(void)
 {
     bool status = true;
-    if(m_data.state == VC_STATE_INITED)
+    if(VC_STATE_INITED == m_vc.state)
     {
-        status &= SERVO_requestStart(VC_CHANNEL_NAME_STEER);
+        status &= SERVO_requestStart(VC_CHANNEL_NAME_STEERING);
         status &= SERVO_requestStart(VC_CHANNEL_NAME_THROTTLE);
         if(status)
         {
-            m_data.state = VC_STATE_IDLE;
+           UPDATE_STATE(VC_STATE_IDLE);
         }
     }
-    return (m_data.state == VC_STATE_IDLE);
+    return (VC_STATE_IDLE == m_vc.state);
 }
 
 void VC_dummyTestRun(void)
@@ -194,10 +204,126 @@ void VC_dummyTestRun(void)
     }
 }
 
-/*******************************************************************************
- * public function
- ******************************************************************************/
+bool VC_requestSteering(angle_deg_t reqAng) 
+{
+    bool ret = false;
+    pulse_us_t pulseWidth = 0; 
+    if( (VC_OK) &&
+        (reqAng <= m_vc.steering_config->max.angle_deg) &&
+        (reqAng >= m_vc.steering_config->min.angle_deg))
+    {
+            // do conversion & offset here:
+        int16_t pw_delta = (reqAng - (m_vc.steering_config->neutral.angle_deg))*m_vc.us_per_deg;
+        pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.steering_config->neutral.pw_us));
+        if(SERVO_write_us(VC_CHANNEL_NAME_STEERING, pulseWidth))
+        {
+            ret = true;
+        }   
+    }
+    return ret;
+}
 
+bool VC_requestThrottle(speed_mm_per_s_t reqSpd)
+{
+    bool ret = false;
+    pulse_us_t pulseWidth = 0; 
+    if((VC_OK) && reqSpd >= m_vc.throttle_config->min_FWD_starting.speed_mm_per_s)
+    {
+        if(reqSpd <= m_vc.throttle_config->max_FWD_softLimit.speed_mm_per_s)
+        {
+            // do conversion & offset here:
+            int16_t pw_delta = (reqSpd - (m_vc.throttle_config->min_FWD_starting.speed_mm_per_s))*m_vc.us_s_per_mm;
+            pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_FWD_starting.pw_us));
+            if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, pulseWidth))
+            {
+                ret = true;
+                UPDATE_STATE(VC_STATE_RUNNING);
+            }
+            else
+            {
+                SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+            }      
+        }
+        else
+        {
+            // keep current spd.
+        }
+    }
+    else    // braking
+    {
+       if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
+        {
+            ret = true;
+            UPDATE_STATE(VC_STATE_IDLE);
+        } 
+        else
+        {
+            SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+        }
+    }
+    return ret;
+}
+
+bool VC_doBraking(angle_deg_t reqAng)
+{
+    bool ret = true;
+    ret &= SERVO_goDefault(VC_CHANNEL_NAME_THROTTLE);
+    if(reqAng == 0)
+    {
+       ret &= SERVO_goDefault(VC_CHANNEL_NAME_STEERING);
+       UPDATE_STATE(VC_STATE_IDLE);
+    }
+    //in case we want to drift
+    else
+    {
+      ret &= VC_requestSteering(reqAng);
+    }
+    if(!ret)
+    {
+        SET_ERR_FLAG(VC_ERROR_FLAG_UNABLE_BRAKING_ERR);
+    }
+    return ret;
+}
+
+// WARNING. this will not necessary do bbraking/straighten steering, all it does is to give up signalling(controlling) the servo/esc
+bool VC_powerOff_FreeWheeling(VC_channnelName_E controller)
+{
+    bool ret = true;
+    switch(controller)
+    {
+        case (VC_CHANNEL_NAME_STEERING):
+        case (VC_CHANNEL_NAME_THROTTLE):
+            ret &= SERVO_doStop(controller);
+            break;
+
+        case (VC_CHANNEL_NAME_COUNT):
+        case (VC_CHANNEL_NAME_ALL):
+        default:
+            // drop both
+            ret &= SERVO_doStop(VC_CHANNEL_NAME_STEERING);
+            ret &= SERVO_doStop(VC_CHANNEL_NAME_THROTTLE); //will stop eventually
+            break;
+    }
+    if(!ret)
+    {
+        SET_ERR_FLAG(VC_ERROR_FLAG_UNABLE_FREE_CONTROL_ERR);
+    }
+    else
+    {
+        UPDATE_STATE(VC_STATE_IDLE);        
+    }
+    return ret;
+}
+
+VC_state_E VC_getVehicleControllerState(void)
+{
+    return m_vc.state;
+}
+
+uint16_t VC_getErrorFlags(void)
+{
+    return m_vc.errorFlags;
+}
 /*******************************************************************************
  * private function
  ******************************************************************************/

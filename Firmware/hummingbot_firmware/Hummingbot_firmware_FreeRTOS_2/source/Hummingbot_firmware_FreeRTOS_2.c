@@ -44,7 +44,7 @@
 #include "common.h"
 #include "nrf24l01/RF24_common.h"
 #include "nrf24l01/RF24.h"
-#include "Servo/Servo.h"
+#include "vehicleController/vehicleController.h"
 #include "Hummingconfig.h"
 
 #include "fsl_debug_console.h"
@@ -65,9 +65,8 @@
  ********* Macro Preference ********** 
  *************************************/
 #define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
-#define ENABLE_TASK_RF24								0
-#define ENABLE_TASK_VEHICLE_CONTROL    	0
-#define TEST_FTM_PWM										1
+#define ENABLE_TASK_RF24				        1
+#define ENABLE_TASK_VEHICLE_CONTROL    	1
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
@@ -90,20 +89,13 @@
 /* Task Priority */
 #define TASK_RF24_PRIORITY 							 			(configMAX_PRIORITIES - 1)
 #define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
-/* Task Frequency */
+/* Task Frequency */ //TODO: TBD
 #define TASK_RF24_FREQ                   			(HELPER_TASK_FREQUENCY_HZ(10)) //Hz
-#define TENABLE_TASK_VEHICLE_CONTROL_FREQ     (HELPER_TASK_FREQUENCY_HZ(10)) //Hz //TODO: TBI, to be implemented
+#define TASK_VEHICLE_CONTROL_FREQ     				(HELPER_TASK_FREQUENCY_HZ(10)) //Hz 
 
 /***********************************
  ********* Macro Helpers **********
  ***********************************/
-#if (ENABLE_TASK_VEHICLE_CONTROL)
-#define SERVO_PWM_PERIOD_TICKS      		(int) (SERVO_PWM_PERIOD_MS * ((float)configTICK_RATE_HZ / 1000))
-#define SERVO_CONVERT_CYCLE_2_TICKS(c)  (int)(SERVO_PWM_PERIOD_MS * (c / (float) 100) * (configTICK_RATE_HZ / 1000))
-#define SERVO_CONVERT_ANGLE_2_TICKS(a)  SERVO_CONVERT_CYCLE_2_TICKS((float)(2.6986 + (7.346 - 2.6986) / 90.0 * a))
-#define SERVO_MIN_TICKS         				SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MIN_ANGLE)
-#define SERVO_MAX_TICKS         				SERVO_CONVERT_ANGLE_2_TICKS(SERVO_MAX_ANGLE)
-#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 /***************************************  
  *********  Struct/Enums Defs ********** 
@@ -146,7 +138,7 @@ Hummingbot_firmware_FreeRTOS_2_data_S m_data;
   static void task_rf24(void *pvParameters);
 #endif // (ENABLE_TASK_RF24
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-  static void task_steeringControl(void *pvParameters);
+  static void task_vehicleControl(void *pvParameters);
 #endif // (ENABLE_TASK_VEHICLE_CONTROL)
 /**************************************  
  ********* Private Functions ********** 
@@ -155,6 +147,7 @@ Hummingbot_firmware_FreeRTOS_2_data_S m_data;
 static void task_rf24(void *pvParameters)
 {
   TickType_t xLastWakeTime;
+  DEBUG_PRINT_INFO(" [TASK] RF24 Remote Controller Begin ...");	
   // Initialize the xLastWakeTime variable with the current time.
   xLastWakeTime = xTaskGetTickCount();
 	while(1) 
@@ -162,6 +155,7 @@ static void task_rf24(void *pvParameters)
 	  DEBUG_PRINT_INFO("Scanning");
 		if (RF24_available())
 		{
+		  //TODO: implement parser & store in global
 //		    char text[32] = "";
 //		    RF24_read(&text, sizeof(text));
 //		    DEBUG_PRINT_INFO("RCV: %s",text);
@@ -183,22 +177,21 @@ static void task_rf24(void *pvParameters)
 #endif
 
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-static void task_steeringControl(void *pvParameters)
+static void task_vehicleControl(void *pvParameters)
 {
-	int angle = 85;
-
+	TickType_t xLastWakeTime;
+	// start vc
+	VC_Begin();
+	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
+	// Initialize the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
 	while(1) {
-	  //toggle High
-	  GPIO_PortSet(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
-
-	  //delay ticks
-	  vTaskDelay(SERVO_CONVERT_ANGLE_2_TICKS(angle));
-
-	  // Toggle Low
-	  GPIO_PortClear(SERVO_GPIO_PORT, 1u << SERVO_GPIO_PIN);
-
-	   //delay 20ms - ticks
-	   vTaskDelay(SERVO_PWM_PERIOD_TICKS - SERVO_CONVERT_ANGLE_2_TICKS(angle));
+		// VC_requestSteering(angle_deg_t reqAng);
+		// VC_requestThrottle(speed_mm_per_s_t reqSpd);
+		// VC_doBraking(angle_deg_t reqAng);
+		// VC_powerOff_FreeWheeling(VC_channnelName_E controller);
+		DEBUG_PRINT_INFO("Vehicle Control Running ...");
+		vTaskDelayUntil(&xLastWakeTime, TASK_VEHICLE_CONTROL_FREQ);
 	}
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
@@ -221,6 +214,8 @@ int main(void) {
 	printHummingBoardLogo();
 	DEBUG_PRINT_INFO(" ****** ******************* ******");
 	DEBUG_PRINT_INFO(" ****** Hummingboard begin ******");
+
+
   /*---- Custom INIT --------------------------------------------------*/
 	DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init private data */
@@ -231,12 +226,11 @@ int main(void) {
 	m_data.rf24_ce.pin = RF24_COMMON_DEFAULT_CE_PIN;
 	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
 #endif // (ENABLE_TASK_RF24)
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+	VC_Config(); // NOTE: please config directly within the vehicle control
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
-#if(TEST_FTM_PWM)
 
-	// CODE ============
-	
-#endif
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
@@ -251,33 +245,17 @@ int main(void) {
      RF24_openReadingPipe(0, m_data.rf24_address);
      RF24_setPALevel(RF24_PA_LOW);
      RF24_startListening();
-//     RF24_openReadingPipe(0, m_data.rf24_address);
-//     RF24_setPALevel(RF24_PA_MIN);
-//     RF24_startListening();
    }
 	 else
 	 {
 			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
 	 }
-
- // TODO: remove these testing code
-//  uint8_t temp = 10;
-//  RF24_DEBUG_spiTestingCode();
-//   while(1){
-//     DEBUG_PRINT_INFO(" Ticking ...");
-//     write_register_buf(1, &temp, 1);
-//   }
 #endif
 		/* Config vehicle control steering & motoring */
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-	 /* Define the init structure for the output LED pin*/
-	   gpio_pin_config_t servo_motor_gpio_config = {
-	     kGPIO_DigitalOutput, 0,
-	   };
-
-	 // INIT Servo PWM GPIO Pin
-	 GPIO_PinInit(SERVO_GPIO_PORT, SERVO_GPIO_PIN, &servo_motor_gpio_config );
+	VC_Init(); 
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
+
 
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
@@ -289,7 +267,7 @@ int main(void) {
 	}
 #endif
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-	if (xTaskCreate(task_steeringControl, "task_steeringControl", configMINIMAL_STACK_SIZE + 10, NULL, ENABLE_TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_vehicleControl, "task_vehicleControl", configMINIMAL_STACK_SIZE + 10, NULL, ENABLE_TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
 	  {
 	    DEBUG_PRINT_ERR("Task creation failed!.\r\n");
 	    while (1);
