@@ -56,5 +56,7 @@ bool VC_requestThrottle(speed_mm_per_s_t reqSpd);
 bool VC_doBraking(angle_deg_t reqAng);
 bool VC_powerOff_FreeWheeling(VC_channnelName_E controller);
 
+bool VC_requestThrottle_raw(pulse_us_t pw_us);
+bool VC_requestSteering_raw(pulse_us_t pw_us);
 
 #endif //(VEHICLE_CONTROLLER_H_)

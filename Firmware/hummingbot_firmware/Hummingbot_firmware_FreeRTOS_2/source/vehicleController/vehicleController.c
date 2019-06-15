@@ -223,6 +223,58 @@ bool VC_requestSteering(angle_deg_t reqAng)
     return ret;
 }
 
+bool VC_requestSteering_raw(pulse_us_t pw_us) 
+{
+    bool ret = false;
+    if( (VC_OK) &&
+        (pw_us <= m_vc.steering_config->max.pw_us) &&
+        (pw_us >= m_vc.steering_config->min.pw_us))
+    {
+        if(SERVO_write_us(VC_CHANNEL_NAME_STEERING, pw_us))
+        {
+            ret = true;
+        }   
+    }
+    return ret;
+}
+
+bool VC_requestThrottle_raw(pulse_us_t pw_us) 
+{
+    bool ret = false;
+    if((VC_OK) && pw_us >= m_vc.throttle_config->min_FWD_starting.pw_us)
+    {
+        if(pw_us <= m_vc.throttle_config->max_FWD_softLimit.pw_us)
+        {
+            if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, pw_us))
+            {
+                ret = true;
+                UPDATE_STATE(VC_STATE_RUNNING);
+            }
+            else
+            {
+                SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+            }      
+        }
+        else
+        {
+            // keep current spd.
+        }
+    }
+    else    // braking
+    {
+       if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
+        {
+            ret = true;
+            UPDATE_STATE(VC_STATE_IDLE);
+        } 
+        else
+        {
+            SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+        }
+    }
+    return ret;
+}
+
 bool VC_requestThrottle(speed_mm_per_s_t reqSpd)
 {
     bool ret = false;

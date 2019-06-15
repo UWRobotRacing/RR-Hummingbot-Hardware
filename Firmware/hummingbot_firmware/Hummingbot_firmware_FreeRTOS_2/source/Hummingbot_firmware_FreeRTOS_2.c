@@ -73,6 +73,11 @@
 /* Task Tick calculation */
 #define HELPER_TASK_FREQUENCY_HZ(x)     (configTICK_RATE_HZ/(x))
 
+/* set status bit */
+#define SET_STATUS_BIT(flag)         (m_bot.status |=(1U<<(flag)))
+#define CLEAR_STATUS_BIT(flag)       (m_bot.status &=~(1U<<(flag)))
+#define CHECK_STATUS_BIT(flag)       (m_bot.status & (1U<<(flag)))
+
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINTLN(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
@@ -90,8 +95,8 @@
 #define TASK_RF24_PRIORITY 							 			(configMAX_PRIORITIES - 1)
 #define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
 /* Task Frequency */ //TODO: TBD
-#define TASK_RF24_FREQ                   			(HELPER_TASK_FREQUENCY_HZ(10)) //Hz
-#define TASK_VEHICLE_CONTROL_FREQ     				(HELPER_TASK_FREQUENCY_HZ(10)) //Hz 
+#define TASK_RF24_RUNNING_PERIOD                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TASK_VEHICLE_CONTROL_RUNNING_PERIOD       (HELPER_TASK_FREQUENCY_HZ(10)) //Hz 
 
 /***********************************
  ********* Macro Helpers **********
@@ -107,6 +112,24 @@ typedef struct{
 	lpspi_t   spi;
 	uint8_t   buf_rx[9];
 	uint8_t   buf_tx[9];
+
+  // data extract from the radio
+  uint16_t  raw_rf24_speed;
+  uint16_t  raw_rf24_steer;
+  uint8_t   raw_encoded_flags;
+  uint16_t  rf24_error_count;
+  uint16_t  rf24_timeout_count_tick;
+  uint16_t  rf24_newData_available; //like a non-blocking semaphore
+  SemaphoreHandle_t rf24_data_lock;
+
+  // data parsed & sent to the vehicle controller
+  angle_deg_t       vc_steeringAngle;
+  speed_mm_per_s_t  vc_throttleSpeed;
+  uint16_t          vc_newData_available; //like a non-blocking semaphore
+  SemaphoreHandle_t vc_data_lock;
+
+  // main status
+  HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
 
 /*************************************
@@ -129,7 +152,7 @@ static inline void printHummingBoardLogo(void)
 /***************************************  
  *********  Private Variable ********** 
  ***************************************/
-Hummingbot_firmware_FreeRTOS_2_data_S m_data;
+Hummingbot_firmware_FreeRTOS_2_data_S m_bot;
 
 /************************************************  
  ********* Private Function Prototypes ********** 
@@ -140,38 +163,83 @@ Hummingbot_firmware_FreeRTOS_2_data_S m_data;
 #if (ENABLE_TASK_VEHICLE_CONTROL)
   static void task_vehicleControl(void *pvParameters);
 #endif // (ENABLE_TASK_VEHICLE_CONTROL)
+
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
 #if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
+  uint32_t temp;
+  uint8_t  newFlags;
   TickType_t xLastWakeTime;
   DEBUG_PRINT_INFO(" [TASK] RF24 Remote Controller Begin ...");	
   // Initialize the xLastWakeTime variable with the current time.
   xLastWakeTime = xTaskGetTickCount();
 	while(1) 
 	{
+    /*
+    raw_rf24_speed
+    raw_rf24_steer
+    raw_encoded_flags
+    rf24_error_count
+    rf24_timeout_count_tick
+    */
 	  DEBUG_PRINT_INFO("Scanning");
+    temp = 0;
+    newFlags = 0;
 		if (RF24_available())
 		{
-		  //TODO: implement parser & store in global
-//		    char text[32] = "";
-//		    RF24_read(&text, sizeof(text));
-//		    DEBUG_PRINT_INFO("RCV: %s",text);
-			RF24_read(&m_data.rf24_buf, sizeof(m_data.rf24_buf));
-			uint32_t temp = (m_data.rf24_buf[1]<<16) + m_data.rf24_buf[0];
-			uint16_t temp1 = temp >>20;
-			uint16_t temp2 = (temp>>8)&(0xFFF);
-			uint16_t temp3 = temp&(0xFF);
-			if(temp3!=0) //TODO: filter out with pattern
+      // fetch data
+			RF24_read(&m_bot.rf24_buf, sizeof(m_bot.rf24_buf));
+      // parse data
+			uint32_t temp = (m_bot.rf24_buf[1]<<16) + m_bot.rf24_buf[0];
+      newFlags = RF24_COMMON_GET_FLAG(temp);
+			if(newFlags & RF24_COMMON_MASK_UNIQUE_PATTERN)
 			{
-				DEBUG_PRINT_INFO("RCV: %d | %d | %d", temp1, temp2, temp3);
-			}else{
-				DEBUG_PRINT_ERR("Invalid Message %d", temp3);
+        xSemaphoreTake(m_bot.rf24_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
+        m_bot.raw_rf24_speed    = RF24_COMMON_GET_SPD(temp);
+        m_bot.raw_rf24_steer    = RF24_COMMON_GET_STEER(temp);
+        m_bot.raw_encoded_flags = newFlags;
+        // reset error & timeout counts
+        m_bot.rf24_error_count = 0;
+        m_bot.rf24_timeout_count_tick = 0;
+        m_bot.rf24_newData_available ++;
+        xSemaphoreGive(m_bot.rf24_data_lock);
+
+        SET_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE);
+				DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %d ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
 			}
+      else
+      {
+        m_bot.rf24_error_count++;
+				DEBUG_PRINT_ERR("Invalid Message: %d", temp);
+			}
+         
+      if(m_bot.rf24_error_count < HUMMING_CONFIG_BOT_UNSTABLE_RF_COMM_MIN_CNTS)
+      {
+        SET_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE);
+      }
+      else
+      {
+        CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE);
+        DEBUG_PRINT_ERR("RF24 Experiencing UNSTABLE connections!");        
+      }
 		}
-		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_FREQ);
+    // if still within timeout period
+    else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE) && 
+             (m_bot.rf24_timeout_count_tick < (HUMMING_CONFIG_BOT_LOST_CONTROLLER_TIMEOUT_MS/TASK_RF24_RUNNING_PERIOD)))
+    {
+      m_bot.rf24_timeout_count_tick ++;
+    }
+    // completely timeout, => not comm.
+    else if(m_bot.rf24_timeout_count_tick == (HUMMING_CONFIG_BOT_LOST_CONTROLLER_TIMEOUT_MS/TASK_RF24_RUNNING_PERIOD))
+    {
+      CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE);
+      DEBUG_PRINT_ERR("RF24 Lost Controller");
+    }
+    
+		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_RUNNING_PERIOD);
 	}
 }
 #endif
@@ -180,18 +248,101 @@ static void task_rf24(void *pvParameters)
 static void task_vehicleControl(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
+  bool remoteESTOP = false;
+  bool autoMode    = false;
+  uint16_t  rf24_newdataAvailable = 0;
+  uint16_t  rf24_speed = 0;
+  uint16_t  rf24_steer = 0;
+  uint8_t   rf24_flag  = 0;
+  angle_deg_t       reqAng = 0;
+  speed_mm_per_s_t  reqSpd = 0;
 	// start vc
 	VC_Begin();
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	while(1) {
-		// VC_requestSteering(angle_deg_t reqAng);
-		// VC_requestThrottle(speed_mm_per_s_t reqSpd);
-		// VC_doBraking(angle_deg_t reqAng);
-		// VC_powerOff_FreeWheeling(VC_channnelName_E controller);
+    /// 1. healthy state       
+    if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE) &&
+        CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ALIVE) )
+    {
+      // quick data copy
+      xSemaphoreTake(m_bot.rf24_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
+      rf24_newdataAvailable = m_bot.rf24_newData_available;
+      rf24_speed = m_bot.raw_rf24_speed;
+      rf24_steer = m_bot.raw_rf24_steer;
+      rf24_flag = m_bot.raw_encoded_flags;
+      m_bot.rf24_newData_available = 0;
+      xSemaphoreGive(m_bot.rf24_data_lock);
+      // if it is a new message
+      if(rf24_newdataAvailable)
+      {
+        // ------- PARSING ------- //
+        // determine flags & update status flag
+        remoteESTOP = RF24_COMMON_CHECK_ESTOP_FLAG(rf24_flag);
+        autoMode = RF24_COMMON_CHECK_AUTO_FLAG (rf24_flag);
+        if(remoteESTOP)
+        {
+          SET_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
+        }
+        else
+        {
+           CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
+        }
+        
+        if(autoMode)
+        {
+           SET_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
+
+        }
+        else
+        {
+           CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
+        }
+        
+        // state machine
+        if(remoteESTOP)
+        {
+          VC_doBraking(0);
+        }
+        else
+        {
+          if(autoMode)
+          {
+            //TODO: to be implemented, requires a coordination here!!! [TBI]
+          }
+          else
+          {
+            /// - remote controller mode !!! TODO: coordination TBI
+            reqAng = (rf24_steer);
+            reqSpd = (rf24_speed);
+            VC_requestSteering(reqAng);
+            VC_requestThrottle(reqSpd);
+            // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
+            xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
+            m_bot.vc_steeringAngle = reqAng;
+            m_bot.vc_throttleSpeed = reqSpd;
+            m_bot.vc_newData_available ++;
+            xSemaphoreGive(m_bot.vc_data_lock);
+          } 
+        }
+      }
+    }
+    /// 2. unhealthy state   
+    else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) )
+    {
+      // let it roll a bit, in case the connection come back within 100ms
+      VC_powerOff_FreeWheeling(VC_CHANNEL_NAME_THROTTLE);
+    }
+    /// 3. lost remote controller state | WIRELESS ESTOP will not work
+    else
+    {
+      // just braking
+       VC_doBraking(0);
+    }
+    
 		DEBUG_PRINT_INFO("Vehicle Control Running ...");
-		vTaskDelayUntil(&xLastWakeTime, TASK_VEHICLE_CONTROL_FREQ);
+		vTaskDelayUntil(&xLastWakeTime, TASK_VEHICLE_CONTROL_RUNNING_PERIOD);
 	}
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
@@ -219,12 +370,15 @@ int main(void) {
   /*---- Custom INIT --------------------------------------------------*/
 	DEBUG_PRINT_INFO(" ****** Hummingboard Init ... ******");
 	/* Init private data */
-	memset(&m_data, 0, sizeof(m_data));
+	memset(&m_bot, 0, sizeof(m_bot));
+	/* Init RTOS related*/
+  m_bot.rf24_data_lock = xSemaphoreCreateMutex();
+  m_bot.vc_data_lock   = xSemaphoreCreateMutex();
 	/* Init rf24 */
 #if (ENABLE_TASK_RF24)
-	m_data.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;
-	m_data.rf24_ce.pin = RF24_COMMON_DEFAULT_CE_PIN;
-	memcpy(m_data.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
+	m_bot.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;
+	m_bot.rf24_ce.pin = RF24_COMMON_DEFAULT_CE_PIN;
+	memcpy(m_bot.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
 #endif // (ENABLE_TASK_RF24)
 #if (ENABLE_TASK_VEHICLE_CONTROL)
 	VC_Config(); // NOTE: please config directly within the vehicle control
@@ -235,14 +389,14 @@ int main(void) {
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
 	/* Config rf24 */
 #if (ENABLE_TASK_RF24)
-   RF24_config(&m_data.rf24_ce);
+   RF24_config(&m_bot.rf24_ce);
    RF24_INIT_STATUS_E status = RF24_init();
    if(status == RF24_INIT_STATUS_SUCCESS)
    {
      RF24_setDataRate( RF24_250KBPS );//low data rate => longer range and reliable
      RF24_enableAckPayload();
      RF24_setRetries(3,2);
-     RF24_openReadingPipe(0, m_data.rf24_address);
+     RF24_openReadingPipe(0, m_bot.rf24_address);
      RF24_setPALevel(RF24_PA_LOW);
      RF24_startListening();
    }
