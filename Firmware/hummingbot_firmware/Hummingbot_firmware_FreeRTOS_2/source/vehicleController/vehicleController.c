@@ -129,6 +129,7 @@ void VC_Config(void)
     m_vc.us_s_per_mm = (m_vc.throttle_config->max_FWD_softLimit.pw_us - m_vc.throttle_config->min_FWD_starting.pw_us)/
         (m_vc.throttle_config->max_FWD_softLimit.speed_mm_per_s - m_vc.throttle_config->min_FWD_starting.speed_mm_per_s);
 
+    // TODO: need to map to appropriate gpios
     m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].gpio.pin = HUMMING_CONFIG_EXAMPLE_GPIO_PIN;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].gpio.port= HUMMING_CONFIG_EXAMPLE_GPIO_PORT;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].refreshingPeriod = HUMMING_CONFIG_EXAMPLE_PWM_PERIOD;
