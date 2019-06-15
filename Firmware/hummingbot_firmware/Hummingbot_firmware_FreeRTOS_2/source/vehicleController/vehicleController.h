@@ -4,17 +4,19 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
 /***********************************
  ********* Macro Definition **********
  ***********************************/
 // define some common metric uint
 typedef int16_t    angle_deg_t; 
 typedef uint16_t   pulse_us_t;
-typedef int16_t    speed_mm_per_s_t;
+typedef int16_t    speed_cm_per_s_t;
 
 // some conversion unit
-typedef uint16_t   us_per_deg_t;
-typedef uint16_t   us_s_per_mm_t;
+// NOTE: change to uint16_t if your processor does not have a FPU, might suffer trimming/truncation error
+typedef float   us_per_deg_t;
+typedef float   us_s_per_mm_t;
 
 typedef enum{
     VC_STATE_UNDEFINED,
@@ -52,11 +54,12 @@ VC_state_E VC_getVehicleControllerState(void);
 void VC_dummyTestRun(void);
 
 bool VC_requestSteering(angle_deg_t reqAng);
-bool VC_requestThrottle(speed_mm_per_s_t reqSpd);
+bool VC_requestThrottle(speed_cm_per_s_t reqSpd);
 bool VC_doBraking(angle_deg_t reqAng);
 bool VC_powerOff_FreeWheeling(VC_channnelName_E controller);
 
-bool VC_requestThrottle_raw(pulse_us_t pw_us);
+bool VC_requestThrottle_raw(pulse_us_t pw_us); // will be filtered by logic
 bool VC_requestSteering_raw(pulse_us_t pw_us);
 
+bool VC_requestPWM_force_raw(VC_channnelName_E controller, pulse_us_t pw_us); // only limited by the max/min in configuration
 #endif //(VEHICLE_CONTROLLER_H_)

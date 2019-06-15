@@ -36,6 +36,7 @@
 #define SERVO_GO_TO_NEXT_STATE(index, newState) (m_servos.pwms[(index)].status = (newState))
 #define SERVO_OUTPUT(index, logic)              (GPIO_PinWrite(m_servos.configs[(index)].gpio.port, m_servos.configs[(index)].gpio.pin, logic))
 #define SERVO_UPDATE_PULSE_WIDTH(index)         (m_servos.pwms[(index)].current_pwm_width_us = m_servos.pwms[(index)].desired_pwm_width_us)
+#define SERVO_PULSE_WIDTH_ISVALID(index)        (m_servos.pwms[(index)].current_pwm_width_us >= SERVO_COMMON_FTM_PWM_PERIOD_US)
 #define SERVO_RESET_PWM_COUNTER(index)          (m_servos.pwms[(index)].counter_tick = 0)
 #define SERVO_IS_END_OF_PULSE(index)            (m_servos.pwms[(index)].counter_tick*SERVO_COMMON_FTM_PWM_PERIOD_US >= (m_servos.pwms[(index)].current_pwm_width_us))
 #define SERVO_IS_END_OF_PWM_PERIOD(index)       (m_servos.pwms[(index)].counter_tick*SERVO_COMMON_FTM_PWM_PERIOD_US >= (m_servos.configs[(index)].refreshingPeriod))
@@ -92,9 +93,9 @@ bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size)
     if(SERVO_MAX_NUM_SERVO > size)
     {  
         // copy device config
+        m_servos.configs = configs;
         for(i = 0; i < size; i++)
         {
-            m_servos.configs = configs;
             // init pwms 
             m_servos.pwms[i].status = PWM_STATUS_IDLE;
             m_servos.pwms[i].counter_tick = 0;
@@ -104,7 +105,7 @@ bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size)
         m_servos.size = size;
 
         // init FTM
-	    FTM_GetDefaultConfig(&ftmInfo);
+        FTM_GetDefaultConfig(&ftmInfo);
         /* Divide FTM clock by 4 */
         ftmInfo.prescale = kFTM_Prescale_Divide_4;
         /* Initialize FTM module */
@@ -200,16 +201,23 @@ void SERVO_FTM_HANDLER(void)
     /* Clear interrupt flag.*/
     FTM_ClearStatusFlags(SERVO_FTM_BASEADDR, kFTM_TimeOverflowFlag);
     m_servos.ftmIsrFlag = true;
-    // run through every servo
-    for(int i = 0; i < m_servos.size; i++)
-    {
-        runStateMachine(i);
-    }
+    // run through TWO servo,
+    /*NOTE:
+     *  Do not use loop, it will not work,
+     *  it's forbidden to stay too long in ISR.
+     *
+     */
+    runStateMachine(0);
+    runStateMachine(1);
+
     __DSB();
 }
 
 static inline void runStateMachine(uint8_t index)
 {
+    // out of boundary
+    if(index >= m_servos.size)
+        return;
     // ideally this should will not overflow, but in case, we will go to FALSE state
     m_servos.pwms[index].counter_tick ++;
     if(m_servos.pwms[index].counter_tick >= (0xFFFFFFFF))
@@ -228,7 +236,10 @@ static inline void runStateMachine(uint8_t index)
         case (PWM_STATUS_INIT):
             //toggle High
             SERVO_UPDATE_PULSE_WIDTH(index);
-            SERVO_GO_TO_NEXT_STATE(index, PWM_STATUS_UPDATED);
+            if(SERVO_PULSE_WIDTH_ISVALID(index))
+            {
+              SERVO_GO_TO_NEXT_STATE(index, PWM_STATUS_UPDATED);
+            }
             break;
 
         case (PWM_STATUS_UPDATED):

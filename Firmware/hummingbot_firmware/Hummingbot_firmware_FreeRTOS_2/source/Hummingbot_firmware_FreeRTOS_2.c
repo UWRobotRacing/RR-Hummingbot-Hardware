@@ -67,6 +67,47 @@
 #define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
+
+/*************************************  
+ ********* Calibbration Helper ********** 
+ *************************************/
+/* Helpful Macros for Calibration */
+#define CALIB_PRINT_REMOTE              0
+#define CALIB_PRINT_VC_SERVO            1
+
+#if (CALIB_PRINT_REMOTE)
+//undefine
+#ifdef ENABLE_TASK_VEHICLE_CONTROL
+#undef ENABLE_TASK_VEHICLE_CONTROL
+#endif
+#ifdef ENABLE_TASK_RF24
+#undef ENABLE_TASK_RF24
+#endif
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+//redefine
+#define ENABLE_FEATURE_DEBUG_PRINT      1 
+#define ENABLE_TASK_RF24				        1
+#define ENABLE_TASK_VEHICLE_CONTROL    	0
+#endif
+
+#if (CALIB_PRINT_VC_SERVO)
+//undefine
+#ifdef ENABLE_TASK_VEHICLE_CONTROL
+#undef ENABLE_TASK_VEHICLE_CONTROL
+#endif
+#ifdef ENABLE_TASK_RF24
+#undef ENABLE_TASK_RF24
+#endif
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+//redefine
+#define ENABLE_FEATURE_DEBUG_PRINT      1 
+#define ENABLE_TASK_RF24				        0
+#define ENABLE_TASK_VEHICLE_CONTROL    	1
+#endif
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
@@ -124,7 +165,7 @@ typedef struct{
 
   // data parsed & sent to the vehicle controller
   angle_deg_t       vc_steeringAngle;
-  speed_mm_per_s_t  vc_throttleSpeed;
+  speed_cm_per_s_t  vc_throttleSpeed;
   uint16_t          vc_newData_available; //like a non-blocking semaphore
   SemaphoreHandle_t vc_data_lock;
 
@@ -208,7 +249,7 @@ static void task_rf24(void *pvParameters)
         xSemaphoreGive(m_bot.rf24_data_lock);
 
         SET_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE);
-				DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %d ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
+				DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %#02x ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
 			}
       else
       {
@@ -248,6 +289,9 @@ static void task_rf24(void *pvParameters)
 static void task_vehicleControl(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
+#if (CALIB_PRINT_VC_SERVO)
+  uint16_t task_vc_tick = 0;
+#else
   bool remoteESTOP = false;
   bool autoMode    = false;
   uint16_t  rf24_newdataAvailable = 0;
@@ -255,13 +299,40 @@ static void task_vehicleControl(void *pvParameters)
   uint16_t  rf24_steer = 0;
   uint8_t   rf24_flag  = 0;
   angle_deg_t       reqAng = 0;
-  speed_mm_per_s_t  reqSpd = 0;
-	// start vc
-	VC_Begin();
+  speed_cm_per_s_t  reqSpd = 0;
+#endif // (CALIB_PRINT_VC_SERVO)
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	while(1) {
+  #if (CALIB_PRINT_VC_SERVO)
+    /* calibration code here */
+    task_vc_tick ++;
+    uint8_t step = 2;
+    switch(step)
+    {
+      case 1:
+        // STEP 1 - find 0 degree servo pw_us by writing raw, and record
+        VC_requestPWM_force_raw(VC_ERROR_FLAG_STEERING_ERR, 850);
+        VC_requestPWM_force_raw(VC_ERROR_FLAG_THROTTLE_ERR, 200);
+        break;
+      case 2:
+        // STEP 2 - find + 30 degree of the wheel by gradually increasing pw_us,
+        //          find servo pw_us by writing raw, and record
+        VC_requestSteering(45);//PLEASE ENTER
+        VC_requestThrottle(190);
+        break;
+      case 3:
+        // STEP 3 - do calculation, and validate -30 degree
+        VC_requestSteering_raw(1000);//PLEASE ENTER
+        break;
+      default:
+        break;
+    }
+    DEBUG_PRINT_INFO("...");
+
+  #else 
+    /* main code */
     /// 1. healthy state       
     if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE) &&
         CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ALIVE) )
@@ -327,6 +398,7 @@ static void task_vehicleControl(void *pvParameters)
           } 
         }
       }
+
     }
     /// 2. unhealthy state   
     else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) )
@@ -340,9 +412,10 @@ static void task_vehicleControl(void *pvParameters)
       // just braking
        VC_doBraking(0);
     }
-    
-		DEBUG_PRINT_INFO("Vehicle Control Running ...");
-		vTaskDelayUntil(&xLastWakeTime, TASK_VEHICLE_CONTROL_RUNNING_PERIOD);
+    #endif //(CALIB_PRINT_VC_SERVO)
+
+    DEBUG_PRINT_INFO("Vehicle Control Running ...");
+		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_RUNNING_PERIOD);
 	}
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
@@ -407,7 +480,18 @@ int main(void) {
 #endif
 		/* Config vehicle control steering & motoring */
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-	VC_Init(); 
+	if(VC_Init())
+	{
+	  // start vc
+    if(!VC_Begin())
+    {
+      DEBUG_PRINT_INFO(" Failed to start devices for Vehicle Controller!");
+    }
+	}
+	else
+	{
+	  DEBUG_PRINT_INFO(" Failed to initialize Vehicle Controller!");
+	}
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
 
