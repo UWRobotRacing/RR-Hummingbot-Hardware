@@ -28,7 +28,7 @@
 #define FTM_SOURCE_CLOCK                        (CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
 
 /* PWM Settings */
-#define SERVO_COMMON_FTM_PWM_PERIOD_US          (10U) // 10us per period
+#define SERVO_COMMON_FTM_PWM_PERIOD_US          (50U) // 50us per period, increase this, will reduce cpu load, but will reduce resolution
 
 /* Servo Pereference */
 #define SERVO_MAX_NUM_SERVO                     (5U)

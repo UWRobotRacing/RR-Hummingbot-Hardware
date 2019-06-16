@@ -56,8 +56,15 @@ typedef struct{
     SERVO_ServoConfig_S         deviceConfigs[VC_CHANNEL_NAME_COUNT];
     const VC_steerCalibration_S*     steering_config;
     const VC_throttleCalibration_S*  throttle_config;
-    us_per_deg_t                us_per_deg;
-    us_s_per_mm_t               us_s_per_mm;
+    // NOTE: since floating takes too long, we will use multiplier & divider to keep both accuracy and speed
+    us_per_deg_t                us_per_deg_multiplier;
+    us_per_deg_t                us_per_deg_divider;
+    us_s_per_mm_t               us_s_per_mm_multiplier;
+    us_s_per_mm_t               us_s_per_mm_divider;
+    // some variables to avoid excess repeative operation
+    us_s_per_mm_t               current_throttle;
+    us_per_deg_t                current_steering;
+    bool                        isCurrentTrackingValsInvalid; //if so, current_x will no longer be valid, will force to retrack upon request() functions
     VC_state_E                  state;   
     uint16_t                    errorFlags;                
 } VehicleController_data_S;
@@ -124,10 +131,10 @@ void VC_Config(void)
     m_vc.steering_config = &frsky_servo_calib;
     m_vc.throttle_config = &onyx_bldc_esc_calib;
     // compute scale factor
-    m_vc.us_per_deg = (m_vc.steering_config->max.pw_us - m_vc.steering_config->min.pw_us)/
-        (us_per_deg_t)(m_vc.steering_config->max.angle_deg - m_vc.steering_config->min.angle_deg);
-    m_vc.us_s_per_mm = (m_vc.throttle_config->max_FWD_softLimit.pw_us - m_vc.throttle_config->min_FWD_starting.pw_us)/
-        (us_s_per_mm_t)(m_vc.throttle_config->max_FWD_softLimit.speed_cm_per_s - m_vc.throttle_config->min_FWD_starting.speed_cm_per_s);
+    m_vc.us_per_deg_multiplier = (m_vc.steering_config->max.pw_us - m_vc.steering_config->min.pw_us);
+    m_vc.us_per_deg_divider    = (m_vc.steering_config->max.angle_deg - m_vc.steering_config->min.angle_deg);
+    m_vc.us_s_per_mm_multiplier = (m_vc.throttle_config->max_FWD_softLimit.pw_us - m_vc.throttle_config->min_FWD_starting.pw_us);
+    m_vc.us_s_per_mm_divider    = (m_vc.throttle_config->max_FWD_softLimit.speed_cm_per_s - m_vc.throttle_config->min_FWD_starting.speed_cm_per_s);
 
     // TODO: need to map to appropriate gpios [Hummingconfig.h]
     m_vc.deviceConfigs[VC_CHANNEL_NAME_STEERING].gpio.pin = HUMMING_CONFIG_STEERING_SERVO_GPIO_PIN;
@@ -208,18 +215,81 @@ void VC_dummyTestRun(void) //DEPRECATED TODO:remove in the end
 bool VC_requestSteering(angle_deg_t reqAng) 
 {
     bool ret = false;
+    uint32_t pw_delta = 0;
     pulse_us_t pulseWidth = 0; 
-    if( (VC_OK) &&
+    if( (reqAng != 0 && m_vc.current_steering == reqAng) && !m_vc.isCurrentTrackingValsInvalid)
+    {
+      ret = true; // avoid excess calculation
+    }
+    else if( (VC_OK) &&
         (reqAng <= m_vc.steering_config->max.angle_deg) &&
         (reqAng >= m_vc.steering_config->min.angle_deg))
     {
-            // do conversion & offset here:
-        int16_t pw_delta = (int16_t)((reqAng - (m_vc.steering_config->neutral.angle_deg))*m_vc.us_per_deg);
+        // do conversion & offset here:
+        pw_delta = (reqAng - (m_vc.steering_config->neutral.angle_deg));
+        pw_delta *= m_vc.us_per_deg_multiplier;
+        pw_delta /= m_vc.us_per_deg_divider;
         pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.steering_config->neutral.pw_us));
         if(SERVO_write_us(VC_CHANNEL_NAME_STEERING, pulseWidth))
         {
-            ret = true;
+          ret = true;
+          m_vc.current_steering = reqAng;
         }   
+    }
+    else
+    {
+      //do nothing, FAILED
+    }
+    
+    return ret;
+}
+
+bool VC_requestThrottle(speed_cm_per_s_t reqSpd)
+{
+    bool ret = false;
+    uint32_t pw_delta = 0;
+    pulse_us_t pulseWidth = 0; 
+    if((reqSpd != 0 && m_vc.current_throttle == reqSpd)  && !m_vc.isCurrentTrackingValsInvalid)
+    {
+      ret = true;
+    }
+    else if((VC_OK) && reqSpd >= m_vc.throttle_config->min_FWD_starting.speed_cm_per_s)
+    {
+        if(reqSpd <= m_vc.throttle_config->max_FWD_softLimit.speed_cm_per_s)
+        {
+            // do conversion & offset here:
+            pw_delta = (reqSpd - (m_vc.throttle_config->min_FWD_starting.speed_cm_per_s));
+            pw_delta *= m_vc.us_s_per_mm_multiplier;
+            pw_delta /= m_vc.us_per_deg_divider;
+            pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_FWD_starting.pw_us));
+            if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, pulseWidth))
+            {
+              ret = true;
+              m_vc.current_throttle = reqSpd;
+              UPDATE_STATE(VC_STATE_RUNNING);
+            }
+            else
+            {
+              SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+            }      
+        }
+        else
+        {
+            // keep current spd.
+        }
+    }
+    else    // braking
+    {
+       if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
+        {
+            ret = true;
+            m_vc.current_throttle = 0;
+            UPDATE_STATE(VC_STATE_IDLE);
+        } 
+        else
+        {
+            SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+        }
     }
     return ret;
 }
@@ -231,11 +301,12 @@ bool VC_requestSteering_raw(pulse_us_t pw_us)
         (pw_us <= m_vc.steering_config->max.pw_us) &&
         (pw_us >= m_vc.steering_config->min.pw_us))
     {
-        if(SERVO_write_us(VC_CHANNEL_NAME_STEERING, pw_us))
-        {
-            ret = true;
-        }   
+      if(SERVO_write_us(VC_CHANNEL_NAME_STEERING, pw_us))
+      {
+          ret = true;
+      }   
     }
+    m_vc.isCurrentTrackingValsInvalid = true;
     return ret;
 }
 
@@ -263,6 +334,7 @@ bool VC_requestPWM_force_raw(VC_channnelName_E controller, pulse_us_t pw_us)
     }
     
   }      
+  m_vc.isCurrentTrackingValsInvalid = true;
   return ret;
 }
 
@@ -300,47 +372,7 @@ bool VC_requestThrottle_raw(pulse_us_t pw_us)
             SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
         }
     }
-    return ret;
-}
-
-bool VC_requestThrottle(speed_cm_per_s_t reqSpd)
-{
-    bool ret = false;
-    pulse_us_t pulseWidth = 0; 
-    if((VC_OK) && reqSpd >= m_vc.throttle_config->min_FWD_starting.speed_cm_per_s)
-    {
-        if(reqSpd <= m_vc.throttle_config->max_FWD_softLimit.speed_cm_per_s)
-        {
-            // do conversion & offset here:
-            int16_t pw_delta = (int16_t)((reqSpd - (m_vc.throttle_config->min_FWD_starting.speed_cm_per_s))*m_vc.us_s_per_mm);
-            pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_FWD_starting.pw_us));
-            if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, pulseWidth))
-            {
-                ret = true;
-                UPDATE_STATE(VC_STATE_RUNNING);
-            }
-            else
-            {
-                SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
-            }      
-        }
-        else
-        {
-            // keep current spd.
-        }
-    }
-    else    // braking
-    {
-       if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
-        {
-            ret = true;
-            UPDATE_STATE(VC_STATE_IDLE);
-        } 
-        else
-        {
-            SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
-        }
-    }
+    m_vc.isCurrentTrackingValsInvalid = true;
     return ret;
 }
 
@@ -362,6 +394,7 @@ bool VC_doBraking(angle_deg_t reqAng)
     {
         SET_ERR_FLAG(VC_ERROR_FLAG_UNABLE_BRAKING_ERR);
     }
+    m_vc.isCurrentTrackingValsInvalid = true;
     return ret;
 }
 
@@ -392,6 +425,7 @@ bool VC_powerOff_FreeWheeling(VC_channnelName_E controller)
     {
         UPDATE_STATE(VC_STATE_IDLE);        
     }
+    m_vc.isCurrentTrackingValsInvalid = true;
     return ret;
 }
 

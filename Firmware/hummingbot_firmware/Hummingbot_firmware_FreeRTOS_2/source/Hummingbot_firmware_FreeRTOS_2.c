@@ -64,7 +64,11 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT      1 //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT            1 //This will enable uart debug print out
+#define DISABLE_FEATURE_DEBUG_PRINT_INFO      0
+#define DISABLE_FEATURE_DEBUG_PRINT_ERR       0
+#define DISABLE_FEATURE_DEBUG_PRINT_WRN       0
+
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 
@@ -73,8 +77,8 @@
  *************************************/
 /* Helpful Macros for Calibration */
 #define CALIB_PRINT_REMOTE              0
-#define CALIB_PRINT_VC_SERVO            1
-
+#define CALIB_PRINT_VC_SERVO            0
+#define CALIB_PRINT_VC_SERVO_WITH_RF    0
 #if (CALIB_PRINT_REMOTE)
 //undefine
 #ifdef ENABLE_TASK_VEHICLE_CONTROL
@@ -108,6 +112,23 @@
 #define ENABLE_TASK_RF24				        0
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #endif
+
+#if (CALIB_PRINT_VC_SERVO_WITH_RF)
+//undefine
+#ifdef ENABLE_TASK_VEHICLE_CONTROL
+#undef ENABLE_TASK_VEHICLE_CONTROL
+#endif
+#ifdef ENABLE_TASK_RF24
+#undef ENABLE_TASK_RF24
+#endif
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+//redefine
+#define ENABLE_FEATURE_DEBUG_PRINT      1
+#define ENABLE_TASK_RF24                1
+#define ENABLE_TASK_VEHICLE_CONTROL     1
+#endif
 /*************************************  
  ********* Macro Definitions ********** 
  *************************************/
@@ -117,17 +138,17 @@
 /* set status bit */
 #define SET_STATUS_BIT(flag)         (m_bot.status |=(1U<<(flag)))
 #define CLEAR_STATUS_BIT(flag)       (m_bot.status &=~(1U<<(flag)))
-#define CHECK_STATUS_BIT(flag)       (m_bot.status & (1U<<(flag)))
+#define CHECK_STATUS_BIT(flag)       ((bool)(m_bot.status & (1U<<(flag))))
 
 /* Debug PRINTF helper functions */
 #define DEBUG_PRINTLN(fmt, ...) \
             do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF(fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_ERR(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[ERR.]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT && !DISABLE_FEATURE_DEBUG_PRINT_ERR) PRINTF("[ERR.]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_WRN(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[WARN]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT && !DISABLE_FEATURE_DEBUG_PRINT_WRN) PRINTF("[WARN]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 #define DEBUG_PRINT_INFO(fmt, ...) \
-            do { if (ENABLE_FEATURE_DEBUG_PRINT) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
+            do { if (ENABLE_FEATURE_DEBUG_PRINT && !DISABLE_FEATURE_DEBUG_PRINT_INFO) PRINTF("[INFO]" fmt "\r\n", ##__VA_ARGS__); } while (0)
 
 /***********************************
  ********* Macro Settings **********
@@ -137,7 +158,7 @@
 #define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
 /* Task Frequency */ //TODO: TBD
 #define TASK_RF24_RUNNING_PERIOD                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
-#define TASK_VEHICLE_CONTROL_RUNNING_PERIOD       (HELPER_TASK_FREQUENCY_HZ(10)) //Hz 
+#define TASK_VEHICLE_CONTROL_RUNNING_PERIOD       (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 
 /***********************************
  ********* Macro Helpers **********
@@ -229,12 +250,16 @@ static void task_rf24(void *pvParameters)
 	  DEBUG_PRINT_INFO("Scanning");
     temp = 0;
     newFlags = 0;
-		if (RF24_available())
+    if(!CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ALIVE))
+    {
+      DEBUG_PRINT_ERR("RF24 Was Not Initialized Successfully");
+    }
+    else if (RF24_available())
 		{
       // fetch data
 			RF24_read(&m_bot.rf24_buf, sizeof(m_bot.rf24_buf));
       // parse data
-			uint32_t temp = (m_bot.rf24_buf[1]<<16) + m_bot.rf24_buf[0];
+			temp = (m_bot.rf24_buf[1]<<16) + m_bot.rf24_buf[0];
       newFlags = RF24_COMMON_GET_FLAG(temp);
 			if(newFlags & RF24_COMMON_MASK_UNIQUE_PATTERN)
 			{
@@ -249,7 +274,7 @@ static void task_rf24(void *pvParameters)
         xSemaphoreGive(m_bot.rf24_data_lock);
 
         SET_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE);
-				DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %#02x ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
+				DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %d ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
 			}
       else
       {
@@ -308,19 +333,19 @@ static void task_vehicleControl(void *pvParameters)
   #if (CALIB_PRINT_VC_SERVO)
     /* calibration code here */
     task_vc_tick ++;
-    uint8_t step = 2;
+    uint8_t step = 1;
     switch(step)
     {
       case 1:
         // STEP 1 - find 0 degree servo pw_us by writing raw, and record
-        VC_requestPWM_force_raw(VC_ERROR_FLAG_STEERING_ERR, 850);
-        VC_requestPWM_force_raw(VC_ERROR_FLAG_THROTTLE_ERR, 200);
+        VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, 850);
+        VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, 200);
         break;
       case 2:
         // STEP 2 - find + 30 degree of the wheel by gradually increasing pw_us,
         //          find servo pw_us by writing raw, and record
-        VC_requestSteering(45);//PLEASE ENTER
-        VC_requestThrottle(190);
+        VC_requestSteering(0);//PLEASE ENTER
+        VC_requestThrottle(100);
         break;
       case 3:
         // STEP 3 - do calculation, and validate -30 degree
@@ -345,6 +370,7 @@ static void task_vehicleControl(void *pvParameters)
       rf24_flag = m_bot.raw_encoded_flags;
       m_bot.rf24_newData_available = 0;
       xSemaphoreGive(m_bot.rf24_data_lock);
+
       // if it is a new message
       if(rf24_newdataAvailable)
       {
@@ -364,13 +390,12 @@ static void task_vehicleControl(void *pvParameters)
         if(autoMode)
         {
            SET_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
-
         }
         else
         {
            CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
         }
-        
+        DEBUG_PRINT_INFO("VC: [ ESTOP: %b | AUTO: %b ]", CHECK_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP), CHECK_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE));
         // state machine
         if(remoteESTOP)
         {
@@ -389,12 +414,13 @@ static void task_vehicleControl(void *pvParameters)
             reqSpd = (rf24_speed);
             VC_requestSteering(reqAng);
             VC_requestThrottle(reqSpd);
+            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d | %d ]", reqAng, reqSpd);
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
-            xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
+            //xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
             m_bot.vc_steeringAngle = reqAng;
             m_bot.vc_throttleSpeed = reqSpd;
             m_bot.vc_newData_available ++;
-            xSemaphoreGive(m_bot.vc_data_lock);
+            //xSemaphoreGive(m_bot.vc_data_lock);
           } 
         }
       }
@@ -472,10 +498,12 @@ int main(void) {
      RF24_openReadingPipe(0, m_bot.rf24_address);
      RF24_setPALevel(RF24_PA_LOW);
      RF24_startListening();
+     SET_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ALIVE);
    }
 	 else
 	 {
 			DEBUG_PRINT_ERR(" Failed to configure RF24 Module!");
+      CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ALIVE);
 	 }
 #endif
 		/* Config vehicle control steering & motoring */
