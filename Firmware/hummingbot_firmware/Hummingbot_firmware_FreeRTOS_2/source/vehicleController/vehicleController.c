@@ -77,16 +77,16 @@ static VehicleController_data_S    m_vc = {0};
 // TODO: please calibrate values
 static const VC_steerCalibration_S    frsky_servo_calib ={
     .neutral = {
-        .pw_us = 1500U,
+        .pw_us = 1400U,
         .angle_deg = 0,
     },
     .max = {
-        .pw_us = 2200U,
-        .angle_deg = 90,
+        .pw_us = 1650U,
+        .angle_deg = 30,
     },
     .min = {
-        .pw_us = 800U,
-        .angle_deg = -90,
+        .pw_us = 1100U,
+        .angle_deg = -45,
     },
 };
 // TODO: please calibrate these values TODO: figure out if 1580U is the braking or freewheeling

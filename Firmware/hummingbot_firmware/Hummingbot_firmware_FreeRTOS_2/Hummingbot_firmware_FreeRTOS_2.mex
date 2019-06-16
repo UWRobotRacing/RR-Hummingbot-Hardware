@@ -16,6 +16,10 @@
    </preferences>
    <tools>
       <pins name="Pins" version="5.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/pin_mux.c" update_enabled="true"/>
+            <file path="board/pin_mux.h" update_enabled="true"/>
+         </generated_project_files>
          <pins_profile>
             <processor_version>5.0.0</processor_version>
          </pins_profile>
@@ -209,7 +213,6 @@
                   <pin peripheral="FTM0" signal="CH, 3" pin_num="65" pin_signal="ADC1_SE14/PTB15/FTM0_CH3/LPSPI1_SIN"/>
                   <pin peripheral="FTM0" signal="CH, 2" pin_num="66" pin_signal="ADC1_SE9/ADC2_SE9/PTB14/FTM0_CH2/LPSPI1_SCK"/>
                   <pin peripheral="FTM0" signal="CH, 1" pin_num="67" pin_signal="ADC1_SE8/ADC2_SE8/PTB13/FTM0_CH1/FTM3_FLT1"/>
-                  <pin peripheral="FTM0" signal="CH, 0" pin_num="68" pin_signal="ADC1_SE7/PTB12/FTM0_CH0/FTM3_FLT2"/>
                   <pin peripheral="ADC1" signal="SE, 6" pin_num="69" pin_signal="ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3"/>
                   <pin peripheral="ADC1" signal="SE, 3" pin_num="70" pin_signal="ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b"/>
                   <pin peripheral="ADC1" signal="SE, 2" pin_num="71" pin_signal="ADC1_SE2/PTD2/FTM3_CH4/LPSPI1_SOUT/FXIO_D4/TRGMUX_IN5"/>
@@ -249,11 +252,16 @@
                   <pin peripheral="SUPPLY" signal="VDDA, 0" pin_num="11" pin_signal="VDDA"/>
                   <pin peripheral="ADC0" signal="VREFL" pin_num="13" pin_signal="VREFL"/>
                   <pin peripheral="RCM" signal="RESET" pin_num="97" pin_signal="PTA5/TCLK1/JTAG_TRST_b/RESET_b"/>
+                  <pin peripheral="GPIOB" signal="GPIO, 12" pin_num="68" pin_signal="ADC1_SE7/PTB12/FTM0_CH0/FTM3_FLT2"/>
                </pins>
             </function>
          </functions_list>
       </pins>
       <clocks name="Clocks" version="5.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/clock_config.c" update_enabled="true"/>
+            <file path="board/clock_config.h" update_enabled="true"/>
+         </generated_project_files>
          <clocks_profile>
             <processor_version>5.0.0</processor_version>
          </clocks_profile>
@@ -310,6 +318,7 @@
          </clock_configurations>
       </clocks>
       <periphs name="Peripherals" version="4.1" enabled="true" update_project_code="true">
+         <generated_project_files/>
          <peripherals_profile>
             <processor_version>N/A</processor_version>
          </peripherals_profile>

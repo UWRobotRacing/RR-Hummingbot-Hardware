@@ -5,8 +5,8 @@
  ****** Servo Config Preference ******
  *************************************/
 #define HUMMING_CONFIG_STEERING_SERVO_PWM_PERIOD             (3003) //us //333Hz
-#define HUMMING_CONFIG_STEERING_SERVO_GPIO_PORT         	 (GPIOD)
-#define HUMMING_CONFIG_STEERING_SERVO_GPIO_PIN          	 (7U)
+#define HUMMING_CONFIG_STEERING_SERVO_GPIO_PORT         	 (GPIOB)//(GPIOD)
+#define HUMMING_CONFIG_STEERING_SERVO_GPIO_PIN          	 (12U)//(7U)
 
 #define HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD                (3003) //us //333Hz
 #define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT                 (GPIOE)

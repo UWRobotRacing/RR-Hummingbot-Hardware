@@ -77,7 +77,7 @@
  *************************************/
 /* Helpful Macros for Calibration */
 #define CALIB_PRINT_REMOTE              0
-#define CALIB_PRINT_VC_SERVO            0
+#define CALIB_PRINT_VC_SERVO            1
 #define CALIB_PRINT_VC_SERVO_WITH_RF    0
 #if (CALIB_PRINT_REMOTE)
 //undefine
@@ -334,18 +334,31 @@ static void task_vehicleControl(void *pvParameters)
     /* calibration code here */
     task_vc_tick ++;
     uint8_t step = 1;
+    int max = 1400, min= 1100;
+    int num = min, dir=50;
+
     switch(step)
     {
       case 1:
         // STEP 1 - find 0 degree servo pw_us by writing raw, and record
-        VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, 850);
-        VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, 200);
+
+    	  while(1) {
+
+    		  VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, num);
+    		  DEBUG_PRINT_INFO("%d\r\n", num);
+    		  if(num==max) num=min;//dir = -50;
+    		  else if(num==min) num=max;//dir = 50;
+//    		  num += dir;
+    		  vTaskDelay(configTICK_RATE_HZ*5);
+    	  }
+//    	  VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, 1650);
+//        VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, 200);
         break;
       case 2:
         // STEP 2 - find + 30 degree of the wheel by gradually increasing pw_us,
         //          find servo pw_us by writing raw, and record
         VC_requestSteering(0);//PLEASE ENTER
-        VC_requestThrottle(100);
+//        VC_requestThrottle(100);
         break;
       case 3:
         // STEP 3 - do calculation, and validate -30 degree
