@@ -64,7 +64,7 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT            1 //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT            0 //This will enable uart debug print out
 #define DISABLE_FEATURE_DEBUG_PRINT_INFO      0
 #define DISABLE_FEATURE_DEBUG_PRINT_ERR       0
 #define DISABLE_FEATURE_DEBUG_PRINT_WRN       0
@@ -77,7 +77,7 @@
  *************************************/
 /* Helpful Macros for Calibration */
 #define CALIB_PRINT_REMOTE              0
-#define CALIB_PRINT_VC_SERVO            1
+#define CALIB_PRINT_VC_SERVO            0
 #define CALIB_PRINT_VC_SERVO_WITH_RF    0
 #if (CALIB_PRINT_REMOTE)
 //undefine
@@ -108,7 +108,7 @@
 #undef ENABLE_FEATURE_DEBUG_PRINT
 #endif
 //redefine
-#define ENABLE_FEATURE_DEBUG_PRINT      1 
+#define ENABLE_FEATURE_DEBUG_PRINT      0
 #define ENABLE_TASK_RF24				        0
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #endif
@@ -334,22 +334,30 @@ static void task_vehicleControl(void *pvParameters)
     /* calibration code here */
     task_vc_tick ++;
     uint8_t step = 1;
-    int max = 1400, min= 1100;
-    int num = min, dir=50;
-
+    int max = 1550, min= 1550;
+    uint16_t num = 1600, dir=50;
+    uint8_t tick = 0;
     switch(step)
     {
       case 1:
         // STEP 1 - find 0 degree servo pw_us by writing raw, and record
-
+    	  VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, 540);
+    	  vTaskDelay(HELPER_TASK_FREQUENCY_HZ(10)*10);
     	  while(1) {
 
-    		  VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, num);
+    		  VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, num);
+//    		  VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, num);
     		  DEBUG_PRINT_INFO("%d\r\n", num);
-    		  if(num==max) num=min;//dir = -50;
-    		  else if(num==min) num=max;//dir = 50;
+    		  //if(num==max) num=min;//dir = -50;
+    		  //else if(num==min) num=max;//dir = 50;
 //    		  num += dir;
-    		  vTaskDelay(configTICK_RATE_HZ*5);
+    		  tick++;
+    		  if(tick>20){
+    			  tick = 31;
+    			  num = 540;
+    		  }
+    		  vTaskDelay(HELPER_TASK_FREQUENCY_HZ(10));
+
     	  }
 //    	  VC_requestPWM_force_raw(VC_CHANNEL_NAME_STEERING, 1650);
 //        VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, 200);
@@ -424,10 +432,19 @@ static void task_vehicleControl(void *pvParameters)
           {
             /// - remote controller mode !!! TODO: coordination TBI
             reqAng = (rf24_steer);
-            reqSpd = (rf24_speed);
-            VC_requestSteering(reqAng);
-            VC_requestThrottle(reqSpd);
-            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d | %d ]", reqAng, reqSpd);
+//            reqSpd = (rf24_speed);
+            if(rf24_speed>700)
+            {
+            	reqSpd = 1600;
+            }
+            else
+            {
+            	reqSpd = 540;
+            }
+            //VC_requestSteering(reqAng);
+            //VC_requestThrottle(reqSpd);
+            VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, reqSpd);
+            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d | %d ]", reqSpd, reqAng);
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
             //xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
             m_bot.vc_steeringAngle = reqAng;

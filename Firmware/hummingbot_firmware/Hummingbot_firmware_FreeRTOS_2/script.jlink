@@ -1,7 +1,7 @@
 ExitOnError 1
 r
 h
-loadfile "C:\robotracing\RR2019-Hummingbot-Hardware\Firmware\hummingbot_firmware\Hummingbot_firmware_FreeRTOS_2\Debug\Hummingbot_firmware_FreeRTOS_2.hex"
+loadfile "C:\Users\Jerome Villapando\Documents\GitHub\RobotRacing2019-Hardware\Firmware\hummingbot_firmware\Hummingbot_firmware_FreeRTOS_2\Debug\Hummingbot_firmware_FreeRTOS_2.hex"
 qc
 
 qc

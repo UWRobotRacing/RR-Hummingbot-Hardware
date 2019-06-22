@@ -95,11 +95,9 @@ BOARD_InitPins:
   - {pin_num: '59', peripheral: FTM0, signal: 'CH, 7', pin_signal: ADC2_SE2/ACMP2_IN6/PTE7/FTM0_CH7/FTM3_FLT0}
   - {pin_num: '61', peripheral: SUPPLY, signal: 'VDD, 2', pin_signal: VDD62}
   - {pin_num: '60', peripheral: SUPPLY, signal: 'VSS, 3', pin_signal: VSS61}
-  - {pin_num: '62', peripheral: FTM0, signal: 'CH, 6', pin_signal: PTA17/FTM0_CH6/FTM3_FLT0/EWM_OUT_b}
   - {pin_num: '63', peripheral: FTM0, signal: 'CH, 5', pin_signal: ADC2_SE3/PTB17/FTM0_CH5/LPSPI1_PCS3}
   - {pin_num: '64', peripheral: FTM0, signal: 'CH, 4', pin_signal: ADC1_SE15/PTB16/FTM0_CH4/LPSPI1_SOUT}
   - {pin_num: '65', peripheral: FTM0, signal: 'CH, 3', pin_signal: ADC1_SE14/PTB15/FTM0_CH3/LPSPI1_SIN}
-  - {pin_num: '66', peripheral: FTM0, signal: 'CH, 2', pin_signal: ADC1_SE9/ADC2_SE9/PTB14/FTM0_CH2/LPSPI1_SCK}
   - {pin_num: '67', peripheral: FTM0, signal: 'CH, 1', pin_signal: ADC1_SE8/ADC2_SE8/PTB13/FTM0_CH1/FTM3_FLT1}
   - {pin_num: '69', peripheral: ADC1, signal: 'SE, 6', pin_signal: ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3}
   - {pin_num: '70', peripheral: ADC1, signal: 'SE, 3', pin_signal: ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b}
@@ -140,7 +138,9 @@ BOARD_InitPins:
   - {pin_num: '11', peripheral: SUPPLY, signal: 'VDDA, 0', pin_signal: VDDA}
   - {pin_num: '13', peripheral: ADC0, signal: VREFL, pin_signal: VREFL}
   - {pin_num: '97', peripheral: RCM, signal: RESET, pin_signal: PTA5/TCLK1/JTAG_TRST_b/RESET_b}
+  - {pin_num: '62', peripheral: GPIOA, signal: 'GPIO, 17', pin_signal: PTA17/FTM0_CH6/FTM3_FLT0/EWM_OUT_b}
   - {pin_num: '68', peripheral: GPIOB, signal: 'GPIO, 12', pin_signal: ADC1_SE7/PTB12/FTM0_CH0/FTM3_FLT2}
+  - {pin_num: '66', peripheral: GPIOB, signal: 'GPIO, 14', pin_signal: ADC1_SE9/ADC2_SE9/PTB14/FTM0_CH2/LPSPI1_SCK}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -191,8 +191,8 @@ void BOARD_InitPins(void)
     /* PORTA16 (pin 82) is configured as PTA16 */
     PORT_SetPinMux(PORTA, 16U, kPORT_MuxAsGpio);
 
-    /* PORTA17 (pin 62) is configured as FTM0_CH6 */
-    PORT_SetPinMux(PORTA, 17U, kPORT_MuxAlt2);
+    /* PORTA17 (pin 62) is configured as PTA17 */
+    PORT_SetPinMux(PORTA, 17U, kPORT_MuxAsGpio);
 
     /* PORTA2 (pin 73) is configured as LPUART0_RX */
     PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt6);
@@ -236,8 +236,8 @@ void BOARD_InitPins(void)
     /* PORTB13 (pin 67) is configured as FTM0_CH1 */
     PORT_SetPinMux(PORTB, 13U, kPORT_MuxAlt2);
 
-    /* PORTB14 (pin 66) is configured as FTM0_CH2 */
-    PORT_SetPinMux(PORTB, 14U, kPORT_MuxAlt2);
+    /* PORTB14 (pin 66) is configured as PTB14 */
+    PORT_SetPinMux(PORTB, 14U, kPORT_MuxAsGpio);
 
     /* PORTB15 (pin 65) is configured as FTM0_CH3 */
     PORT_SetPinMux(PORTB, 15U, kPORT_MuxAlt2);

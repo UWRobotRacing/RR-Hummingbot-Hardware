@@ -81,11 +81,13 @@ static const VC_steerCalibration_S    frsky_servo_calib ={
         .angle_deg = 0,
     },
     .max = {
-        .pw_us = 1650U,
+        //.pw_us = 1650U,
+    	.pw_us = 2000U,
         .angle_deg = 30,
     },
     .min = {
-        .pw_us = 1100U,
+        //.pw_us = 1100U,
+    	.pw_us = 0U,
         .angle_deg = -45,
     },
 };

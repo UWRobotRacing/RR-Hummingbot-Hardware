@@ -8,9 +8,9 @@
 #define HUMMING_CONFIG_STEERING_SERVO_GPIO_PORT         	 (GPIOB)//(GPIOD)
 #define HUMMING_CONFIG_STEERING_SERVO_GPIO_PIN          	 (12U)//(7U)
 
-#define HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD                (3003) //us //333Hz
-#define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT                 (GPIOE)
-#define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN                  (13U) 
+#define HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD                (20000) //us //333Hz
+#define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT                 (GPIOA)
+#define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN                  (17U)
 
 // General Robot Preference
 #define HUMMING_CONFIG_BOT_LOST_CONTROLLER_TIMEOUT_MS       (500) //ms
