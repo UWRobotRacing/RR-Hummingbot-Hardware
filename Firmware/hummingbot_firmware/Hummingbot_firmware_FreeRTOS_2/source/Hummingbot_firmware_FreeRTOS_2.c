@@ -190,7 +190,7 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 			next_receive = 1;
 			ready_for_next_transmit = 0;
 		}
-		vTaskDelay(configTICK_RATE_HZ/10);
+		vTaskDelay(configTICK_RATE_HZ);
 //		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif
