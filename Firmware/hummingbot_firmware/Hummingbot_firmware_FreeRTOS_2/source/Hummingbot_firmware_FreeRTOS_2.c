@@ -117,6 +117,7 @@ typedef struct{
 	uint16_t fuck;
 	uint16_t me;
 	uint16_t this;
+	uint16_t rip;
 }hummingbot_uart_handle_t;
 
 /***************************************  
@@ -125,6 +126,7 @@ typedef struct{
 Hummingbot_firmware_FreeRTOS_2_S m_data;
 lpuart_handle_t lpuart1_handle, lpuart0_handle;
 volatile char ready_for_next_transmit;
+volatile char next_receive = 1;
 /************************************************  
  ********* Private Function Prototypes ********** 
  ***********************************************/
@@ -149,7 +151,7 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 //	lpuart1_transfer.data = (uint8_t*) arr;
 //	lpuart1_transfer.dataSize = 1;
 	size_t bytesReceived = 0;
-	uint8_t next_receive = 1;
+
 
 
 
@@ -157,7 +159,6 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 //		LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
 		if(next_receive) {
 			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
-			next_receive = 0;
 		}
 		if(ready_for_next_transmit) {
 			/*
@@ -186,9 +187,8 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 //			PRINTF("%d\n",humuart.ESC_speed);
 //			PRINTF("%d\n",humuart.flags);
 
-
-			next_receive = 1;
-			ready_for_next_transmit = 0;
+//			next_receive = 1;
+//			ready_for_next_transmit = 0;
 		}
 		vTaskDelay(configTICK_RATE_HZ/10);
 //		vTaskDelay(configTICK_RATE_HZ*2);
@@ -203,6 +203,16 @@ void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t statu
 #endif
 	if(status == kStatus_LPUART_RxIdle) {
 		ready_for_next_transmit = 1;
+		next_receive = 0;
+	}
+}
+
+void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+{
+	if(status == kLPUART_TransmissionCompleteFlag){
+		next_receive = 1;
+		ready_for_next_transmit = 0;
+
 	}
 }
 
