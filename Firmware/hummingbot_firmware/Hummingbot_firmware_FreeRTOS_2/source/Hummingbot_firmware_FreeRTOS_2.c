@@ -114,8 +114,9 @@ typedef struct{
 //TODO: change name of struct??
 
 typedef struct{
-	float int1;
-	float int2;
+	int8_t steering_angle;
+	uint16_t ESC_speed;
+	uint8_t flags;
 }hummingbot_uart_handle_t;
 
 /***************************************  
@@ -137,11 +138,14 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 #if ENABLE_UART_TEST
 //	char arr[10] = "hello\r\n";
 	hummingbot_uart_handle_t humuart;
-	humuart.int1 = 0.0;
-	humuart.int2 = 0.0;
+	//humuart.int1 = 0.0;
+	//humuart.int2 = 0.0;
+	humuart.steering_angle = 1;
+	humuart.ESC_speed = 2;
+	humuart.flags = 3;
 	lpuart_transfer_t lpuart1_transfer;
 	lpuart1_transfer.data = (uint8_t*) &humuart;
-	lpuart1_transfer.dataSize = sizeof(hummingbot_uart_handle_t);
+	lpuart1_transfer.dataSize = sizeof(humuart);
 //	lpuart1_transfer.data = (uint8_t*) arr;
 //	lpuart1_transfer.dataSize = 1;
 	size_t bytesReceived = 0;
@@ -156,6 +160,7 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 			next_receive = 0;
 		}
 		if(ready_for_next_transmit) {
+			/*
 			if(humuart.int1 == 1.1) {
 #if	ENABLE_LED
 				GPIO_PortSet(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
@@ -174,7 +179,14 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
 #endif
 			}
+			*/
 			LPUART_TransferSendNonBlocking(LPUART0, &lpuart0_handle, &lpuart1_transfer);
+
+//			PRINTF("%d\n",humuart.steering_angle);
+//			PRINTF("%d\n",humuart.ESC_speed);
+//			PRINTF("%d\n",humuart.flags);
+
+
 			next_receive = 1;
 			ready_for_next_transmit = 0;
 		}
