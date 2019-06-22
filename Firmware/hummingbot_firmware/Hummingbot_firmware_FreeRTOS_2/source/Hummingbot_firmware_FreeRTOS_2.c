@@ -114,9 +114,9 @@ typedef struct{
 //TODO: change name of struct??
 
 typedef struct{
-	int8_t steering_angle;
-	uint16_t ESC_speed;
-	uint8_t flags;
+	uint16_t fuck;
+	uint16_t me;
+	uint16_t this;
 }hummingbot_uart_handle_t;
 
 /***************************************  
@@ -140,9 +140,9 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 	hummingbot_uart_handle_t humuart;
 	//humuart.int1 = 0.0;
 	//humuart.int2 = 0.0;
-	humuart.steering_angle = 1;
-	humuart.ESC_speed = 2;
-	humuart.flags = 3;
+//	humuart.steering_angle = 1;
+//	humuart.ESC_speed = 2;
+//	humuart.flags = 3;
 	lpuart_transfer_t lpuart1_transfer;
 	lpuart1_transfer.data = (uint8_t*) &humuart;
 	lpuart1_transfer.dataSize = sizeof(humuart);
