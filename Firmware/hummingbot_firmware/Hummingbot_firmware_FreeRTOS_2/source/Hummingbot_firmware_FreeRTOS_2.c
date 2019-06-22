@@ -114,10 +114,10 @@ typedef struct{
 //TODO: change name of struct??
 
 typedef struct{
-	uint16_t fuck;
+	int8_t fuck;
 	uint16_t me;
-	uint16_t this;
-	uint16_t rip;
+	uint8_t this;
+//	uint16_t rip;
 }hummingbot_uart_handle_t;
 
 /***************************************  
