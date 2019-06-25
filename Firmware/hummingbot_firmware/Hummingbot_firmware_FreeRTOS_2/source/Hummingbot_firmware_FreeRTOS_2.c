@@ -67,7 +67,7 @@
 #define ENABLE_PWM_STEERING_SERVO		0
 #define ENABLE_FEATURE_DEBUG_PRINT      1
 #define ENABLE_UART_TEST				1
-#define ENABLE_LED						1
+#define ENABLE_LED						0
 
 // Servo Macros
 #define SERVO_PWM_PERIOD_MS       (uint8_t)20
@@ -125,96 +125,88 @@ typedef struct{
  ***************************************/
 Hummingbot_firmware_FreeRTOS_2_S m_data;
 lpuart_handle_t lpuart1_handle, lpuart0_handle;
-volatile char ready_for_next_transmit;
-volatile char next_receive = 1;
+
+char g_txBuffer[sizeof(hummingbot_uart_handle_t)] = {0};
+char g_rxBuffer[sizeof(hummingbot_uart_handle_t)] = {0};
+
+volatile bool rxBufferEmpty = true;
+volatile bool txBufferFull = false;
+volatile bool txOnGoing = false;
+volatile bool rxOnGoing = false;
+
 /************************************************  
  ********* Private Function Prototypes ********** 
  ***********************************************/
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters);
 void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
+void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
+
+void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+{
+	if(status == kStatus_LPUART_RxIdle) {
+		rxBufferEmpty = false;
+		rxOnGoing = false;
+	}
+}
+
+void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
+{
+	if(status == kStatus_LPUART_TxIdle){
+		txBufferFull = false;
+		txOnGoing = false;
+
+	}
+}
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
 #if ENABLE_UART_TEST
-//	char arr[10] = "hello\r\n";
-	hummingbot_uart_handle_t humuart;
-	//humuart.int1 = 0.0;
-	//humuart.int2 = 0.0;
-//	humuart.steering_angle = 1;
-//	humuart.ESC_speed = 2;
-//	humuart.flags = 3;
-	lpuart_transfer_t lpuart1_transfer;
-	lpuart1_transfer.data = (uint8_t*) &humuart;
-	lpuart1_transfer.dataSize = sizeof(humuart);
-//	lpuart1_transfer.data = (uint8_t*) arr;
-//	lpuart1_transfer.dataSize = 1;
-	size_t bytesReceived = 0;
+	lpuart_transfer_t sendXfer;
+	lpuart_transfer_t receiveXfer;
+
+	sendXfer.data = (uint8_t*) g_txBuffer;
+	sendXfer.dataSize = sizeof(hummingbot_uart_handle_t);
+	receiveXfer.data = (uint8_t*) g_rxBuffer;
+	receiveXfer.dataSize = sizeof(hummingbot_uart_handle_t);
 
 
 
 
 	while(1) {
-//		LPUART_TransferSendNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer);
-		if(next_receive) {
-			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &lpuart1_transfer, &bytesReceived);
-		}
-		if(ready_for_next_transmit) {
-			/*
-			if(humuart.int1 == 1.1) {
-#if	ENABLE_LED
-				GPIO_PortSet(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
-#endif
-			} else {
-#if	ENABLE_LED
-				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
-#endif
-			}
-			if(humuart.int2 == 2.2) {
-#if	ENABLE_LED
-				GPIO_PortSet(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
-#endif
-			} else {
-#if	ENABLE_LED
-				GPIO_PortClear(LED_GPIO_PORT, 1U << LED_GPIO_PIN1);
-#endif
-			}
-			*/
-			LPUART_TransferSendNonBlocking(LPUART0, &lpuart0_handle, &lpuart1_transfer);
+		/* If RX is idle and g_rxBuffer is empty, start to read data to g_rxBuffer. */
+        if ((!rxOnGoing) && rxBufferEmpty)
+        {
+            rxOnGoing = true;
+            LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &receiveXfer, NULL);
+        }
 
-//			PRINTF("%d\n",humuart.steering_angle);
-//			PRINTF("%d\n",humuart.ESC_speed);
-//			PRINTF("%d\n",humuart.flags);
+        /* If TX is idle and g_txBuffer is full, start to send data. */
+        if ((!txOnGoing) && txBufferFull)
+        {
+            txOnGoing = true;
+            LPUART_TransferSendNonBlocking(LPUART0, &lpuart0_handle, &sendXfer);
+        }
 
-//			next_receive = 1;
-//			ready_for_next_transmit = 0;
-		}
+        /* If g_txBuffer is empty and g_rxBuffer is full, copy g_rxBuffer to g_txBuffer. */
+        if ((!rxBufferEmpty) && (!txBufferFull))
+        {
+            memcpy(&g_txBuffer, &g_rxBuffer, sizeof(g_txBuffer));
+//        	g_txBuffer.fuck = g_rxBuffer.fuck;
+//        	g_txBuffer.me = g_rxBuffer.me;
+//        	g_txBuffer.this = g_rxBuffer.this;
+
+            rxBufferEmpty = true;
+            txBufferFull = true;
+        }
 		vTaskDelay(configTICK_RATE_HZ/10);
 //		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif
 }
 
-void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
-{
-#if ENABLE_LED
-	GPIO_PortToggle(LED_GPIO_PORT, 1U << LED_GPIO_PIN0);
-#endif
-	if(status == kStatus_LPUART_RxIdle) {
-		ready_for_next_transmit = 1;
-		next_receive = 0;
-	}
-}
 
-void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData)
-{
-	if(status == kLPUART_TransmissionCompleteFlag){
-		next_receive = 1;
-		ready_for_next_transmit = 0;
-
-	}
-}
 
 /*********************** 
  ********* APP ********* 
@@ -281,23 +273,21 @@ int main(void) {
 #endif
 
 #if ENABLE_UART_TEST
-	ready_for_next_transmit = 0x00;
 
-	lpuart_config_t lpuartConfig;
-	lpuartConfig.baudRate_Bps = 115200U;
-	lpuartConfig.parityMode = kLPUART_ParityDisabled;
-	lpuartConfig.stopBitCount = kLPUART_OneStopBit;
-	lpuartConfig.txFifoWatermark = 0;
-	lpuartConfig.rxFifoWatermark = 0;
-	lpuartConfig.enableRx = true;
-	lpuartConfig.enableTx = true;
+	lpuart_config_t config;
+
+	LPUART_GetDefaultConfig(&config);
+	config.baudRate_Bps = 115200U;
+	config.enableTx = true;
+	config.enableRx = true;
 
 	// TODO: optimize clock frequency
 	//NOTE: clock frequency needs to match the clock register
-	LPUART_Init(LPUART1, &lpuartConfig, 16000000U);
+	LPUART_Init(LPUART1, &config, 16000000U);
 	LPUART_TransferCreateHandle(LPUART1, &lpuart1_handle, lpuart1_callback, NULL);
-	LPUART_Init(LPUART0, &lpuartConfig, 16000000U);
-	LPUART_TransferCreateHandle(LPUART0, &lpuart0_handle, NULL, NULL);
+	LPUART_Init(LPUART0, &config, 16000000U);
+	LPUART_TransferCreateHandle(LPUART0, &lpuart0_handle, lpuart0_callback, NULL);
+
 #endif
 	/*---- TASK CONFIGS --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Config Tasks ... ******");
