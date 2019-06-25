@@ -114,10 +114,10 @@ typedef struct{
 //TODO: change name of struct??
 
 typedef struct{
-	int8_t fuck;
+	int16_t fuck;
 	uint16_t me;
 	uint8_t this;
-//	uint16_t rip;
+	uint16_t rip;
 }hummingbot_uart_handle_t;
 
 /***************************************  
@@ -126,6 +126,8 @@ typedef struct{
 Hummingbot_firmware_FreeRTOS_2_S m_data;
 lpuart_handle_t lpuart1_handle, lpuart0_handle;
 
+uint8_t g_rxRingBuffer[20U] = {0}; /* RX ring buffer. */
+
 char g_txBuffer[sizeof(hummingbot_uart_handle_t)] = {0};
 char g_rxBuffer[sizeof(hummingbot_uart_handle_t)] = {0};
 
@@ -133,6 +135,8 @@ volatile bool rxBufferEmpty = true;
 volatile bool txBufferFull = false;
 volatile bool txOnGoing = false;
 volatile bool rxOnGoing = false;
+
+
 
 /************************************************  
  ********* Private Function Prototypes ********** 
@@ -165,6 +169,9 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 #if ENABLE_UART_TEST
 	lpuart_transfer_t sendXfer;
 	lpuart_transfer_t receiveXfer;
+	size_t receivedBytes = 0U;
+
+	LPUART_TransferStartRingBuffer(LPUART1, &lpuart1_handle, g_rxRingBuffer, 20U);
 
 	sendXfer.data = (uint8_t*) g_txBuffer;
 	sendXfer.dataSize = sizeof(hummingbot_uart_handle_t);
@@ -179,7 +186,12 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
         if ((!rxOnGoing) && rxBufferEmpty)
         {
             rxOnGoing = true;
-            LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &receiveXfer, NULL);
+            LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &receiveXfer, &receivedBytes);
+            if (sizeof(hummingbot_uart_handle_t) == receivedBytes)
+			{
+				rxBufferEmpty = false;
+				rxOnGoing = false;
+			}
         }
 
         /* If TX is idle and g_txBuffer is full, start to send data. */
@@ -200,7 +212,7 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
             rxBufferEmpty = true;
             txBufferFull = true;
         }
-		vTaskDelay(configTICK_RATE_HZ/10);
+		vTaskDelay(configTICK_RATE_HZ/160);
 //		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif

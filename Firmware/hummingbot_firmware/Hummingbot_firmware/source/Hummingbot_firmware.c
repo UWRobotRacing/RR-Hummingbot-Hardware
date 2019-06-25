@@ -105,20 +105,6 @@ int main(void) {
 		}
 	}
 
-	while(0) {
- 	//delay 1 second
-     SysTick_DelayTicks(1000U);
-
-     //toggle LED
-     GPIO_PortToggle(GPIOC, 1u << 12U);
-
-     //delay 1 second
-     SysTick_DelayTicks(1000U);
-
-    // if (kStatus_LPUART_TxBusy)
-     GPIO_PortToggle(GPIOC, 1u << 13U);
-	}
-
 
 //
 	/////////////////////////////////////////////////////
