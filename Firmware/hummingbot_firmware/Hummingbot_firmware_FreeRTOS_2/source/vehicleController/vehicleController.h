@@ -12,7 +12,7 @@
 typedef int16_t    angle_deg_t; 
 typedef uint16_t   pulse_us_t;
 typedef int16_t    speed_cm_per_s_t;
-
+typedef int16_t    rf24_joystick_tik_t;
 // some conversion unit
 // NOTE: change to uint16_t if your processor does not have a FPU, might suffer trimming/truncation error
 // NOTE*: please use uint16_t, since float still takes too long to compute

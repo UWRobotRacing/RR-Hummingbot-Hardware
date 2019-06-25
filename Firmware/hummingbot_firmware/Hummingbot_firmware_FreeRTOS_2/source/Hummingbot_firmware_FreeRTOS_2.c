@@ -64,7 +64,7 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT            0 //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT            1 //This will enable uart debug print out
 #define DISABLE_FEATURE_DEBUG_PRINT_INFO      0
 #define DISABLE_FEATURE_DEBUG_PRINT_ERR       0
 #define DISABLE_FEATURE_DEBUG_PRINT_WRN       0
@@ -79,6 +79,7 @@
 #define CALIB_PRINT_REMOTE              0
 #define CALIB_PRINT_VC_SERVO            0
 #define CALIB_PRINT_VC_SERVO_WITH_RF    0
+
 #if (CALIB_PRINT_REMOTE)
 //undefine
 #ifdef ENABLE_TASK_VEHICLE_CONTROL
@@ -316,6 +317,8 @@ static void task_vehicleControl(void *pvParameters)
 	TickType_t xLastWakeTime;
 #if (CALIB_PRINT_VC_SERVO)
   uint16_t task_vc_tick = 0;
+  uint16_t num = 1600, dir=50;
+  uint8_t tick = 0;
 #else
   bool remoteESTOP = false;
   bool autoMode    = false;
@@ -333,10 +336,8 @@ static void task_vehicleControl(void *pvParameters)
   #if (CALIB_PRINT_VC_SERVO)
     /* calibration code here */
     task_vc_tick ++;
-    uint8_t step = 1;
-    int max = 1550, min= 1550;
-    uint16_t num = 1600, dir=50;
-    uint8_t tick = 0;
+    uint8_t step = 2;
+//    int max = 1550, min= 1550;
     switch(step)
     {
       case 1:
@@ -351,11 +352,6 @@ static void task_vehicleControl(void *pvParameters)
     		  //if(num==max) num=min;//dir = -50;
     		  //else if(num==min) num=max;//dir = 50;
 //    		  num += dir;
-    		  tick++;
-    		  if(tick>20){
-    			  tick = 31;
-    			  num = 540;
-    		  }
     		  vTaskDelay(HELPER_TASK_FREQUENCY_HZ(10));
 
     	  }
@@ -365,8 +361,16 @@ static void task_vehicleControl(void *pvParameters)
       case 2:
         // STEP 2 - find + 30 degree of the wheel by gradually increasing pw_us,
         //          find servo pw_us by writing raw, and record
-        VC_requestSteering(0);//PLEASE ENTER
-//        VC_requestThrottle(100);
+        VC_requestSteering(20);//PLEASE ENTER
+        VC_requestThrottle(100);//100cm/s
+        tick++;
+        if(tick>20){//ms
+          tick = 31;
+          num = 540;
+          //VC_requestThrottle(0);//0cm/s equivalent to doBraking
+          VC_doBraking(0);
+        }
+
         break;
       case 3:
         // STEP 3 - do calculation, and validate -30 degree

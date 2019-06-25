@@ -25,10 +25,10 @@
 #define SERVO_FTM_IRQ_NUM                       (FTM0_IRQn)
 #define SERVO_FTM_HANDLER                       (FTM0_IRQHandler)
 // Get source clock for FTM driver 
-#define FTM_SOURCE_CLOCK                        (CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
+#define FTM_SOURCE_CLOCK                        (CLOCK_GetFreq(kCLOCK_IpSrcFircAsync))//(CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
 
 /* PWM Settings */
-#define SERVO_COMMON_FTM_PWM_PERIOD_US          (50U) // 50us per period, increase this, will reduce cpu load, but will reduce resolution
+#define SERVO_COMMON_FTM_PWM_PERIOD_US          (20U) // 50us per period, increase this, will reduce cpu load, but will reduce resolution
 
 /* Servo Pereference */
 #define SERVO_MAX_NUM_SERVO                     (5U)
@@ -106,8 +106,8 @@ bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size)
 
         // init FTM
         FTM_GetDefaultConfig(&ftmInfo);
-        /* Divide FTM clock by 4 */
-        ftmInfo.prescale = kFTM_Prescale_Divide_4;
+        /* Divide FTM clock by 2 */
+        ftmInfo.prescale = kFTM_Prescale_Divide_2;
         /* Initialize FTM module */
         FTM_Init(SERVO_FTM_BASEADDR, &ftmInfo);
         /*

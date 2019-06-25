@@ -29,6 +29,29 @@
 /*******************************************************************************
  * typedef
  ******************************************************************************/
+/* Defs for joystick controller mapping */
+typedef struct{
+    rf24_joystick_tik_t   val;//we are assuming neutral is 0 degree
+    angle_deg_t     angle_deg;
+} VC_rf24_joystick_steering_pair_t;
+
+typedef struct{
+    rf24_joystick_tik_t            val;//we are assuming neutral is 0 degree
+    speed_cm_per_s_t    speed_cm_per_s;
+} VC_rf24_joystick_throttle_pair_t;
+
+typedef struct{
+    VC_rf24_joystick_steering_pair_t steeringNeutral;
+    VC_rf24_joystick_steering_pair_t steeringMax;
+    VC_rf24_joystick_steering_pair_t steeringMin;
+    VC_rf24_joystick_steering_pair_t steeringDeadband;
+    VC_rf24_joystick_throttle_pair_t throttleNeutral;
+    VC_rf24_joystick_throttle_pair_t throttleMax;
+    VC_rf24_joystick_throttle_pair_t throttleMin;
+    VC_rf24_joystick_throttle_pair_t throttleDeadband;
+} VC_rf24_joystick_configs_S;
+
+/* Defs for vehicle controller*/
 typedef struct{
     pulse_us_t   pw_us;//we are assuming neutral is 0 degree
     angle_deg_t  angle_deg;
@@ -50,12 +73,14 @@ typedef struct{
     VC_speed_pair_t max_FWD_softLimit;
     VC_speed_pair_t min_FWD_starting; //due to friction, it requires certain power to move
     VC_speed_pair_t braking;  //TODO: might need a variable/hard/soft braking, TBD
+    VC_speed_pair_t neutral;
 } VC_throttleCalibration_S;
 
 typedef struct{
     SERVO_ServoConfig_S         deviceConfigs[VC_CHANNEL_NAME_COUNT];
-    const VC_steerCalibration_S*     steering_config;
-    const VC_throttleCalibration_S*  throttle_config;
+    const VC_steerCalibration_S*       steering_config;
+    const VC_throttleCalibration_S*    throttle_config;
+    const VC_rf24_joystick_configs_S*  joystick_config;
     // NOTE: since floating takes too long, we will use multiplier & divider to keep both accuracy and speed
     us_per_deg_t                us_per_deg_multiplier;
     us_per_deg_t                us_per_deg_divider;
@@ -69,12 +94,11 @@ typedef struct{
     uint16_t                    errorFlags;                
 } VehicleController_data_S;
 
-
 /*******************************************************************************
  * private variables
  ******************************************************************************/
 static VehicleController_data_S    m_vc = {0};
-// TODO: please calibrate values
+// NOTE: please calibrate values
 static const VC_steerCalibration_S    frsky_servo_calib ={
     .neutral = {
         .pw_us = 1400U,
@@ -82,33 +106,72 @@ static const VC_steerCalibration_S    frsky_servo_calib ={
     },
     .max = {
         //.pw_us = 1650U,
-    	.pw_us = 2000U,
+    	.pw_us = 1600U,
         .angle_deg = 30,
     },
     .min = {
         //.pw_us = 1100U,
-    	.pw_us = 0U,
-        .angle_deg = -45,
+    	.pw_us = 1200U,
+        .angle_deg = -30,
     },
 };
-// TODO: please calibrate these values TODO: figure out if 1580U is the braking or freewheeling
+//NOTE: please calibrate these values figure out if 1540U is kinda freewheeling
 static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
     .max_FWD_hardLimit = { // UNUSED, PLANNED for sports mode if necessary
-        .pw_us = 2000U,
+        .pw_us = 1800U,
         .speed_cm_per_s = 1000,
     }, 
     .max_FWD_softLimit = {
-        .pw_us = 1800U,
+        .pw_us = 1700U,
         .speed_cm_per_s = 200,
     }, 
     .min_FWD_starting = {
-        .pw_us = 1580U,
+        .pw_us = 1570U,
         .speed_cm_per_s = 10,
     }, 
     .braking = {
-        .pw_us = 1400U,
+        .pw_us = 800U,
         .speed_cm_per_s = 0,
     }, 
+    .neutral = { //default min pwm to keep esc alive
+        .pw_us = 550U,
+        .speed_cm_per_s = 0,
+    },
+};
+
+static const VC_rf24_joystick_configs_S joystick_calib = {
+    .steeringNeutral  = {
+      .val        = 584,
+      .angle_deg  = 0,
+    },     
+    .steeringMax      = {
+      .val        = 961, //+377
+      .angle_deg  = 30, 
+    }, 
+    .steeringMin      = {
+      .val        = 108, //-476
+      .angle_deg  = -30,
+    }, 
+    .steeringDeadband = { //every 10 tik, will be 1 degree
+      .val        = 10,
+      .angle_deg  = 1,
+    },      
+    .throttleNeutral  = {
+      .val            = 512,
+      .speed_cm_per_s = 0,
+    },  
+    .throttleMax      = {
+      .val            = 918, //+406
+      .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
+    },
+    .throttleMin      = {
+      .val            = 108, // unused, because no reverse implemented
+      .speed_cm_per_s = 0,
+    },
+    .throttleDeadband = {
+      .val            = 10,
+      .speed_cm_per_s = 4, // 4cm/s every 10 rik changes
+    },  
 };
 /*******************************************************************************
  * private function prototypes
@@ -132,6 +195,8 @@ void VC_Config(void)
 {
     m_vc.steering_config = &frsky_servo_calib;
     m_vc.throttle_config = &onyx_bldc_esc_calib;
+    m_vc.joystick_config = &joystick_calib;
+
     // compute scale factor
     m_vc.us_per_deg_multiplier = (m_vc.steering_config->max.pw_us - m_vc.steering_config->min.pw_us);
     m_vc.us_per_deg_divider    = (m_vc.steering_config->max.angle_deg - m_vc.steering_config->min.angle_deg);
@@ -150,7 +215,7 @@ void VC_Config(void)
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->braking.pw_us; // default is active braking
-    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	0; //make sure is 0, or you wont be able to stop with `write_us`
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; //make sure is 0, or you wont be able to stop with `write_us`
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_FWD_softLimit.pw_us;
     
     UPDATE_STATE(VC_STATE_CONFIGED);
@@ -262,7 +327,7 @@ bool VC_requestThrottle(speed_cm_per_s_t reqSpd)
             // do conversion & offset here:
             pw_delta = (reqSpd - (m_vc.throttle_config->min_FWD_starting.speed_cm_per_s));
             pw_delta *= m_vc.us_s_per_mm_multiplier;
-            pw_delta /= m_vc.us_per_deg_divider;
+            pw_delta /= m_vc.us_s_per_mm_divider;
             pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_FWD_starting.pw_us));
             if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, pulseWidth))
             {
