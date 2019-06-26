@@ -409,16 +409,16 @@ static void task_vehicleControl(void *pvParameters)
         }
         else
         {
-           CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
+          CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
         }
         
         if(autoMode)
         {
-           SET_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
+          SET_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
         }
         else
         {
-           CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
+          CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
         }
         DEBUG_PRINT_INFO("VC: [ ESTOP: %b | AUTO: %b ]", CHECK_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP), CHECK_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE));
         // state machine
@@ -430,30 +430,23 @@ static void task_vehicleControl(void *pvParameters)
         {
           if(autoMode)
           {
+            VC_doBraking(0);
             //TODO: to be implemented, requires a coordination here!!! [TBI]
           }
           else
           {
             /// - remote controller mode !!! TODO: coordination TBI
-            reqAng = (rf24_steer);
-//            reqSpd = (rf24_speed);
-            if(rf24_speed>700)
-            {
-            	reqSpd = 1600;
-            }
-            else
-            {
-            	reqSpd = 540;
-            }
-            //VC_requestSteering(reqAng);
-            //VC_requestThrottle(reqSpd);
-            VC_requestPWM_force_raw(VC_CHANNEL_NAME_THROTTLE, reqSpd);
-            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d | %d ]", reqSpd, reqAng);
+            VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
+            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
             //xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
             m_bot.vc_steeringAngle = reqAng;
             m_bot.vc_throttleSpeed = reqSpd;
-            m_bot.vc_newData_available ++;
+            m_bot.vc_newData_available ++; 
+            if (m_bot.vc_newData_available >= 65535)// 2^16 overflow
+            {
+              m_bot.vc_newData_available = 0; // reset
+            }
             //xSemaphoreGive(m_bot.vc_data_lock);
           } 
         }
