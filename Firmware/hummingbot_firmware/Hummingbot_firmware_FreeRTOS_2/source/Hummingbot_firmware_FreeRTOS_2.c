@@ -144,6 +144,7 @@ volatile bool rxOnGoing = false;
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters);
 void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
 void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
+void block_sync_uart();
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
@@ -164,6 +165,17 @@ void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t statu
 
 	}
 }
+
+//void block_sync_uart()
+//{
+//	uint8_t not_synced = 1;
+//	while(not_synced)
+//	{
+//
+//	}
+//}
+
+
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
 #if ENABLE_UART_TEST
@@ -177,8 +189,6 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 	sendXfer.dataSize = sizeof(hummingbot_uart_handle_t);
 	receiveXfer.data = (uint8_t*) g_rxBuffer;
 	receiveXfer.dataSize = sizeof(hummingbot_uart_handle_t);
-
-
 
 
 	while(1) {
