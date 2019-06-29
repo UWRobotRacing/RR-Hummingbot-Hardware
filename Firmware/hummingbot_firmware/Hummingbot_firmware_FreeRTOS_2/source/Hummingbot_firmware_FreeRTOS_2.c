@@ -176,20 +176,35 @@ void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t statu
 //}
 
 
+
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
 #if ENABLE_UART_TEST
 	lpuart_transfer_t sendXfer;
 	lpuart_transfer_t receiveXfer;
 	size_t receivedBytes = 0U;
+	uint8_t synced = 0U;
+	uint8_t sync_bytes[1] = {0};
 
 	LPUART_TransferStartRingBuffer(LPUART1, &lpuart1_handle, g_rxRingBuffer, 20U);
+
+	receiveXfer.data = (uint8_t*) sync_bytes;
+	receiveXfer.dataSize = sizeof(sync_bytes);
+
+
+	while (!synced){
+		if(!rxOnGoing){
+			rxOnGoing = true;
+			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &receiveXfer, &receivedBytes);
+			if (sync_bytes[0] == 255) synced = 1;
+		}
+		vTaskDelay(configTICK_RATE_HZ/160);
+	}
 
 	sendXfer.data = (uint8_t*) g_txBuffer;
 	sendXfer.dataSize = sizeof(hummingbot_uart_handle_t);
 	receiveXfer.data = (uint8_t*) g_rxBuffer;
 	receiveXfer.dataSize = sizeof(hummingbot_uart_handle_t);
-
 
 	while(1) {
 		/* If RX is idle and g_rxBuffer is empty, start to read data to g_rxBuffer. */
