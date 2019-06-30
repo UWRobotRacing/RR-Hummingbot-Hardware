@@ -144,7 +144,7 @@ volatile bool rxOnGoing = false;
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters);
 void lpuart1_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
 void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t status, void *userData);
-void block_sync_uart();
+
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
@@ -166,16 +166,6 @@ void lpuart0_callback(LPUART_Type *base, lpuart_handle_t *handle, status_t statu
 	}
 }
 
-//void block_sync_uart()
-//{
-//	uint8_t not_synced = 1;
-//	while(not_synced)
-//	{
-//
-//	}
-//}
-
-
 
 static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
@@ -183,28 +173,53 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 	lpuart_transfer_t sendXfer;
 	lpuart_transfer_t receiveXfer;
 	size_t receivedBytes = 0U;
+
+	//For synchronization to be successful, synced and prev_synced must be true
 	uint8_t synced = 0U;
+	uint8_t prev_synced = 0U;
+	uint8_t synced_2_bytes = 0U;
 	uint8_t sync_bytes[1] = {0};
 
 	LPUART_TransferStartRingBuffer(LPUART1, &lpuart1_handle, g_rxRingBuffer, 20U);
 
+	//Temporarily accommodate the receive uart struct for receiving a single byte
 	receiveXfer.data = (uint8_t*) sync_bytes;
 	receiveXfer.dataSize = sizeof(sync_bytes);
 
-
-	while (!synced){
-		if(!rxOnGoing){
+	//TODO: Make this a function
+	while (!synced_2_bytes){
+		//read Byte only if there is no rx transfer occurring
+		if(!rxOnGoing)
+		{
 			rxOnGoing = true;
 			LPUART_TransferReceiveNonBlocking(LPUART1, &lpuart1_handle, &receiveXfer, &receivedBytes);
-			if (sync_bytes[0] == 255) synced = 1;
+
+			//save synced boolean to be the previous
+			prev_synced = synced;
+			if (sync_bytes[0] == 255U)
+			{
+				//Successfully synced if both previous and current byte are 255
+				if(prev_synced)
+				{
+					synced_2_bytes = 1;
+				}
+				synced = 1;
+			}
+			else
+			{
+				synced = 0U;
+			}
 		}
+
 		vTaskDelay(configTICK_RATE_HZ/160);
 	}
 
+	//initialize receive and send uart structs to be the size of the struct being sent between jetson and m4
 	sendXfer.data = (uint8_t*) g_txBuffer;
 	sendXfer.dataSize = sizeof(hummingbot_uart_handle_t);
 	receiveXfer.data = (uint8_t*) g_rxBuffer;
 	receiveXfer.dataSize = sizeof(hummingbot_uart_handle_t);
+
 
 	while(1) {
 		/* If RX is idle and g_rxBuffer is empty, start to read data to g_rxBuffer. */
@@ -230,15 +245,11 @@ static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
         if ((!rxBufferEmpty) && (!txBufferFull))
         {
             memcpy(&g_txBuffer, &g_rxBuffer, sizeof(g_txBuffer));
-//        	g_txBuffer.fuck = g_rxBuffer.fuck;
-//        	g_txBuffer.me = g_rxBuffer.me;
-//        	g_txBuffer.this = g_rxBuffer.this;
 
             rxBufferEmpty = true;
             txBufferFull = true;
         }
 		vTaskDelay(configTICK_RATE_HZ/160);
-//		vTaskDelay(configTICK_RATE_HZ*2);
 	}
 #endif
 }
