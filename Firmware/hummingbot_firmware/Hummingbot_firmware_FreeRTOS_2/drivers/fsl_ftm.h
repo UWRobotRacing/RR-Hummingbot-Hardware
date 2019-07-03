@@ -454,6 +454,22 @@ void FTM_UpdatePwmDutycycle(FTM_Type *base,
                             uint8_t dutyCyclePercent);
 
 /*!
+ * brief Updates the duty cycle of an active PWM signal.
+ *
+ * param base              FTM peripheral base address
+ * param chnlNumber        The channel/channel pair number. In combined mode, this represents
+ *                          the channel pair number
+ * param currentPwmMode    The current PWM mode set during PWM setup
+ * param dutyCyclePercent  New PWM pulse width; The value should be between 0 to 100
+ *                          0=inactive signal(0% duty cycle)...
+ *                          100=active signal (100% duty cycle) #/200
+ */
+void FTM_UpdatePwmDutycycle200(FTM_Type *base,
+                            ftm_chnl_t chnlNumber,
+                            ftm_pwm_mode_t currentPwmMode,
+                            uint8_t dutyCycle200Percent);
+
+/*!
  * @brief Updates the edge level selection for a channel.
  *
  * @param base       FTM peripheral base address

@@ -44,7 +44,7 @@
 #include "common.h"
 #include "nrf24l01/RF24_common.h"
 #include "nrf24l01/RF24.h"
-#include "vehicleController/vehicleController.h"
+//#include "vehicleController/vehicleController.h"
 #include "Hummingconfig.h"
 
 #include "fsl_debug_console.h"
@@ -55,6 +55,8 @@
 #include "fsl_lpspi_freertos.h"
 #include "fsl_lpi2c.h"
 #include "fsl_lpi2c_freertos.h"
+
+#include "fsl_ftm.h" //TODO: temp
 
 //libraries for freeRTOS
 #include "FreeRTOS.h"
@@ -69,8 +71,10 @@
 #define DISABLE_FEATURE_DEBUG_PRINT_ERR       0
 #define DISABLE_FEATURE_DEBUG_PRINT_WRN       0
 
-#define ENABLE_TASK_RF24				        1
-#define ENABLE_TASK_VEHICLE_CONTROL    	1
+#define ENABLE_TASK_RF24				        0
+#define ENABLE_TASK_VEHICLE_CONTROL    	0
+
+#define ENABLE_PLAYGROUND               1  //for testing code
 
 /*************************************  
  ********* Calibbration Helper ********** 
@@ -186,8 +190,8 @@ typedef struct{
   SemaphoreHandle_t rf24_data_lock;
 
   // data parsed & sent to the vehicle controller
-  angle_deg_t       vc_steeringAngle;
-  speed_cm_per_s_t  vc_throttleSpeed;
+//  angle_deg_t       vc_steeringAngle;
+//  speed_cm_per_s_t  vc_throttleSpeed;
   uint16_t          vc_newData_available; //like a non-blocking semaphore
   SemaphoreHandle_t vc_data_lock;
 
@@ -473,6 +477,74 @@ static void task_vehicleControl(void *pvParameters)
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
+#if ENABLE_PLAYGROUND
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+/* The Flextimer base address/channel used for board */
+#define BOARD_FTM_BASEADDR            (FTM0)
+#define BOARD_FTM_CHANNEL             (kFTM_Chnl_6)
+
+/* Interrupt number and interrupt handler for the FTM base address used */
+#define FTM_INTERRUPT_NUMBER          (FTM0_IRQn)
+#define FTM_LED_HANDLER               (FTM0_IRQHandler)
+
+/* Interrupt to enable and flag to read */
+#define FTM_CHANNEL_INTERRUPT_ENABLE  (kFTM_Chnl6InterruptEnable)
+#define FTM_CHANNEL_FLAG              (kFTM_Chnl6Flag)
+
+/* Get source clock for FTM driver */
+#define FTM_SOURCE_CLOCK CLOCK_GetFreq(kCLOCK_IpSrcFircAsync)
+
+/*******************************************************************************
+ * Prototypes
+ ******************************************************************************/
+/*!
+ * @brief delay a while.
+ */
+void delay(void);
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+volatile bool ftmIsrFlag = false;
+volatile bool brightnessUp = true; /* Indicate LED is brighter or dimmer */
+volatile uint8_t updatedDutycycle = 10U;
+
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
+void delay(void)
+{
+    volatile uint32_t i = 0U;
+    for (i = 0U; i < 80000U; ++i)
+    {
+        __asm("NOP"); /* delay */
+    }
+}
+
+volatile uint16_t temptick = 0;
+void FTM_LED_HANDLER(void)
+{
+//    FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, (ftm_chnl_t)BOARD_FTM_CHANNEL, kFTM_CenterAlignedPwm, 0);
+//    FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+//    if(temptick%2 == 1)
+//    {
+//      FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, (ftm_chnl_t)BOARD_FTM_CHANNEL, kFTM_CenterAlignedPwm, 0);
+//      FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+//    }
+//      FTM_SetPwmOutputEnable(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, false);
+    temptick++;
+//    updatedDutycycle = 25U;
+    ftmIsrFlag = true;
+    if ((FTM_GetStatusFlags(BOARD_FTM_BASEADDR) & FTM_CHANNEL_FLAG) == FTM_CHANNEL_FLAG)
+    {
+        /* Clear interrupt flag.*/
+        FTM_ClearStatusFlags(BOARD_FTM_BASEADDR, FTM_CHANNEL_FLAG);
+    }
+    __DSB();
+}
+#endif
 /*********************** 
  ********* APP ********* 
  **********************/
@@ -480,6 +552,92 @@ static void task_vehicleControl(void *pvParameters)
  * @brief   Application entry point.
  */
 int main(void) {
+#if ENABLE_PLAYGROUND
+
+  ftm_config_t ftmInfo;
+  ftm_chnl_pwm_signal_param_t ftmParam;
+
+  /* Configure ftm params with frequency 24kHZ */
+  ftmParam.chnlNumber = BOARD_FTM_CHANNEL;
+  ftmParam.level = kFTM_HighTrue;
+  ftmParam.dutyCyclePercent = updatedDutycycle;//TODO: modify this
+  ftmParam.firstEdgeDelayPercent = 10U;
+
+  /* Board pin, clock, debug console init */
+  /* Init board hardware. */
+  BOARD_InitBootPins();
+  BOARD_InitBootClocks();
+  BOARD_InitBootPeripherals();
+  BOARD_BootClockRUN();
+  /* Init FSL debug console. */
+  BOARD_InitDebugConsole();
+
+  DEBUG_PRINT_INFO(" ######### ENTERED PLAYGROUND ########");
+
+  FTM_GetDefaultConfig(&ftmInfo);
+  /* Initialize FTM module */
+  FTM_Init(BOARD_FTM_BASEADDR, &ftmInfo);
+
+  FTM_SetupPwm(BOARD_FTM_BASEADDR, &ftmParam, 1U, kFTM_CenterAlignedPwm, 250U, FTM_SOURCE_CLOCK);
+
+  /* Enable channel interrupt flag.*/
+  FTM_EnableInterrupts(BOARD_FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE);
+
+  /* Enable at the NVIC */
+  EnableIRQ(FTM_INTERRUPT_NUMBER);
+
+  FTM_StartTimer(BOARD_FTM_BASEADDR, kFTM_SystemClock);
+
+  //TODO: DMA: https://www.nxp.com/docs/en/application-note/AN5121.pdf
+//  FTM_EnableDmaTransfer(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, true);
+  uint8_t ttick = 0;
+  uint64_t i = 0;
+  uint16_t pw_us = 700;
+  while (1)
+      {
+
+
+          DEBUG_PRINT_INFO(" %d, %d", ttick, temptick);
+
+          FTM_SetPwmOutputEnable(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, true);
+          FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, (ftm_chnl_t)BOARD_FTM_CHANNEL, kFTM_CenterAlignedPwm, 50U);
+          FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+          temptick = 0;
+          for (i = 0U; i < 800000U; ++i)
+          {
+              __asm("NOP"); /* delay */
+          }
+//          /* Use interrupt to update the PWM dutycycle */
+//          if (true == ftmIsrFlag && ttick<10)
+//          {
+              ttick ++;
+//              /* Disable interrupt to retain current dutycycle for a few seconds */
+//              FTM_DisableInterrupts(BOARD_FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE);
+//
+//              ftmIsrFlag = false;
+//
+//              /* Disable channel output before updating the dutycycle */
+//              FTM_UpdateChnlEdgeLevelSelect(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, 0U);
+//
+//              /* Update PWM duty cycle */
+//              FTM_UpdatePwmDutycycle200(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, updatedDutycycle);
+//
+//              /* Software trigger to update registers */
+//              FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+//
+//              /* Start channel output with updated dutycycle */
+//              FTM_UpdateChnlEdgeLevelSelect(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, pwmLevel);
+//
+//              /* Delay to view the updated PWM dutycycle */
+////              delay();
+//
+//              /* Enable interrupt flag to update PWM dutycycle */
+//              FTM_EnableInterrupts(BOARD_FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE);
+//          }
+      }
+
+#else
+
 	/*---- INIT --------------------------------------------------------*/
 	/* Init board hardware. */
 	BOARD_InitBootPins();
@@ -567,11 +725,12 @@ int main(void) {
 	  }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
-
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");
 	vTaskStartScheduler();
+#endif //(ENABLE_PLAYGROUND)
+
 	return 0;
 }
 

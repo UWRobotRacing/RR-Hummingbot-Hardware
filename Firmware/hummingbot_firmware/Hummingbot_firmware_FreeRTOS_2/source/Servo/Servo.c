@@ -23,7 +23,7 @@
 #define SERVO_FTM_BASEADDR                      (FTM0)
 // Interrupt number and interrupt handler for the FTM instance used 
 #define SERVO_FTM_IRQ_NUM                       (FTM0_IRQn)
-#define SERVO_FTM_HANDLER                       (FTM0_IRQHandler)
+//#define SERVO_FTM_HANDLER                       (FTM0_IRQHandler)
 // Get source clock for FTM driver 
 #define FTM_SOURCE_CLOCK                        (CLOCK_GetFreq(kCLOCK_IpSrcFircAsync))//(CLOCK_GetFreq(kCLOCK_CoreSysClk)/4)
 

@@ -581,6 +581,55 @@ void FTM_UpdatePwmDutycycle(FTM_Type *base,
 }
 
 /*!
+ * brief Updates the duty cycle of an active PWM signal.
+ *
+ * param base              FTM peripheral base address
+ * param chnlNumber        The channel/channel pair number. In combined mode, this represents
+ *                          the channel pair number
+ * param currentPwmMode    The current PWM mode set during PWM setup
+ * param dutyCyclePercent  New PWM pulse width; The value should be between 0 to 100
+ *                          0=inactive signal(0% duty cycle)...
+ *                          100=active signal (100% duty cycle) #/200
+ */
+void FTM_UpdatePwmDutycycle200(FTM_Type *base,
+                            ftm_chnl_t chnlNumber,
+                            ftm_pwm_mode_t currentPwmMode,
+                            uint8_t dutyCycle200Percent)
+{
+    uint16_t cnv, cnvFirstEdge = 0, mod;
+
+    mod = base->MOD;
+    if ((currentPwmMode == kFTM_EdgeAlignedPwm) || (currentPwmMode == kFTM_CenterAlignedPwm))
+    {
+        cnv = (mod * dutyCycle200Percent) / 200;
+        /* For 100% duty cycle */
+        if (cnv >= mod)
+        {
+            cnv = mod + 1;
+        }
+        base->CONTROLS[chnlNumber].CnV = cnv;
+    }
+    else
+    {
+        /* This check is added for combined mode as the channel number should be the pair number */
+        if (chnlNumber >= (FSL_FEATURE_FTM_CHANNEL_COUNTn(base) / 2))
+        {
+            return;
+        }
+
+        cnv = (mod * dutyCycle200Percent) / 200;
+        cnvFirstEdge = base->CONTROLS[chnlNumber * 2].CnV;
+        /* For 100% duty cycle */
+        if (cnv >= mod)
+        {
+            cnv = mod + 1;
+        }
+        base->CONTROLS[(chnlNumber * 2) + 1].CnV = cnvFirstEdge + cnv;
+    }
+}
+
+
+/*!
  * brief Updates the edge level selection for a channel.
  *
  * param base       FTM peripheral base address

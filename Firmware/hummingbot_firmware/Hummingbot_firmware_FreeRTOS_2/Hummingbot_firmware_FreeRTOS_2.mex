@@ -16,6 +16,10 @@
    </preferences>
    <tools>
       <pins name="Pins" version="5.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/pin_mux.c" update_enabled="true"/>
+            <file path="board/pin_mux.h" update_enabled="true"/>
+         </generated_project_files>
          <pins_profile>
             <processor_version>5.0.0</processor_version>
          </pins_profile>
@@ -254,6 +258,10 @@
          </functions_list>
       </pins>
       <clocks name="Clocks" version="5.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/clock_config.c" update_enabled="true"/>
+            <file path="board/clock_config.h" update_enabled="true"/>
+         </generated_project_files>
          <clocks_profile>
             <processor_version>5.0.0</processor_version>
          </clocks_profile>
@@ -272,12 +280,12 @@
                <clock_outputs>
                   <clock_output id="Bus_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
                   <clock_output id="Core_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
-                  <clock_output id="FIRCDIV1_CLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="FIRCDIV1_CLK.outFreq" value="6 MHz" locked="false" accuracy=""/>
                   <clock_output id="FIRCDIV2_CLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
                   <clock_output id="Flash_clock.outFreq" value="24 MHz" locked="false" accuracy=""/>
                   <clock_output id="LPO1KCLK.outFreq" value="1 kHz" locked="false" accuracy=""/>
                   <clock_output id="LPO_clock.outFreq" value="128 kHz" locked="false" accuracy=""/>
-                  <clock_output id="PCC.PCC_FTM0_CLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="PCC.PCC_FTM0_CLK.outFreq" value="6 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPI2C0_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPI2C1_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPSPI0_CLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
@@ -285,7 +293,7 @@
                   <clock_output id="PCC.PCC_LPUART1_CLK.outFreq" value="16 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPUART2_CLK.outFreq" value="16 MHz" locked="false" accuracy=""/>
                   <clock_output id="PLLDIV2_CLK.outFreq" value="16 MHz" locked="false" accuracy=""/>
-                  <clock_output id="SIRCDIV1_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SIRCDIV1_CLK.outFreq" value="500 kHz" locked="false" accuracy=""/>
                   <clock_output id="SIRCDIV2_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="SIRC_CLK.outFreq" value="8 MHz" locked="false" accuracy=""/>
                   <clock_output id="System_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
@@ -298,10 +306,10 @@
                   <setting id="PCC.PCC_LPUART0_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPUART1_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPUART2_SEL.sel" value="SCG.PLLDIV2_CLK" locked="false"/>
-                  <setting id="SCG.FIRCDIV1.scale" value="16" locked="true"/>
+                  <setting id="SCG.FIRCDIV1.scale" value="8" locked="true"/>
                   <setting id="SCG.FIRCDIV2.scale" value="16" locked="true"/>
                   <setting id="SCG.PREDIV.scale" value="3" locked="false"/>
-                  <setting id="SCG.SIRCDIV1.scale" value="8" locked="true"/>
+                  <setting id="SCG.SIRCDIV1.scale" value="16" locked="true"/>
                   <setting id="SCG.SIRCDIV2.scale" value="8" locked="true"/>
                   <setting id="SCG.SPLLDIV2.scale" value="8" locked="true"/>
                   <setting id="SCG.SPLLSRCSEL.sel" value="SCG.FIRC" locked="false"/>
@@ -312,6 +320,7 @@
          </clock_configurations>
       </clocks>
       <periphs name="Peripherals" version="4.1" enabled="true" update_project_code="true">
+         <generated_project_files/>
          <peripherals_profile>
             <processor_version>N/A</processor_version>
          </peripherals_profile>
