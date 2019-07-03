@@ -436,8 +436,20 @@ static void task_vehicleControl(void *pvParameters)
           else
           {
             /// - remote controller mode !!! TODO: coordination TBI
+
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
-            DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
+            if(reqAng>=0)
+            {
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
+
+            }
+            else
+            {
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
+
+            }
+
+
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
             //xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);
             m_bot.vc_steeringAngle = reqAng;

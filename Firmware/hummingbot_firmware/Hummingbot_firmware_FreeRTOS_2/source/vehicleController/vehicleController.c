@@ -130,11 +130,11 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
         .speed_cm_per_s = 10,
     }, 
     .braking = {
-        .pw_us = 800U,
+        .pw_us = 540U,//800U,
         .speed_cm_per_s = 0,
     }, 
     .neutral = { //default min pwm to keep esc alive
-        .pw_us = 550U,
+        .pw_us = 540U,//550U,
         .speed_cm_per_s = 0,
     },
 };
@@ -157,20 +157,20 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
       .angle_deg  = 1,
     },      
     .throttleNeutral  = {
-      .val            = 512,
+      .val            = 48,//512,
       .speed_cm_per_s = 0,
     },  
     .throttleMax      = { 
-      .val            = 918, //+406
+      .val            = 206,//918, //+406
       .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
     },
     .throttleMin      = { 
-      .val            = 108, // unused, because no reverse implemented
+      .val            = 19,//108, // unused, because no reverse implemented
       .speed_cm_per_s = 0,
     },
     .throttleDeadband = {
-      .val            = 10,
-      .speed_cm_per_s = 4, // 4cm/s every 10 rik changes
+      .val            = 5,//10,
+      .speed_cm_per_s = 4,//4, // 4cm/s every 10 rik changes
     },  
 };
 /*******************************************************************************
@@ -282,7 +282,7 @@ void VC_dummyTestRun(void) //DEPRECATED TODO:remove in the end
 bool VC_requestSteering(angle_deg_t reqAng) 
 {
     bool ret = false;
-    uint32_t pw_delta = 0;
+    int32_t pw_delta = 0;
     pulse_us_t pulseWidth = 0; 
     if( (reqAng != 0 && m_vc.current_steering == reqAng) && !m_vc.isCurrentTrackingValsInvalid)
     {
@@ -314,7 +314,7 @@ bool VC_requestSteering(angle_deg_t reqAng)
 bool VC_requestThrottle(speed_cm_per_s_t reqSpd)
 {
     bool ret = false;
-    uint32_t pw_delta = 0;
+    int32_t pw_delta = 0;
     pulse_us_t pulseWidth = 0; 
     if((reqSpd != 0 && m_vc.current_throttle == reqSpd)  && !m_vc.isCurrentTrackingValsInvalid)
     {
@@ -542,9 +542,9 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
   }
   
   /// - output - NOTE: since the lower level will handle optimization, so we dont have to keep tracking the old values
-  *out_convertedAng = INT16_C(-30);
-  *out_convertedSpd = INT16_C(throttleSpd_req);
-  ret &= VC_requestSteering(-30);
+  *out_convertedAng = steeringAng_req;
+  *out_convertedSpd = throttleSpd_req;
+  ret &= VC_requestSteering(steeringAng_req);
   ret &= VC_requestThrottle(throttleSpd_req);
   return ret;
 }
