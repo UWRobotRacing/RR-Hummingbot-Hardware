@@ -496,7 +496,7 @@ bool VC_powerOff_FreeWheeling(VC_channnelName_E controller)
     return ret;
 }
 
-angle_deg_t VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd)
+bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd)
 {
   bool ret = true;
   rf24_joystick_tik_t delta = 0;
@@ -546,7 +546,7 @@ angle_deg_t VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_
   *out_convertedSpd = throttleSpd_req;
   ret &= VC_requestSteering(steeringAng_req);
   ret &= VC_requestThrottle(throttleSpd_req);
-  return (-30);
+  return ret;
 }
 
 VC_state_E VC_getVehicleControllerState(void)
