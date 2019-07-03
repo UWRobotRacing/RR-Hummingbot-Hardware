@@ -504,7 +504,7 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
   speed_cm_per_s_t    throttleSpd_req = 0;
   /// - steering mapping
   delta = steeringAxis - m_vc.joystick_config->steeringNeutral.val;
-  steeringAng_req = delta*m_vc.joystick_config->steeringDeadband.val/m_vc.joystick_config->steeringDeadband.angle_deg;
+  steeringAng_req = delta*m_vc.joystick_config->steeringDeadband.angle_deg/m_vc.joystick_config->steeringDeadband.val;
   steeringAng_req += m_vc.joystick_config->steeringNeutral.angle_deg;
   // Bounding the angle
   if (steeringAng_req > m_vc.joystick_config->steeringMax.angle_deg)
@@ -524,7 +524,7 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
   delta = throttleAxis - m_vc.joystick_config->throttleNeutral.val;
   if (delta > 0) // only support FWD Motoring
   {
-    throttleSpd_req = delta*m_vc.joystick_config->throttleDeadband.val/m_vc.joystick_config->throttleDeadband.speed_cm_per_s;
+    throttleSpd_req = delta*m_vc.joystick_config->throttleDeadband.speed_cm_per_s/m_vc.joystick_config->throttleDeadband.val;
     throttleSpd_req += m_vc.joystick_config->throttleNeutral.speed_cm_per_s;
     //bounding the spd
     if (throttleSpd_req > m_vc.joystick_config->throttleMax.speed_cm_per_s)
@@ -542,9 +542,9 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
   }
   
   /// - output - NOTE: since the lower level will handle optimization, so we dont have to keep tracking the old values
-  *out_convertedAng = steeringAng_req;
-  *out_convertedSpd = throttleSpd_req;
-  ret &= VC_requestSteering(steeringAng_req);
+  *out_convertedAng = INT16_C(-30);
+  *out_convertedSpd = INT16_C(throttleSpd_req);
+  ret &= VC_requestSteering(-30);
   ret &= VC_requestThrottle(throttleSpd_req);
   return ret;
 }
