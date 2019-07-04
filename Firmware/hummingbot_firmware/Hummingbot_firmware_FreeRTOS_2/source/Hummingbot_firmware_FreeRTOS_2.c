@@ -469,7 +469,7 @@ static void task_vehicleControl(void *pvParameters)
     else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) )
     {
       // let it roll a bit, in case the connection come back within 100ms
-      VC_powerOff_FreeWheeling(VC_CHANNEL_NAME_THROTTLE);
+      VC_do_FreeWheeling(VC_CHANNEL_NAME_THROTTLE);
     }
     /// 3. lost remote controller state | WIRELESS ESTOP will not work
     else

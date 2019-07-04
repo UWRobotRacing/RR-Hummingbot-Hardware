@@ -58,7 +58,8 @@ void VC_dummyTestRun(void);
 bool VC_requestSteering(angle_deg_t reqAng);
 bool VC_requestThrottle(speed_cm_per_s_t reqSpd);
 bool VC_doBraking(angle_deg_t reqAng);
-bool VC_powerOff_FreeWheeling(VC_channnelName_E controller);
+bool VC_powerOff(VC_channnelName_E controller);
+bool VC_do_FreeWheeling(VC_channnelName_E controller);
 bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd);
 
 /* NOTE: PREFERRABLY: DO NOT USE RAW for main code, they are only meant for testing and calibration */ 

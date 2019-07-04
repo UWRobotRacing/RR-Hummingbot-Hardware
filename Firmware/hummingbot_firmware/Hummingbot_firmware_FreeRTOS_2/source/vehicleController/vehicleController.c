@@ -157,15 +157,15 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
       .angle_deg  = 1,
     },      
     .throttleNeutral  = {
-      .val            = 48,//512,
+      .val            = 512,
       .speed_cm_per_s = 0,
     },  
     .throttleMax      = { 
-      .val            = 206,//918, //+406
+      .val            = 918, //+406
       .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
     },
     .throttleMin      = { 
-      .val            = 19,//108, // unused, because no reverse implemented
+      .val            = 108, // unused, because no reverse implemented
       .speed_cm_per_s = 0,
     },
     .throttleDeadband = {
@@ -214,7 +214,7 @@ void VC_Config(void)
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.pin = HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD;
-    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->braking.pw_us; // default is active braking
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; // default is active braking
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; //make sure is 0, or you wont be able to stop with `write_us`
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_FWD_softLimit.pw_us;
     
@@ -465,8 +465,38 @@ bool VC_doBraking(angle_deg_t reqAng)
     return ret;
 }
 
-// WARNING. this will not necessary do bbraking/straighten steering, all it does is to give up signalling(controlling) the servo/esc
-bool VC_powerOff_FreeWheeling(VC_channnelName_E controller)
+bool VC_do_FreeWheeling(VC_channnelName_E controller)
+{
+    bool ret = true;
+    switch(controller)
+    {
+        case (VC_CHANNEL_NAME_STEERING):
+        case (VC_CHANNEL_NAME_THROTTLE):
+            ret &= SERVO_goDefault(controller);
+            break;
+
+        case (VC_CHANNEL_NAME_COUNT):
+        case (VC_CHANNEL_NAME_ALL):
+        default:
+            // drop both
+            ret &= SERVO_goDefault(VC_CHANNEL_NAME_STEERING);
+            ret &= SERVO_goDefault(VC_CHANNEL_NAME_THROTTLE); //will stop eventually
+            break;
+    }
+    if(!ret)
+    {
+        SET_ERR_FLAG(VC_ERROR_FLAG_UNABLE_FREE_CONTROL_ERR);
+    }
+    else
+    {
+        UPDATE_STATE(VC_STATE_IDLE);        
+    }
+    m_vc.isCurrentTrackingValsInvalid = true;
+    return ret;
+}
+
+// WARNING. all it does is to give up signalling(controlling) the servo/esc
+bool VC_powerOff(VC_channnelName_E controller)
 {
     bool ret = true;
     switch(controller)
