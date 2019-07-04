@@ -126,7 +126,7 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
         .speed_cm_per_s = 200,
     }, 
     .min_FWD_starting = {
-        .pw_us = 1570U,
+        .pw_us = 1600U,
         .speed_cm_per_s = 10,
     }, 
     .braking = {
@@ -134,7 +134,7 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
         .speed_cm_per_s = 0,
     }, 
     .neutral = { //default min pwm to keep esc alive
-        .pw_us = 540U,//550U,
+        .pw_us = 1540U,//550U,
         .speed_cm_per_s = 0,
     },
 };
@@ -169,8 +169,8 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
       .speed_cm_per_s = 0,
     },
     .throttleDeadband = {
-      .val            = 5,//10,
-      .speed_cm_per_s = 4,//4, // 4cm/s every 10 rik changes
+      .val            = 10,
+      .speed_cm_per_s = 2,//4, // 4cm/s every 10 rik changes
     },  
 };
 /*******************************************************************************
@@ -215,7 +215,7 @@ void VC_Config(void)
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; // default is active braking
-    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; //make sure is 0, or you wont be able to stop with `write_us`
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->braking.pw_us; //make sure is 0, or you wont be able to stop with `write_us`
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_FWD_softLimit.pw_us;
     
     UPDATE_STATE(VC_STATE_CONFIGED);
