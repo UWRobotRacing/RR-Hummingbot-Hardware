@@ -122,7 +122,7 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
         .speed_cm_per_s = 1000,
     }, 
     .max_FWD_softLimit = {
-        .pw_us = 1700U,
+        .pw_us = 2000U,
         .speed_cm_per_s = 200,
     }, 
     .min_FWD_starting = {
@@ -170,7 +170,7 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
     },
     .throttleDeadband = {
       .val            = 10,
-      .speed_cm_per_s = 2,//4, // 4cm/s every 10 rik changes
+      .speed_cm_per_s = 5,//4, // 4cm/s every 10 rik changes
     },  
 };
 /*******************************************************************************

@@ -195,6 +195,14 @@ typedef struct{
   HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
 
+typedef struct
+{
+	uint16_t jetson_ang;
+	int16_t	jetson_spd;
+	uint16_t jetson_flag;
+	uint16_t jetson_pad;
+}jetson_data;
+
 /*************************************
  ********* Inline Definitions **********
  *************************************/
@@ -432,6 +440,15 @@ static void task_vehicleControl(void *pvParameters)
           {
             VC_doBraking(0);
             //TODO: to be implemented, requires a coordination here!!! [TBI]
+            if(reqAng>=0)
+			{
+				DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
+
+			}
+			else
+			{
+				DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
+			}
           }
           else
           {
