@@ -31,8 +31,9 @@ void SERVO_onDestroy(void);
 bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size);
 
 SERVO_PWM_STATUS_E SERVO_getStatus(uint8_t index);
+uint16_t SERVO_getCurrentPWM(uint8_t index);
 bool SERVO_goDefault(uint8_t index);
-bool SERVO_doStop(uint8_t index); //stop sending command
+bool SERVO_powerOff(uint8_t index); //stop sending command
 bool SERVO_requestStart(uint8_t index);
 bool SERVO_write_us(uint8_t index, uint16_t pulseWidth_us);
 bool SERVO_getNotifiedByNewTick(void);

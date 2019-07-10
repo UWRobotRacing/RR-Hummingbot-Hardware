@@ -336,6 +336,8 @@ static void task_vehicleControl(void *pvParameters)
   uint8_t   rf24_flag  = 0;
   angle_deg_t       reqAng = 0;
   speed_cm_per_s_t  reqSpd = 0;
+  pulse_us_t        ang_pw_us = 0;
+  pulse_us_t        spd_pw_us = 0;
 #endif // (CALIB_PRINT_VC_SERVO)
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
@@ -441,31 +443,31 @@ static void task_vehicleControl(void *pvParameters)
             VC_doBraking(0);
             //TODO: to be implemented, requires a coordination here!!! [TBI]
             if(reqAng>=0)
-			{
-				DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
+            {
+              DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
 
-			}
-			else
-			{
-				DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
-			}
+            }
+            else
+            {
+              DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
+            }
           }
           else
           {
             /// - remote controller mode !!! TODO: coordination TBI
 
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
+            ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
+            spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
             if(reqAng>=0)
             {
-            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
-
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg] [ %d us| %d us]", reqSpd, reqAng, spd_pw_us, ang_pw_us);
             }
             else
             {
-            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg] [ %d us| %d us]", reqSpd, reqAng, spd_pw_us, ang_pw_us);
 
             }
-
 
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
             //xSemaphoreTake(m_bot.vc_data_lock, HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK);

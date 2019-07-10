@@ -61,7 +61,7 @@ typedef struct{
     bool                ftmIsrFlag;
     bool                configed;
     uint8_t             size;
-    SERVO_pwm_data_S     pwms[SERVO_MAX_NUM_SERVO];
+    SERVO_pwm_data_S    pwms[SERVO_MAX_NUM_SERVO];
 } SERVO_data_S;
 
 /*******************************************************************************
@@ -77,6 +77,11 @@ static inline void runStateMachine(uint8_t index);
 /*******************************************************************************
  * public function
  ******************************************************************************/
+uint16_t SERVO_getCurrentPWM(uint8_t index)
+{
+    return m_servos.pwms[(index)].current_pwm_width_us;
+}
+
 void SERVO_onDestroy(void)
 {
     m_servos.configs = NULL;
@@ -148,7 +153,7 @@ bool SERVO_requestStart(uint8_t index)
     return ret;
 }
 
-bool SERVO_doStop(uint8_t index)
+bool SERVO_powerOff(uint8_t index)
 {
     bool ret = false;
     if(index < m_servos.size)

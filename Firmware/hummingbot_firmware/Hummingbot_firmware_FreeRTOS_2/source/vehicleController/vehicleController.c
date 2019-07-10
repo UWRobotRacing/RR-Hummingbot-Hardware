@@ -47,7 +47,7 @@ typedef struct{
     VC_rf24_joystick_steering_pair_t steeringDeadband;
     VC_rf24_joystick_throttle_pair_t throttleNeutral;
     VC_rf24_joystick_throttle_pair_t throttleMax;
-    VC_rf24_joystick_throttle_pair_t throttleMin;
+    VC_rf24_joystick_throttle_pair_t throttleBraking;
     VC_rf24_joystick_throttle_pair_t throttleDeadband;
 } VC_rf24_joystick_configs_S;
 
@@ -69,11 +69,12 @@ typedef struct{
 } VC_steerCalibration_S;
 
 typedef struct{
-    VC_speed_pair_t max_FWD_hardLimit; // for sports mode if needed, (unused)
     VC_speed_pair_t max_FWD_softLimit;
     VC_speed_pair_t min_FWD_starting; //due to friction, it requires certain power to move
     VC_speed_pair_t braking;  //TODO: might need a variable/hard/soft braking, TBD
     VC_speed_pair_t neutral;
+    pulse_us_t      min_pw_us;
+    pulse_us_t      max_pw_us;
 } VC_throttleCalibration_S;
 
 typedef struct{
@@ -87,8 +88,8 @@ typedef struct{
     us_s_per_mm_t               us_s_per_mm_multiplier;
     us_s_per_mm_t               us_s_per_mm_divider;
     // some variables to avoid excess repeative operation
-    us_s_per_mm_t               current_throttle;
-    us_per_deg_t                current_steering;
+    speed_cm_per_s_t            current_throttle;
+    angle_deg_t                 current_steering;
     bool                        isCurrentTrackingValsInvalid; //if so, current_x will no longer be valid, will force to retrack upon request() functions
     VC_state_E                  state;   
     uint16_t                    errorFlags;                
@@ -101,26 +102,22 @@ static VehicleController_data_S    m_vc = {0};
 // NOTE: please calibrate values
 static const VC_steerCalibration_S    frsky_servo_calib ={
     .neutral = {
-        .pw_us = 1400U,
-        .angle_deg = 0,
+      .pw_us = 1400U,
+      .angle_deg = 0,
     },
     .max = {
-        //.pw_us = 1650U,
-    	.pw_us = 1600U,
-        .angle_deg = 30,
+      //.pw_us = 1650U,
+      .pw_us = 1600U,
+      .angle_deg = 30,
     },
     .min = {
         //.pw_us = 1100U,
-    	.pw_us = 1200U,
-        .angle_deg = -30,
+      .pw_us = 1200U,
+      .angle_deg = -30,
     },
 };
 //NOTE: please calibrate these values figure out if 1540U is kinda freewheeling
 static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
-    .max_FWD_hardLimit = { // UNUSED, PLANNED for sports mode if necessary
-        .pw_us = 1800U,
-        .speed_cm_per_s = 1000,
-    }, 
     .max_FWD_softLimit = {
         .pw_us = 2000U,
         .speed_cm_per_s = 200,
@@ -131,12 +128,15 @@ static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
     }, 
     .braking = {
         .pw_us = 540U,//800U,
-        .speed_cm_per_s = 0,
+        .speed_cm_per_s = -1,
     }, 
     .neutral = { //default min pwm to keep esc alive
         .pw_us = 1540U,//550U,
         .speed_cm_per_s = 0,
     },
+    // PWM signal boundary
+    .min_pw_us = 540U,
+    .max_pw_us = 2000U,
 };
 
 static const VC_rf24_joystick_configs_S joystick_calib = {
@@ -164,9 +164,9 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
       .val            = 918, //+406
       .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
     },
-    .throttleMin      = { 
-      .val            = 108, // unused, because no reverse implemented
-      .speed_cm_per_s = 0,
+    .throttleBraking  = { 
+      .val            = 300,//108, // unused, because no reverse implemented
+      .speed_cm_per_s = -1,
     },
     .throttleDeadband = {
       .val            = 10,
@@ -215,8 +215,8 @@ void VC_Config(void)
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].gpio.port= HUMMING_CONFIG_THROTTLE_ESC_GPIO_PORT;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].refreshingPeriod = HUMMING_CONFIG_THROTTLE_ESC_PWM_PERIOD;
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].defaultPulseWidth_us =	m_vc.throttle_config->neutral.pw_us; // default is active braking
-    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->braking.pw_us; //make sure is 0, or you wont be able to stop with `write_us`
-    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_FWD_softLimit.pw_us;
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->min_pw_us; //make sure is 0, or you wont be able to stop with `write_us`
+    m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_pw_us;
     
     UPDATE_STATE(VC_STATE_CONFIGED);
 }
@@ -225,7 +225,7 @@ bool VC_Init(void)
 {
     if(VC_STATE_CONFIGED == m_vc.state)
     {
-	    SERVO_init(m_vc.deviceConfigs, VC_CHANNEL_NAME_COUNT);
+      SERVO_init(m_vc.deviceConfigs, VC_CHANNEL_NAME_COUNT);
       UPDATE_STATE(VC_STATE_INITED);
     }
     return (VC_STATE_INITED == m_vc.state);
@@ -246,14 +246,36 @@ bool VC_Begin(void)
     return (VC_STATE_IDLE == m_vc.state);
 }
 
+/* VC_getCurrentPulseWidth
+ * @about return the actual pwm pulse output for given controller
+ */
+pulse_us_t VC_getCurrentPulseWidth(VC_channnelName_E controller)
+{
+    pulse_us_t ret = 0;
+    switch(controller)
+    {
+      case (VC_CHANNEL_NAME_STEERING):
+      case (VC_CHANNEL_NAME_THROTTLE):
+        ret = SERVO_getCurrentPWM(controller);
+        break;
+
+      case (VC_CHANNEL_NAME_COUNT):
+      case (VC_CHANNEL_NAME_ALL):
+      default:
+        //do nothing
+        break;
+    }
+    return ret;
+}
+
 void VC_dummyTestRun(void) //DEPRECATED TODO:remove in the end
 {
   uint32_t cnt = 0;
-	uint32_t loop = 4U;
-	uint32_t milisecondCounts = 0;
-	uint32_t secondLoop = 10000U;//10us
-	volatile uint16_t temp = 600U;
-	bool increment = true;
+  uint32_t loop = 4U;
+  uint32_t milisecondCounts = 0;
+  uint32_t secondLoop = 10000U;//10us
+  volatile uint16_t temp = 600U;
+  bool increment = true;
     while (true)
     {
         if (SERVO_getNotifiedByNewTick())
@@ -345,18 +367,31 @@ bool VC_requestThrottle(speed_cm_per_s_t reqSpd)
             // keep current spd.
         }
     }
-    else    // braking
+    else if(reqSpd == 0)
     {
-       if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
-        {
-            ret = true;
-            m_vc.current_throttle = 0;
-            UPDATE_STATE(VC_STATE_IDLE);
-        } 
-        else
-        {
-            SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
-        }
+      if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->neutral.pw_us))
+      {
+          ret = true;
+          m_vc.current_throttle = m_vc.throttle_config->neutral.speed_cm_per_s;
+          UPDATE_STATE(VC_STATE_NEUTRAL);
+      } 
+      else
+      {
+          SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+      }
+    }
+    else // braking, reqSpd < 0
+    {
+      if(SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us))
+      {
+          ret = true;
+          m_vc.current_throttle = m_vc.throttle_config->braking.speed_cm_per_s;
+          UPDATE_STATE(VC_STATE_IDLE);
+      } 
+      else
+      {
+          SET_ERR_FLAG(VC_ERROR_FLAG_THROTTLE_ERR);
+      }
     }
     return ret;
 }
@@ -446,7 +481,7 @@ bool VC_requestThrottle_raw(pulse_us_t pw_us)
 bool VC_doBraking(angle_deg_t reqAng)
 {
     bool ret = true;
-    ret &= SERVO_goDefault(VC_CHANNEL_NAME_THROTTLE);
+    ret &= SERVO_write_us(VC_CHANNEL_NAME_THROTTLE, m_vc.throttle_config->braking.pw_us);
     if(reqAng == 0)
     {
        ret &= SERVO_goDefault(VC_CHANNEL_NAME_STEERING);
@@ -503,15 +538,15 @@ bool VC_powerOff(VC_channnelName_E controller)
     {
         case (VC_CHANNEL_NAME_STEERING):
         case (VC_CHANNEL_NAME_THROTTLE):
-            ret &= SERVO_doStop(controller);
+            ret &= SERVO_powerOff(controller);
             break;
 
         case (VC_CHANNEL_NAME_COUNT):
         case (VC_CHANNEL_NAME_ALL):
         default:
             // drop both
-            ret &= SERVO_doStop(VC_CHANNEL_NAME_STEERING);
-            ret &= SERVO_doStop(VC_CHANNEL_NAME_THROTTLE); //will stop eventually
+            ret &= SERVO_powerOff(VC_CHANNEL_NAME_STEERING);
+            ret &= SERVO_powerOff(VC_CHANNEL_NAME_THROTTLE);
             break;
     }
     if(!ret)
@@ -565,6 +600,11 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
     {
       // do nothing
     }
+  }
+  else if (throttleAxis < m_vc.joystick_config->throttleBraking.val)
+  {
+    // braking
+    throttleSpd_req = m_vc.joystick_config->throttleBraking.speed_cm_per_s;
   }
   else
   {

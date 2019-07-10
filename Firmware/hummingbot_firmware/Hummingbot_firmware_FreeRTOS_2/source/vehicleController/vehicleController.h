@@ -26,6 +26,7 @@ typedef enum{
     VC_STATE_INITED,
     VC_STATE_IDLE,
     VC_STATE_RUNNING,
+    VC_STATE_NEUTRAL,
     VC_STATE_FAULT,
     VC_STATE_DESTROYED,
 } VC_state_E;
@@ -61,6 +62,7 @@ bool VC_doBraking(angle_deg_t reqAng);
 bool VC_powerOff(VC_channnelName_E controller);
 bool VC_do_FreeWheeling(VC_channnelName_E controller);
 bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd);
+pulse_us_t VC_getCurrentPulseWidth(VC_channnelName_E controller);
 
 /* NOTE: PREFERRABLY: DO NOT USE RAW for main code, they are only meant for testing and calibration */ 
 bool VC_requestThrottle_raw(pulse_us_t pw_us); // will be filtered by logic
