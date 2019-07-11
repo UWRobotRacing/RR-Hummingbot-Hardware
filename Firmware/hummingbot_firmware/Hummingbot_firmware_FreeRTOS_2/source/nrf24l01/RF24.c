@@ -4,10 +4,6 @@
  *  Created on: Apr 28, 2019
  *      Author: jackxu
  */
-
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "common.h"
 #include "nrf24l01.h"
 #include "RF24.h"
@@ -15,9 +11,6 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define LOW   0
-#define HIGH  1
-
 // M4_SPI Hardware Config
 #define RF24_LPSPI_MASTER_BASEADDR              (LPSPI0)
 #define RF24_LPSPI_MASTER_CLOCK_NAME            (kCLOCK_Lpspi0)

@@ -5,10 +5,6 @@
  *      Author: jackxu
  */
 #include "Servo.h"
-
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "fsl_ftm.h"
 
 /*******************************************************************************
