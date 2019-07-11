@@ -10,6 +10,8 @@
 
 #include "fsl_gpio.h"
 #include "fsl_lpspi_freertos.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /*************************************
  ********* Macro Definitions **********
@@ -31,6 +33,14 @@ typedef struct{
     lpspi_transfer_t      spi0_transfer;
 }lpspi_t;
 
+// data structure
+typedef struct
+{
+  uint16_t  jetson_ang;
+  int16_t	jetson_spd;
+  uint16_t  jetson_flag;
+  uint16_t  jetson_pad;
+}jetson_buf_t;
 /*************************************
  ********* ENUM Definitions **********
  *************************************/

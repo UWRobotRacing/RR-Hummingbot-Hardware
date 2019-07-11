@@ -1,9 +1,6 @@
 #ifndef VEHICLE_CONTROLLER_H_
 #define VEHICLE_CONTROLLER_H_
-
-
-#include <stdint.h>
-#include <stdbool.h>
+#include "common.h"
 
 /***********************************
  ********* Macro Definition **********

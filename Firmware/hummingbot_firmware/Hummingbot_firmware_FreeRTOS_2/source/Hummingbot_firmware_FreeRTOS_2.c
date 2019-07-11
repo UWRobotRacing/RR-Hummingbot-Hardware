@@ -45,6 +45,7 @@
 #include "nrf24l01/RF24_common.h"
 #include "nrf24l01/RF24.h"
 #include "vehicleController/vehicleController.h"
+#include "JetsonUart/JetsonUart.h"
 #include "Hummingconfig.h"
 
 #include "fsl_debug_console.h"
@@ -71,7 +72,7 @@
 
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
-
+#define ENABLE_TASK_JETSON_UART         1
 /*************************************  
  ********* Calibbration Helper ********** 
  *************************************/
@@ -156,10 +157,12 @@
  ***********************************/
 /* Task Priority */
 #define TASK_RF24_PRIORITY 							 			(configMAX_PRIORITIES - 1)
-#define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
+#define TASK_VEHICLE_CONTROL_PRIORITY 	      (configMAX_PRIORITIES - 2)
+#define TASK_JETSON_UART_PRIORITY 	          (configMAX_PRIORITIES - 3)
 /* Task Frequency */ //TODO: TBD
 #define TASK_RF24_RUNNING_PERIOD                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 #define TASK_VEHICLE_CONTROL_RUNNING_PERIOD       (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TASK_JETSON_UART_PERIOD                   (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 
 /***********************************
  ********* Macro Helpers **********
@@ -195,14 +198,27 @@ typedef struct{
   HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
 
-typedef struct
+#if (ENABLE_TASK_JETSON_UART)
+static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
 {
-	uint16_t jetson_ang;
-	int16_t	jetson_spd;
-	uint16_t jetson_flag;
-	uint16_t jetson_pad;
-}jetson_data;
-
+  JU_begin();
+  JU_prepSync();
+	while(1) {
+		if(JU_isSynced())
+    {
+      JU_doXfer();
+    }
+    else
+    {
+      if(JU_trySync())
+      {
+        JU_prepXfer();
+      }
+    }
+		vTaskDelay(TASK_JETSON_UART_PERIOD);
+	}
+}
+#endif //(ENABLE_TASK_JETSON_UART)
 /*************************************
  ********* Inline Definitions **********
  *************************************/
@@ -336,8 +352,6 @@ static void task_vehicleControl(void *pvParameters)
   uint8_t   rf24_flag  = 0;
   angle_deg_t       reqAng = 0;
   speed_cm_per_s_t  reqSpd = 0;
-  pulse_us_t        ang_pw_us = 0;
-  pulse_us_t        spd_pw_us = 0;
 #endif // (CALIB_PRINT_VC_SERVO)
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
@@ -540,7 +554,9 @@ int main(void) {
 #if (ENABLE_TASK_VEHICLE_CONTROL)
 	VC_Config(); // NOTE: please config directly within the vehicle control
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-
+#if (ENABLE_TASK_JETSON_UART)
+  JU_init();
+#endif
 
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
@@ -586,19 +602,24 @@ int main(void) {
 #if (ENABLE_TASK_RF24)
 	if (xTaskCreate(task_rf24, "task_rf24", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
-	  DEBUG_PRINT_ERR("Task creation failed!.");
+	  DEBUG_PRINT_ERR("RF24 Task creation failed!.");
 		while (1);
 	}
 #endif
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-	if (xTaskCreate(task_vehicleControl, "task_vehicleControl", configMINIMAL_STACK_SIZE + 10, NULL, ENABLE_TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_vehicleControl, "task_vehicleControl", configMINIMAL_STACK_SIZE + 10, NULL, TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
 	  {
-	    DEBUG_PRINT_ERR("Task creation failed!.\r\n");
+	    DEBUG_PRINT_ERR("VC Task creation failed!.\r\n");
 	    while (1);
 	  }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-
-
+#if (ENABLE_TASK_JETSON_UART)
+	if (xTaskCreate(task_test_lpuart_asyncrhonous_echo, "task_test_lpuart_asyncrhonous_echo", configMINIMAL_STACK_SIZE + 10, NULL, TASK_JETSON_UART_PRIORITY, NULL) != pdPASS)
+	{
+		DEBUG_PRINT_ERR("UART Task creation failed!.\r\n");
+		while (1);
+	}
+#endif //(ENABLE_TASK_JETSON_UART)
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");
