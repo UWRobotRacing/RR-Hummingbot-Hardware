@@ -4,9 +4,9 @@
 RF24 radio(7, 8); // CE, CSN
 const byte address[6] = "00101";
 
-#define DEBUG_MODE                  0
+#define DEBUG_MODE                  1
 #define DEBUG_PRINT_MSG             1
-#define DEBUG_PLOT_CONTRL_RESPONSE  1
+#define DEBUG_PLOT_CONTRL_RESPONSE  0
 // only one debug mode can be selected (DEBUG_PRINT_MSG higher priority)
 #if (DEBUG_PLOT_CONTRL_RESPONSE && DEBUG_PRINT_MSG)
   #undef DEBUG_PLOT_CONTRL_RESPONSE
@@ -139,7 +139,7 @@ void loop() {
       temp = mCtrl_values[1];
       buf |= (temp<<20);                 //set steering
   }
-  
+
   //every transmit interval
   if (currentMillis - prevMillis >= TRANSMIT_INTERVAL) {
       prevMillis = millis();

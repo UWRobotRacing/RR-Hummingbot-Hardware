@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.2.2">
+<eagle version="8.3.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1198,9 +1198,6 @@ Marquardt</description>
 <package3d name="M9040P" urn="urn:adsk.eagle:package:27676/1" type="box">
 <description>TOGGLE SWITCH
 Marquardt</description>
-<packageinstances>
-<packageinstance name="M9040P"/>
-</packageinstances>
 </package3d>
 </packages3d>
 </library>
@@ -1400,24 +1397,12 @@ Marquardt</description>
 <packages3d>
 <package3d name="1X03" urn="urn:adsk.eagle:package:6240710/1" type="box" library_version="2">
 <description>&lt;b&gt;PIN HEADER&lt;/b&gt;</description>
-<packageinstances>
-<packageinstance name="1X03"/>
-</packageinstances>
 </package3d>
 <package3d name="1X08-BIG" urn="urn:adsk.eagle:package:6240707/1" type="box" library_version="2">
-<packageinstances>
-<packageinstance name="1X08-BIG"/>
-</packageinstances>
 </package3d>
 <package3d name="1X10-BIG" urn="urn:adsk.eagle:package:6240656/1" type="box" library_version="2">
-<packageinstances>
-<packageinstance name="1X10-BIG"/>
-</packageinstances>
 </package3d>
 <package3d name="1X06-BIG" urn="urn:adsk.eagle:package:6240714/1" type="box" library_version="2">
-<packageinstances>
-<packageinstance name="1X06-BIG"/>
-</packageinstances>
 </package3d>
 </packages3d>
 </library>
@@ -1460,9 +1445,6 @@ Marquardt</description>
 <packages3d>
 <package3d name="EDG-01" urn="urn:adsk.eagle:package:26661/1" type="box" library_version="2">
 <description>DIP SWITCH</description>
-<packageinstances>
-<packageinstance name="EDG-01"/>
-</packageinstances>
 </package3d>
 </packages3d>
 </library>
@@ -1544,14 +1526,10 @@ design rules under a new name.</description>
 <param name="slThermalsForVias" value="0"/>
 <param name="dpMaxLengthDifference" value="10mm"/>
 <param name="dpGapFactor" value="2.5"/>
+<param name="checkGrid" value="0"/>
 <param name="checkAngle" value="1"/>
 <param name="checkFont" value="1"/>
 <param name="checkRestrict" value="1"/>
-<param name="checkStop" value="0"/>
-<param name="checkValues" value="0"/>
-<param name="checkNames" value="1"/>
-<param name="checkWireStubs" value="1"/>
-<param name="checkPolygonWidth" value="0"/>
 <param name="useDiameter" value="13"/>
 <param name="maxErrors" value="50"/>
 </designrules>
@@ -5088,13 +5066,6 @@ design rules under a new name.</description>
 <wire x1="7.975" y1="36" x2="8" y2="36.025" width="0.254" layer="1"/>
 </signal>
 </signals>
-<mfgpreviewcolors>
-<mfgpreviewcolor name="soldermaskcolor" color="0xC8000000"/>
-<mfgpreviewcolor name="silkscreencolor" color="0xFFFFFFFF"/>
-<mfgpreviewcolor name="backgroundcolor" color="0xFF282828"/>
-<mfgpreviewcolor name="coppercolor" color="0xFFFFBF00"/>
-<mfgpreviewcolor name="substratecolor" color="0xFF786E46"/>
-</mfgpreviewcolors>
 </board>
 </drawing>
 <compatibility>
