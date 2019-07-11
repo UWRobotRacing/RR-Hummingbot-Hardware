@@ -457,15 +457,15 @@ static void task_vehicleControl(void *pvParameters)
             /// - remote controller mode !!! TODO: coordination TBI
 
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
-            ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
-            spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
+            // ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
+            // spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
             if(reqAng>=0)
             {
-            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg] [ %d us| %d us]", reqSpd, reqAng, spd_pw_us, ang_pw_us);
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
             }
             else
             {
-            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg] [ %d us| %d us]", reqSpd, reqAng, spd_pw_us, ang_pw_us);
+            	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
 
             }
 
