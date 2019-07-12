@@ -117,6 +117,8 @@ outputs:
 - {id: Flash_clock.outFreq, value: 24 MHz}
 - {id: LPO1KCLK.outFreq, value: 1 kHz}
 - {id: LPO_clock.outFreq, value: 128 kHz}
+- {id: PCC.PCC_FTM0_CLK.outFreq, value: 1 MHz}
+- {id: PCC.PCC_FTM1_CLK.outFreq, value: 1 MHz}
 - {id: PCC.PCC_LPI2C0_CLK.outFreq, value: 1 MHz}
 - {id: PCC.PCC_LPI2C1_CLK.outFreq, value: 1 MHz}
 - {id: PCC.PCC_LPSPI0_CLK.outFreq, value: 3 MHz}
@@ -129,6 +131,8 @@ outputs:
 - {id: SIRC_CLK.outFreq, value: 8 MHz}
 - {id: System_clock.outFreq, value: 48 MHz}
 settings:
+- {id: PCC.PCC_FTM0_SEL.sel, value: SCG.SIRCDIV1_CLK}
+- {id: PCC.PCC_FTM1_SEL.sel, value: SCG.SIRCDIV1_CLK}
 - {id: PCC.PCC_LPI2C0_SEL.sel, value: SCG.SIRCDIV2_CLK}
 - {id: PCC.PCC_LPI2C1_SEL.sel, value: SCG.SIRCDIV2_CLK}
 - {id: PCC.PCC_LPSPI0_SEL.sel, value: SCG.FIRCDIV2_CLK}
@@ -224,5 +228,9 @@ void BOARD_BootClockRUN(void)
     CLOCK_SetIpSrc(kCLOCK_Lpuart1, kCLOCK_IpSrcSysPllAsync);
     /* Set PCC LPUART2 selection */
     CLOCK_SetIpSrc(kCLOCK_Lpuart2, kCLOCK_IpSrcSysPllAsync);
+    /* Set PCC FTM0 selection */
+    CLOCK_SetIpSrc(kCLOCK_Ftm0, kCLOCK_IpSrcSircAsync);
+    /* Set PCC FTM1 selection */
+    CLOCK_SetIpSrc(kCLOCK_Ftm1, kCLOCK_IpSrcSircAsync);
 }
 

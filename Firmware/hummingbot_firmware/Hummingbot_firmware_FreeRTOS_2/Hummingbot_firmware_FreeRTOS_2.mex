@@ -285,6 +285,8 @@
                   <clock_output id="Flash_clock.outFreq" value="24 MHz" locked="false" accuracy=""/>
                   <clock_output id="LPO1KCLK.outFreq" value="1 kHz" locked="false" accuracy=""/>
                   <clock_output id="LPO_clock.outFreq" value="128 kHz" locked="false" accuracy=""/>
+                  <clock_output id="PCC.PCC_FTM0_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
+                  <clock_output id="PCC.PCC_FTM1_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPI2C0_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPI2C1_CLK.outFreq" value="1 MHz" locked="false" accuracy=""/>
                   <clock_output id="PCC.PCC_LPSPI0_CLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
@@ -298,6 +300,8 @@
                   <clock_output id="System_clock.outFreq" value="48 MHz" locked="false" accuracy=""/>
                </clock_outputs>
                <clock_settings>
+                  <setting id="PCC.PCC_FTM0_SEL.sel" value="SCG.SIRCDIV1_CLK" locked="false"/>
+                  <setting id="PCC.PCC_FTM1_SEL.sel" value="SCG.SIRCDIV1_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPI2C0_SEL.sel" value="SCG.SIRCDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPI2C1_SEL.sel" value="SCG.SIRCDIV2_CLK" locked="false"/>
                   <setting id="PCC.PCC_LPSPI0_SEL.sel" value="SCG.FIRCDIV2_CLK" locked="false"/>
