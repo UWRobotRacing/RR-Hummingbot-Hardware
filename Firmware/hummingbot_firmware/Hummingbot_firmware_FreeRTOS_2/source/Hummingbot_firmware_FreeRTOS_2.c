@@ -199,23 +199,21 @@ typedef struct{
 }Hummingbot_firmware_FreeRTOS_2_data_S;
 
 #if (ENABLE_TASK_JETSON_UART)
-static void task_test_lpuart_asyncrhonous_echo(void *pvParameters)
+static void task_uart_receive(void *pvParameters)
 {
   JU_begin();
   JU_prepSync();
 	while(1) {
 		if(JU_isSynced())
-    {
-      JU_doXfer();
-    }
-    else
-    {
-      if(JU_trySync())
-      {
-        JU_prepXfer();
-      }
-    }
-		vTaskDelay(TASK_JETSON_UART_PERIOD);
+		{
+		  JU_doXfer();
+		}
+		else if(JU_trySync())
+		  {
+			JU_prepXfer();
+		  }
+
+		  vTaskDelay(TASK_JETSON_UART_PERIOD);
 	}
 }
 #endif //(ENABLE_TASK_JETSON_UART)
@@ -614,7 +612,7 @@ int main(void) {
 	  }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 #if (ENABLE_TASK_JETSON_UART)
-	if (xTaskCreate(task_test_lpuart_asyncrhonous_echo, "task_test_lpuart_asyncrhonous_echo", configMINIMAL_STACK_SIZE + 10, NULL, TASK_JETSON_UART_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_uart_receive, "task_uart_receive", configMINIMAL_STACK_SIZE + 10, NULL, TASK_JETSON_UART_PRIORITY, NULL) != pdPASS)
 	{
 		DEBUG_PRINT_ERR("UART Task creation failed!.\r\n");
 		while (1);
