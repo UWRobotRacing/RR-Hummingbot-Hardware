@@ -19,7 +19,7 @@
 #define ENABLE_UART_SERIAL_COMM         1
 
 #define ENTER_CALIB_MODE                0
-
+#define ENABLE_UART_SERIAL_ECHO         0
 // serial comm will override debug print
 #if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
 #ifdef ENABLE_FEATURE_DEBUG_PRINT
@@ -294,7 +294,15 @@ void vc_run(void)
       // state machine
       if(remoteESTOP)
       {
-        vc_ESC.writeMicroseconds(VC_doBraking());
+        //keep neutral
+        if(VC_STATE_NEUTRAL == VC_getVehicleControllerState())
+        {
+          vc_ESC.writeMicroseconds(onyx_bldc_esc_calib.neutral.pw_us);
+        }
+        else
+        {
+          vc_ESC.writeMicroseconds(VC_doBraking());
+        }
       }
       else
       {
@@ -355,7 +363,15 @@ void vc_run(void)
   else
   {
     // just braking
-    vc_ESC.writeMicroseconds(VC_doBraking());
+    //keep neutral
+    if(VC_STATE_NEUTRAL == VC_getVehicleControllerState())
+    {
+      vc_ESC.writeMicroseconds(onyx_bldc_esc_calib.neutral.pw_us);
+    }
+    else
+    {
+      vc_ESC.writeMicroseconds(VC_doBraking());
+    }
   }
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
@@ -384,29 +400,23 @@ void uart_run(void)
     }
   } 
 
-//  //for testing
-//  if (m_bot.newPayloadAvail) {
-//    Serial.println("------------");
-//    for ( int i =0; i<8;i++)
-//      Serial.println(char(m_bot.readPtr_rxPayload->serializedArray[i]));
-//    Serial.println("------------");
-//    Serial.println(m_bot.readPtr_rxPayload->myFrame.startByte);
-//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
-//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
-//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_flag);
-//    Serial.println(m_bot.readPtr_rxPayload->myFrame.endByte);
-//    Serial.println("");
-//
-//    m_bot.readPtr_rxPayload->myFrame.startByte ='\a';
-//    m_bot.readPtr_rxPayload->myFrame.data.jetson_ang ='22';
-//    m_bot.readPtr_rxPayload->myFrame.data.jetson_spd ='-11';
-//    m_bot.readPtr_rxPayload->myFrame.data.jetson_flag ='202';
-//    m_bot.readPtr_rxPayload->myFrame.endByte ='\n';
-//    for ( int i =0; i<8;i++)
-//      Serial.print(m_bot.readPtr_rxPayload->serializedArray[i]);
-//    Serial.println("");
-//    m_bot.newPayloadAvail = false;
-//  }
+#if (ENABLE_UART_SERIAL_ECHO)
+ //for testing
+ if (m_bot.newPayloadAvail) 
+ {
+    Serial.println("------------");
+    for ( int i =0; i<8;i++)
+      Serial.println(char(m_bot.readPtr_rxPayload->serializedArray[i]));
+    Serial.println("------------");
+    Serial.println(m_bot.readPtr_rxPayload->myFrame.startByte);
+    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
+    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
+    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_flag);
+    Serial.println(m_bot.readPtr_rxPayload->myFrame.endByte);
+    Serial.println("");
+    m_bot.newPayloadAvail = false;
+ }
+#endif //(ENABLE_UART_SERIAL_ECHO)
 
 }
 #endif //(ENABLE_UART_SERIAL_COMM)

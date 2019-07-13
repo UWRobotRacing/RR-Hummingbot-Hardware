@@ -197,6 +197,7 @@ pulse_us_t VC_requestThrottle(speed_cm_per_s_t reqSpd)
     else if(reqSpd == 0)
     {
       pulseWidth = m_vc.throttle_config->neutral.pw_us;
+      UPDATE_STATE(VC_STATE_NEUTRAL);
     }
     // TODO: Reverse to be tested
     // else if (reqSpd <= m_vc.throttle_config->min_REV_starting.speed_cm_per_s)
@@ -211,7 +212,7 @@ pulse_us_t VC_requestThrottle(speed_cm_per_s_t reqSpd)
     else // braking
     {
       pulseWidth = VC_doBraking();
-      UPDATE_STATE(VC_STATE_IDLE);
+      UPDATE_STATE(VC_STATE_BRAKING);
     }
     return pulseWidth;
 }
