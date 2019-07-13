@@ -2,14 +2,6 @@
 #define HUMMINGBOT_COMMON_H
 
 /*************************************  
- ********* Macro Preference ********** 
- *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT            1 //This will enable uart debug print out
-#define DISABLE_FEATURE_DEBUG_PRINT_INFO      0
-#define DISABLE_FEATURE_DEBUG_PRINT_ERR       0
-#define DISABLE_FEATURE_DEBUG_PRINT_WRN       0
-
-/*************************************  
  ********* Macro Helpers ********** 
  *************************************/
 /* set status bit */

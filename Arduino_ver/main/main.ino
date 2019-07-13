@@ -12,10 +12,13 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
+#define ENABLE_FEATURE_DEBUG_PRINT            0 //This will enable uart debug print out
+
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 
 #define TASK_RF24_LOST_CONTROLLER_TICK_MAX        (2000U) 
+#define CYCLE_DELAY                               (50U)//ms
 /***************************************  
  *********  Struct Define ********** 
  ***************************************/
@@ -82,7 +85,7 @@ void loop() {
 #if (ENABLE_TASK_VEHICLE_CONTROL)
   vc_run();
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
- delay(500);
+ delay(CYCLE_DELAY);
 }
 
 /***************************************  
@@ -143,7 +146,7 @@ void rf24_run(void)
       Serial.print(" tik, ");   
       Serial.print( m_bot.raw_encoded_flags,BIN);
       Serial.println(" FLAG");
-      delay(100);
+//      delay(100);
 #endif //(ENABLE_FEATURE_DEBUG_PRINT)
       // DEBUG_PRINT_INFO("RCV: [SPD|STR|FLAG] [ %d | %d | %d ]", m_bot.raw_rf24_speed, m_bot.raw_rf24_steer, m_bot.raw_encoded_flags);
     }
