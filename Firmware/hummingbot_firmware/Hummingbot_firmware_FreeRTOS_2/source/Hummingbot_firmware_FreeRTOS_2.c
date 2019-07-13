@@ -173,8 +173,6 @@ typedef struct{
   pin_t 		rf24_ce;
   uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
 	lpspi_t   spi;
-	uint8_t   buf_rx[9];
-	uint8_t   buf_tx[9];
 
   // data extract from the radio
   uint16_t  raw_rf24_speed;
