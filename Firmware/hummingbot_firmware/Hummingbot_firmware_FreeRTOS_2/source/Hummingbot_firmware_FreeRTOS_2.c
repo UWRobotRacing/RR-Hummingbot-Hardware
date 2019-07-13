@@ -73,6 +73,13 @@
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #define ENABLE_TASK_JETSON_UART         1
+
+#if (ENABLE_TASK_JETSON_UART) // if uart transmission, be sure to turn off debug mode
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+#define ENABLE_FEATURE_DEBUG_PRINT 0
+#endif //(ENABLE_TASK_JETSON_UART)
 /*************************************  
  ********* Calibbration Helper ********** 
  *************************************/
@@ -194,29 +201,15 @@ typedef struct{
   uint16_t          vc_newData_available; //like a non-blocking semaphore
   SemaphoreHandle_t vc_data_lock;
 
+  // uart command
+  jetson_buf_t      uart_jetson;
+  bool              uart_avail;
+  SemaphoreHandle_t uart_data_lock;
+
   // main status
   HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
 
-#if (ENABLE_TASK_JETSON_UART)
-static void task_uart_receive(void *pvParameters)
-{
-  JU_begin();
-  JU_prepSync();
-	while(1) {
-		if(JU_isSynced())
-		{
-		  JU_doXfer();
-		}
-		else if(JU_trySync())
-		  {
-			JU_prepXfer();
-		  }
-
-		  vTaskDelay(TASK_JETSON_UART_PERIOD);
-	}
-}
-#endif //(ENABLE_TASK_JETSON_UART)
 /*************************************
  ********* Inline Definitions **********
  *************************************/
@@ -252,6 +245,47 @@ Hummingbot_firmware_FreeRTOS_2_data_S m_bot;
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
+#if (ENABLE_TASK_JETSON_UART)
+static void task_uart_receive(void *pvParameters)
+{
+  JU_begin();
+#if (JETSPN_ENABLE_SYNC_FIRST)
+  JU_prepSync();
+#else
+  JU_prepXfer();
+#endif //(JETSPN_ENABLE_SYNC_FIRST)
+
+  while(1) {
+#if (!JETSON_UART_H_TEST_CASE)
+
+#if(JETSPN_ENABLE_SYNC_FIRST)
+    if(JU_isSynced())
+    {
+      JU_doXfer();
+    }
+    else if(JU_trySync())
+    {
+      JU_prepXfer();
+      xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+      m_bot.uart_avail = JU_readXfer(&m_bot.uart_jetson);
+      xSemaphoreGive(m_bot.uart_data_lock);
+    }
+#else
+    JU_doXfer();
+    xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+    m_bot.uart_avail = JU_readXfer(&m_bot.uart_jetson);
+    xSemaphoreGive(m_bot.uart_data_lock);
+#endif
+
+#else
+    JU_prepTesfer();
+    JU_doTesfer();
+#endif
+    vTaskDelay(TASK_JETSON_UART_PERIOD);
+  }
+}
+#endif //(ENABLE_TASK_JETSON_UART)
+
 #if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
@@ -453,11 +487,22 @@ static void task_vehicleControl(void *pvParameters)
           if(autoMode)
           {
             VC_doBraking(0);
-            //TODO: to be implemented, requires a coordination here!!! [TBI]
+            
+            xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+            reqAng = m_bot.uart_jetson.jetson_ang; //angle_deg_t
+            reqSpd = m_bot.uart_jetson.jetson_spd; //speed_cm_per_s_t
+            xSemaphoreGive(m_bot.uart_data_lock);
+
+            if(m_bot.uart_avail)
+            {
+              //TODO: implement e brake?
+              VC_requestSteering(reqAng);
+              VC_requestThrottle(reqSpd);
+            }
+
             if(reqAng>=0)
             {
               DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
-
             }
             else
             {
@@ -466,11 +511,8 @@ static void task_vehicleControl(void *pvParameters)
           }
           else
           {
-            /// - remote controller mode !!! TODO: coordination TBI
-
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
-            // ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
-            // spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
+
             if(reqAng>=0)
             {
             	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
@@ -543,6 +585,7 @@ int main(void) {
 	/* Init RTOS related*/
   m_bot.rf24_data_lock = xSemaphoreCreateMutex();
   m_bot.vc_data_lock   = xSemaphoreCreateMutex();
+  m_bot.uart_data_lock = xSemaphoreCreateMutex();
 	/* Init rf24 */
 #if (ENABLE_TASK_RF24)
 	m_bot.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;

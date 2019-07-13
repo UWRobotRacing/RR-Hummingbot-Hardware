@@ -19,6 +19,7 @@
 #define SAME_GPIO(x, y)     (((x).port==(y).port) && ((x).pin==(y).pin))
 #define LOW                 (0)
 #define HIGH                (1)
+
 /*************************************
  ********* Struct Definitions ********
  *************************************/
@@ -36,11 +37,12 @@ typedef struct{
 // data structure
 typedef struct
 {
-  uint16_t  jetson_ang;
-  int16_t	jetson_spd;
-  uint16_t  jetson_flag;
-  uint16_t  jetson_pad;
+ uint16_t  jetson_ang;
+ int16_t   jetson_spd;
+ uint16_t  jetson_flag;
+ uint16_t  jetson_pad;
 }jetson_buf_t;
+
 /*************************************
  ********* ENUM Definitions **********
  *************************************/
