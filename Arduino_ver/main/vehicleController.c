@@ -68,7 +68,8 @@ typedef struct{
 typedef struct{
     VC_speed_pair_t max_FWD_softLimit;
     VC_speed_pair_t min_FWD_starting; //due to friction, it requires certain power to move
-    VC_speed_pair_t braking;  //TODO: might need a variable/hard/soft braking, TBD
+    VC_speed_pair_t braking; 
+    VC_speed_pair_t neutral;
     VC_speed_pair_t min_REV_starting;
     VC_speed_pair_t max_REV_softLimit;
     pulse_us_t      min_pw_us;
@@ -84,95 +85,13 @@ typedef struct{
     us_per_deg_t                us_per_deg_divider;
     us_s_per_mm_t               us_s_per_mm_multiplier;
     us_s_per_mm_t               us_s_per_mm_divider;
-    VC_state_E                  state;   
+    VC_state_E                  state;
 } VehicleController_data_S;
 
 /*******************************************************************************
  * private variables
  ******************************************************************************/
 static VehicleController_data_S    m_vc = {0};
-// NOTE: please calibrate values
-static const VC_steerCalibration_S    frsky_servo_calib ={
-    .neutral = {
-      .pw_us = 1400U,
-      .angle_deg = 0,
-    },
-    .max = {
-      //.pw_us = 1650U,
-      .pw_us = 1600U,
-      .angle_deg = 30,
-    },
-    .min = {
-        //.pw_us = 1100U,
-      .pw_us = 1200U,
-      .angle_deg = -30,
-    },
-};
-//NOTE: please calibrate these values figure out if 1540U is kinda freewheeling
-static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
-    .max_FWD_softLimit = {
-        .pw_us = 2000U,
-        .speed_cm_per_s = 200,
-    }, 
-    .min_FWD_starting = {
-        .pw_us = 1600U,
-        .speed_cm_per_s = 10,
-    }, 
-    .braking = {
-        .pw_us = 1540U,//800U,
-        .speed_cm_per_s = 0,
-    }, 
-    .min_REV_starting = { //default min pwm to keep esc alive
-        .pw_us = 1500U,//550U,
-        .speed_cm_per_s = -10,
-    },
-    .max_REV_softLimit = { //default min pwm to keep esc alive
-        .pw_us = 600U,//550U,
-        .speed_cm_per_s = -200,
-    },
-    // PWM signal boundary
-    .min_pw_us = 540U,
-    .max_pw_us = 2000U,
-};
-
-static const VC_rf24_joystick_configs_S joystick_calib = {
-    .steeringNeutral  = {
-      .val        = 584,
-      .angle_deg  = 0,
-    },     
-    .steeringMax      = { 
-      .val        = 961, //+377
-      .angle_deg  = 30, 
-    }, 
-    .steeringMin      = { 
-      .val        = 108, //-476
-      .angle_deg  = -30,
-    }, 
-    .steeringDeadband = { //every 10 tik, will be 1 degree
-      .val        = 10,
-      .angle_deg  = 1,
-    },      
-    .throttleMin  = {
-      .val            = 108,
-      .speed_cm_per_s = -200,
-    },  
-    .throttleMax      = { 
-      .val            = 918, //+406
-      .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
-    },
-    .throttleBrakingMin = { 
-      .val            = 462, //512
-      .speed_cm_per_s = 0,
-    },
-    .throttleBrakingMax = { 
-      .val            = 562, //512
-      .speed_cm_per_s = 0,
-    },
-    .throttleDeadband = {
-      .val            = 10,
-      .speed_cm_per_s = 5,//4, // 4cm/s every 10 rik changes
-    },  
-};
 /*******************************************************************************
  * private function prototypes
  ******************************************************************************/
@@ -258,8 +177,11 @@ pulse_us_t VC_requestThrottle(speed_cm_per_s_t reqSpd)
     return pulseWidth;
 }
 
-pulse_us_t VC_doBraking(void)
+pulse_us_t VC_doBraking(bool isReversing)
 {
+  if(isReversing)
+    return (m_vc.throttle_config->neutral.pw_us);
+  else
     return (m_vc.throttle_config->braking.pw_us);
 }
 

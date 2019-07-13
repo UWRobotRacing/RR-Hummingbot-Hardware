@@ -56,6 +56,8 @@ typedef struct{
   bool            newPayloadAvail;
   uint8_t serial_readByte_index;
 
+  bool            ifReversing;
+
   // main status
   HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
@@ -292,7 +294,7 @@ void vc_run(void)
       // state machine
       if(remoteESTOP)
       {
-        vc_ESC.writeMicroseconds(VC_doBraking());
+        vc_ESC.writeMicroseconds(VC_doBraking(m_bot.ifReversing));
       }
       else
       {
@@ -321,7 +323,29 @@ void vc_run(void)
         else
         {
           VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd, &outAngPW, &outSpdPW);
-          vc_ESC.writeMicroseconds(outSpdPW);
+          if (reqSpd < 0)
+          {
+            if(! m_bot.ifReversing)
+            {
+              m_bot.ifReversing = true;
+              //enable reversing sequence
+              vc_SERVO.writeMicroseconds(onyx_bldc_esc_calib.braking.pw_us);
+              delay(500);//delay 500 ms
+              vc_SERVO.writeMicroseconds(onyx_bldc_esc_calib.neutral.pw_us);
+              delay(200);//delay 500 ms
+              vc_SERVO.writeMicroseconds(onyx_bldc_esc_calib.neutral.pw_us);
+              delay(100);//delay 500 ms
+              vc_SERVO.writeMicroseconds(outSpdPW);
+            }
+          }
+          else if (reqSpd == 0) //braking
+          {
+            vc_ESC.writeMicroseconds(VC_doBraking(m_bot.ifReversing));
+          }
+          else
+          {
+            vc_ESC.writeMicroseconds(outSpdPW);
+          }
           vc_SERVO.writeMicroseconds(outAngPW);
           if(reqAng>=0)
           {
@@ -353,7 +377,7 @@ void vc_run(void)
   else
   {
     // just braking
-    vc_ESC.writeMicroseconds(VC_doBraking());
+    vc_ESC.writeMicroseconds(VC_doBraking(m_bot.ifReversing));
   }
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
