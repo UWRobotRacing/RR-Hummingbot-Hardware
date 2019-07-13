@@ -173,6 +173,7 @@ bool JU_readXfer(jetson_buf_t* readPtr)
   return (ret);
 }
 
+// TODO: remove this after testing, test for sync barriers
 jetson_buf_t temp={
     .jetson_ang = 19,
     .jetson_spd = 22,

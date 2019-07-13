@@ -19,7 +19,7 @@ bool JU_readXfer(jetson_buf_t* readPtr);
 
 #define JETSON_ENABLE_RECEIVER_ONLY_MODE    1
 #define JETSON_ENABLE_ECHO_MODE             1
-#define JETSPN_ENABLE_SYNC_FIRST            1
+#define JETSPN_ENABLE_SYNC_FIRST            1 //TODO: need to implement sync barrier
 #define JETSON_UART_H_TEST_CASE             0
 #define JETSON_UART_TEST_STRUCT             0
 //testing
