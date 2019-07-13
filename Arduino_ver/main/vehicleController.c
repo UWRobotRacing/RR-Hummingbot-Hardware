@@ -52,18 +52,18 @@ static const VC_steerCalibration_S    frsky_servo_calib ={
     .max = {
       //.pw_us = 1650U,
       .pw_us = 1600U,
-      .angle_deg = 30,
+      .angle_deg = 17,
     },
     .min = {
         //.pw_us = 1100U,
       .pw_us = 1200U,
-      .angle_deg = -30,
+      .angle_deg = -26,
     },
 };
 //NOTE: please calibrate these values figure out if 1540U is kinda freewheeling
 const VC_throttleCalibration_S onyx_bldc_esc_calib ={
     .max_FWD_softLimit = {
-        .pw_us = 2000U,
+        .pw_us = 1750U,
         .speed_cm_per_s = 200,
     }, 
     .min_FWD_starting = {
@@ -75,7 +75,7 @@ const VC_throttleCalibration_S onyx_bldc_esc_calib ={
         .speed_cm_per_s = 0,
     }, 
     .neutral = {
-        .pw_us = 1540U,//800U,
+        .pw_us = 1500U,//800U,
         .speed_cm_per_s = 0,
     }, 
     .min_REV_starting = { //default min pwm to keep esc alive
@@ -194,29 +194,31 @@ pulse_us_t VC_requestThrottle(speed_cm_per_s_t reqSpd)
       pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_FWD_starting.pw_us));
       UPDATE_STATE(VC_STATE_RUNNING);
     }
-    else if (reqSpd <= m_vc.throttle_config->min_REV_starting.speed_cm_per_s)
+    else if(reqSpd == 0)
     {
-      // do conversion & offset here:
-      pw_delta = (reqSpd - (m_vc.throttle_config->min_REV_starting.speed_cm_per_s));
-      pw_delta *= m_vc.us_s_per_mm_multiplier;
-      pw_delta /= m_vc.us_s_per_mm_divider;
-      pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_REV_starting.pw_us));
-      UPDATE_STATE(VC_STATE_REVERSING);
+      pulseWidth = m_vc.throttle_config->neutral.pw_us;
     }
+    // TODO: Reverse to be tested
+    // else if (reqSpd <= m_vc.throttle_config->min_REV_starting.speed_cm_per_s)
+    // {
+    //   // do conversion & offset here:
+    //   // pw_delta = (reqSpd - (m_vc.throttle_config->min_REV_starting.speed_cm_per_s));
+    //   // pw_delta *= m_vc.us_s_per_mm_multiplier;
+    //   // pw_delta /= m_vc.us_s_per_mm_divider;
+    //   // pulseWidth = (pulse_us_t)((pw_delta) + (m_vc.throttle_config->min_REV_starting.pw_us));
+    //   // UPDATE_STATE(VC_STATE_REVERSING);
+    // }
     else // braking
     {
-      pulseWidth = VC_doBraking(false);
+      pulseWidth = VC_doBraking();
       UPDATE_STATE(VC_STATE_IDLE);
     }
     return pulseWidth;
 }
 
-pulse_us_t VC_doBraking(bool isReversing)
+pulse_us_t VC_doBraking(void)
 {
-  if(isReversing)
-    return (m_vc.throttle_config->neutral.pw_us);
-  else
-    return (m_vc.throttle_config->braking.pw_us);
+  return (m_vc.throttle_config->braking.pw_us);
 }
 
 void VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd, pulse_us_t *outAngPW, pulse_us_t *outSpdPW)

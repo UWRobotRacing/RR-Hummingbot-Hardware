@@ -104,7 +104,7 @@ VC_state_E VC_getVehicleControllerState(void);
 
 pulse_us_t VC_requestSteering(angle_deg_t reqAng);
 pulse_us_t VC_requestThrottle(speed_cm_per_s_t reqSpd);
-pulse_us_t VC_doBraking(bool isReversing);
+pulse_us_t VC_doBraking(void);
 void VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd, pulse_us_t *outAngPW, pulse_us_t *outSpdPW);
 VC_state_E VC_getVehicleControllerState(void);
 

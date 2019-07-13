@@ -7,7 +7,7 @@
 /* uart communication commons */
 typedef struct
 {
-   uint16_t jetson_ang;
+   int16_t jetson_ang;
    int16_t  jetson_spd;
    uint16_t jetson_flag;
 }jetson_data_t;
