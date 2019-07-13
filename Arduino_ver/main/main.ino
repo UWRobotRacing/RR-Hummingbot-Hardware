@@ -119,11 +119,11 @@ void loop() {
   
     if(Serial.available())
     {
-      input = Serial.read();
+      input = Serial.parseInt();
       Serial.println(input);
     }
-    vc_SERVO.writeMicroseconds(input);
-//    vc_ESC.writeMicroseconds(input);
+//    vc_SERVO.writeMicroseconds(input);
+    vc_ESC.writeMicroseconds(input);
   #else
     #if (ENABLE_TASK_RF24)
       rf24_run();
