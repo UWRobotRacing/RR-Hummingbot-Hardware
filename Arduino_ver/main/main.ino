@@ -18,6 +18,8 @@
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #define ENABLE_UART_SERIAL_COMM         1
 
+#define ENTER_CALIB_MODE                1
+
 // serial comm will override debug print
 #if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
 #ifdef ENABLE_FEATURE_DEBUG_PRINT
@@ -107,16 +109,30 @@ void setup() {
 
 }
 
+#if (ENTER_CALIB_MODE)
+uint16_t input = 0;
+#endif //(ENTER_CALIB_MODE)
 void loop() {
-#if (ENABLE_TASK_RF24)
-  rf24_run();
-#endif //(ENABLE_TASK_RF24)
-#if (ENABLE_TASK_VEHICLE_CONTROL)
-  vc_run();
-#endif //(ENABLE_TASK_VEHICLE_CONTROL)
-#if (ENABLE_UART_SERIAL_COMM)
-  uart_run();
-#endif //(ENABLE_UART_SERIAL_COMM)
+  #if (ENTER_CALIB_MODE)
+  
+    if(Serial.available())
+    {
+      input = Serial.read();
+      Serial.println(input);
+    }
+    vc_SERVO.writeMicroseconds(input);
+//    vc_ESC.writeMicroseconds(input);
+  #else
+    #if (ENABLE_TASK_RF24)
+      rf24_run();
+    #endif //(ENABLE_TASK_RF24)
+    #if (ENABLE_TASK_VEHICLE_CONTROL)
+      vc_run();
+    #endif //(ENABLE_TASK_VEHICLE_CONTROL)
+    #if (ENABLE_UART_SERIAL_COMM)
+      uart_run();
+    #endif //(ENABLE_UART_SERIAL_COMM)
+  #endif //(ENTER_CALIB_MODE)
  delay(CYCLE_DELAY);
 }
 
