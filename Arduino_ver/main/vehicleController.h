@@ -42,95 +42,60 @@ typedef enum{
 } VC_channnelName_E;
 
 /*******************************************************************************
- * Calibration Values
+ * typedef
  ******************************************************************************/
-// NOTE: please calibrate values
-static const VC_steerCalibration_S    frsky_servo_calib ={
-    .neutral = {
-      .pw_us = 1400U,
-      .angle_deg = 0,
-    },
-    .max = {
-      //.pw_us = 1650U,
-      .pw_us = 1600U,
-      .angle_deg = 30,
-    },
-    .min = {
-        //.pw_us = 1100U,
-      .pw_us = 1200U,
-      .angle_deg = -30,
-    },
-};
-//NOTE: please calibrate these values figure out if 1540U is kinda freewheeling
-static const VC_throttleCalibration_S onyx_bldc_esc_calib ={
-    .max_FWD_softLimit = {
-        .pw_us = 2000U,
-        .speed_cm_per_s = 200,
-    }, 
-    .min_FWD_starting = {
-        .pw_us = 1600U,
-        .speed_cm_per_s = 10,
-    }, 
-    .neutral = {
-        .pw_us = 1540U,//800U,
-        .speed_cm_per_s = 0,
-    }, 
-    .braking = {
-        .pw_us = 1000U,
-        .speed_cm_per_s = 0,
-    }, 
-    .min_REV_starting = { //default min pwm to keep esc alive
-        .pw_us = 1500U,//550U,
-        .speed_cm_per_s = -10,
-    },
-    .max_REV_softLimit = { //default min pwm to keep esc alive
-        .pw_us = 600U,//550U,
-        .speed_cm_per_s = -200,
-    },
-    // PWM signal boundary
-    .min_pw_us = 540U,
-    .max_pw_us = 2000U,
-};
+/* Defs for joystick controller mapping */
+typedef struct{
+    rf24_joystick_tik_t   val;//we are assuming neutral is 0 degree
+    angle_deg_t     angle_deg;
+} VC_rf24_joystick_steering_pair_t;
 
-static const VC_rf24_joystick_configs_S joystick_calib = {
-    .steeringNeutral  = {
-      .val        = 584,
-      .angle_deg  = 0,
-    },     
-    .steeringMax      = { 
-      .val        = 961, //+377
-      .angle_deg  = 30, 
-    }, 
-    .steeringMin      = { 
-      .val        = 108, //-476
-      .angle_deg  = -30,
-    }, 
-    .steeringDeadband = { //every 10 tik, will be 1 degree
-      .val        = 10,
-      .angle_deg  = 1,
-    },      
-    .throttleMin  = {
-      .val            = 108,
-      .speed_cm_per_s = -200,
-    },  
-    .throttleMax      = { 
-      .val            = 918, //+406
-      .speed_cm_per_s = 200, //assume 200 cm/s TODO:TBD based on actual measurements
-    },
-    .throttleBrakingMin = { 
-      .val            = 462, //512
-      .speed_cm_per_s = 0,
-    },
-    .throttleBrakingMax = { 
-      .val            = 562, //512
-      .speed_cm_per_s = 0,
-    },
-    .throttleDeadband = {
-      .val            = 10,
-      .speed_cm_per_s = 5,//4, // 4cm/s every 10 rik changes
-    },  
-};
+typedef struct{
+    rf24_joystick_tik_t            val;//we are assuming neutral is 0 degree
+    speed_cm_per_s_t    speed_cm_per_s;
+} VC_rf24_joystick_throttle_pair_t;
 
+typedef struct{
+    VC_rf24_joystick_steering_pair_t steeringNeutral;
+    VC_rf24_joystick_steering_pair_t steeringMax;
+    VC_rf24_joystick_steering_pair_t steeringMin;
+    VC_rf24_joystick_steering_pair_t steeringDeadband;
+    VC_rf24_joystick_throttle_pair_t throttleMin;
+    VC_rf24_joystick_throttle_pair_t throttleMax;
+    VC_rf24_joystick_throttle_pair_t throttleBrakingMax;
+    VC_rf24_joystick_throttle_pair_t throttleBrakingMin;
+    VC_rf24_joystick_throttle_pair_t throttleDeadband;
+} VC_rf24_joystick_configs_S;
+
+/* Defs for vehicle controller*/
+typedef struct{
+    pulse_us_t   pw_us;//we are assuming neutral is 0 degree
+    angle_deg_t  angle_deg;
+} VC_rotation_pair_t;
+
+typedef struct{
+    pulse_us_t          pw_us;//we are assuming neutral is 0 degree
+    speed_cm_per_s_t    speed_cm_per_s;
+} VC_speed_pair_t;
+
+typedef struct{
+    VC_rotation_pair_t neutral;
+    VC_rotation_pair_t max;
+    VC_rotation_pair_t min;
+} VC_steerCalibration_S;
+
+typedef struct{
+    VC_speed_pair_t max_FWD_softLimit;
+    VC_speed_pair_t min_FWD_starting; //due to friction, it requires certain power to move
+    VC_speed_pair_t braking; 
+    VC_speed_pair_t neutral;
+    VC_speed_pair_t min_REV_starting;
+    VC_speed_pair_t max_REV_softLimit;
+    pulse_us_t      min_pw_us;
+    pulse_us_t      max_pw_us;
+} VC_throttleCalibration_S;
+
+extern const VC_throttleCalibration_S onyx_bldc_esc_calib;
 /*******************************************************************************
  * public functions
  ******************************************************************************/
