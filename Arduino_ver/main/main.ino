@@ -16,12 +16,25 @@
 
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
+#define ENABLE_UART_SERIAL_COMM         1
+
+// serial comm will override debug print
+#if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+#define ENABLE_FEATURE_DEBUG_PRINT    0
+#endif //((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
 
 #define TASK_RF24_LOST_CONTROLLER_TICK_MAX        (2000U) 
 #define CYCLE_DELAY                               (50U)//ms
 /***************************************  
  *********  Struct Define ********** 
  ***************************************/
+#if (ENABLE_UART_SERIAL_COMM)
+void uart_run(void);
+#endif //(ENABLE_UART_SERIAL_COMM)
+
 typedef struct{
 	uint32_t 	rf24_buf; //[MSB] 12 bit (steer) | 12 bit (spd) | 8 bit (6 bit pattern + 2 bit modes)
   uint8_t 	rf24_address[RF24_COMMON_ADDRESS_SIZE];
@@ -33,6 +46,13 @@ typedef struct{
   uint16_t  rf24_error_count;
   uint16_t  rf24_timeout_count_tick;
   uint16_t  rf24_newData_available; //like a non-blocking semaphore
+
+  // uart comm.
+  jetson_union_t rxPayload[2];
+  jetson_union_t* readPtr_rxPayload;
+  jetson_union_t* bufPtr_rxPayload;
+  bool            newPayloadAvail;
+  uint8_t serial_readByte_index;
 
   // main status
   HUMMING_STATUS_BIT_E status;
@@ -51,20 +71,28 @@ RF24 rf24_Radio(7, 8); // CE, CSN
 void rf24_init(void);
 void rf24_run(void);
 #endif //(ENABLE_TASK_RF24)
+
 #if (ENABLE_TASK_VEHICLE_CONTROL)
 Servo vc_ESC;
 Servo vc_SERVO;
 void vc_run(void);
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
+#if (ENABLE_UART_SERIAL_COMM)
+void uart_run(void);
+#endif //(ENABLE_UART_SERIAL_COMM)
 /***************************************  
  *********  MAIN Functions ********** 
  ***************************************/
 void setup() {
   /* Init Serial */
-  Serial.begin(9600);
+  Serial.begin(115200);
   /* Init private data */
   memset(&m_bot, 0, sizeof(m_bot));
+  // prepare empty double buffer
+  m_bot.readPtr_rxPayload = &m_bot.rxPayload[0];
+  m_bot.bufPtr_rxPayload  = &m_bot.rxPayload[1];
+  m_bot.newPayloadAvail = false;
   /* Init RF24 */
 #if (ENABLE_TASK_RF24)
   memcpy(m_bot.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
@@ -76,6 +104,7 @@ void setup() {
   vc_ESC.attach(HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN);
   VC_Config();
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
+
 }
 
 void loop() {
@@ -85,6 +114,9 @@ void loop() {
 #if (ENABLE_TASK_VEHICLE_CONTROL)
   vc_run();
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
+#if (ENABLE_UART_SERIAL_COMM)
+  uart_run();
+#endif //(ENABLE_UART_SERIAL_COMM)
  delay(CYCLE_DELAY);
 }
 
@@ -250,8 +282,16 @@ void vc_run(void)
       {
         if(autoMode)
         {
-          VC_doBraking();
           //TODO: to be implemented, requires a coordination here!!! [TBI]
+          if(m_bot.newPayloadAvail)
+          {
+            outAngPW = VC_requestSteering(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
+            outSpdPW = VC_requestThrottle(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
+            m_bot.newPayloadAvail = false;
+            vc_ESC.writeMicroseconds(outSpdPW);
+            vc_SERVO.writeMicroseconds(outAngPW);
+          }
+          
           if(reqAng>=0)
           {
             // DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
@@ -302,4 +342,53 @@ void vc_run(void)
 }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
 
+#if (ENABLE_UART_SERIAL_COMM)
+void uart_run(void)
+{
+  jetson_union_t* tempPtr;
+  String incomingFrame;
+  if (Serial.available() > 0) 
+  {
+    incomingFrame = Serial.readString();
+    if (incomingFrame.length() == COMMON_M4_JETSON_FRAME_SIZE)
+    {
+      if ((COMMON_M4_JETSON_SYNC_START_BYTE == incomingFrame[0]) &&
+          (COMMON_M4_JETSON_SYNC_END_BYTE == incomingFrame[COMMON_M4_JETSON_FRAME_SIZE - 1]))
+      {
+        for(int i =0; i<COMMON_M4_JETSON_FRAME_SIZE;i++)
+          m_bot.bufPtr_rxPayload->serializedArray[i] = incomingFrame[i];
+        tempPtr = m_bot.bufPtr_rxPayload;
+        m_bot.bufPtr_rxPayload = m_bot.readPtr_rxPayload;
+        m_bot.readPtr_rxPayload = tempPtr;
+        m_bot.newPayloadAvail = true;
+        m_bot.serial_readByte_index = 0;
+      }
+    }
+  } 
 
+//  //for testing
+//  if (m_bot.newPayloadAvail) {
+//    Serial.println("------------");
+//    for ( int i =0; i<8;i++)
+//      Serial.println(char(m_bot.readPtr_rxPayload->serializedArray[i]));
+//    Serial.println("------------");
+//    Serial.println(m_bot.readPtr_rxPayload->myFrame.startByte);
+//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
+//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
+//    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_flag);
+//    Serial.println(m_bot.readPtr_rxPayload->myFrame.endByte);
+//    Serial.println("");
+//
+//    m_bot.readPtr_rxPayload->myFrame.startByte ='\a';
+//    m_bot.readPtr_rxPayload->myFrame.data.jetson_ang ='22';
+//    m_bot.readPtr_rxPayload->myFrame.data.jetson_spd ='-11';
+//    m_bot.readPtr_rxPayload->myFrame.data.jetson_flag ='202';
+//    m_bot.readPtr_rxPayload->myFrame.endByte ='\n';
+//    for ( int i =0; i<8;i++)
+//      Serial.print(m_bot.readPtr_rxPayload->serializedArray[i]);
+//    Serial.println("");
+//    m_bot.newPayloadAvail = false;
+//  }
+
+}
+#endif //(ENABLE_UART_SERIAL_COMM)
