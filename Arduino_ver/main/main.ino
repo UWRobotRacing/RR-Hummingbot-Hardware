@@ -19,7 +19,7 @@
 #define ENABLE_DEBUG_LED                        (1)
 
 #define ENABLE_UART_SERIAL_COMM                 (1)
-#define ENABLE_UART_SERIAL_ECHO                 (1)
+#define ENABLE_UART_SERIAL_ECHO                 (0)
 #define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (1)
 
 #define ENTER_CALIB_MODE                        (0)
@@ -125,38 +125,42 @@ void setup() {
 uint16_t input = 0;
 #endif //(ENTER_CALIB_MODE)
 void loop() {
-  #if (ENTER_CALIB_MODE)
-  
-    if(Serial.available())
-    {
-      input = Serial.parseInt();
-      Serial.println(input);
-    }
+#if (ENTER_CALIB_MODE)
+
+  if(Serial.available())
+  {
+    input = Serial.parseInt();
+    Serial.println(input);
+  }
 //    vc_SERVO.writeMicroseconds(input);
-    vc_ESC.writeMicroseconds(input);
+  vc_ESC.writeMicroseconds(input);
+#else
+
+#if (ENABLE_UART_SERIAL_COMM)
+  #if(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
+    if(m_bot.autoMode)
+    {
+      uart_run();
+    }
+    else
+    {
+      // make sure reset m_bot.newPayloadAvail flag
+      m_bot.newPayloadAvail = false;
+    }
   #else
-    #if (ENABLE_TASK_RF24)
-      rf24_run();
-    #endif //(ENABLE_TASK_RF24)
-    #if (ENABLE_TASK_VEHICLE_CONTROL)
-      vc_run();
-    #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-    #if (ENABLE_UART_SERIAL_COMM)
-      #if(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
-        if(m_bot.autoMode)
-        {
-          uart_run();
-        }
-        else
-        {
-          // make sure reset m_bot.newPayloadAvail flag
-          m_bot.newPayloadAvail = false;
-        }
-      #else
-        uart_run();
-      #endif //(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
-    #endif //(ENABLE_UART_SERIAL_COMM)
-  #endif //(ENTER_CALIB_MODE)
+    uart_run();
+  #endif //(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE) 
+#endif //(ENABLE_UART_SERIAL_COMM)
+
+#if (ENABLE_TASK_RF24)
+  rf24_run();
+#endif //(ENABLE_TASK_RF24)
+
+#if (ENABLE_TASK_VEHICLE_CONTROL)
+  vc_run();
+#endif //(ENABLE_TASK_VEHICLE_CONTROL)
+
+#endif //(ENTER_CALIB_MODE)
 
   
 #if (ENABLE_DEBUG_LED)
@@ -416,43 +420,6 @@ void vc_run(void)
 #if (ENABLE_UART_SERIAL_COMM)
 void uart_run(void)
 {
-  jetson_union_t* tempPtr;
-  char incomingByte;
-  if (Serial.available() > 0) 
-  {
-    incomingByte = Serial.read();
-    if (m_bot.serial_readByte_index == 0)
-    {
-      if (COMMON_M4_JETSON_SYNC_START_BYTE == incomingByte)
-      {
-        m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
-      }
-    }
-    else if (m_bot.serial_readByte_index < COMMON_M4_JETSON_FRAME_SIZE)
-    {
-      m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
-    }
-    else if (m_bot.serial_readByte_index == COMMON_M4_JETSON_FRAME_SIZE)
-    {
-      // check if last byte matches, if so, store, and update
-      if (m_bot.bufPtr_rxPayload->serializedArray[COMMON_M4_JETSON_FRAME_SIZE - 1] == COMMON_M4_JETSON_SYNC_END_BYTE)
-      {
-        tempPtr = m_bot.bufPtr_rxPayload;
-        m_bot.bufPtr_rxPayload = m_bot.readPtr_rxPayload;
-        m_bot.readPtr_rxPayload = tempPtr;
-        m_bot.newPayloadAvail = true;
-        m_bot.serial_readByte_index = 0;
-      }
-      else// else reset index, corrupted data confirmed
-      {
-        m_bot.serial_readByte_index = 0;
-#if (ENABLE_UART_SERIAL_ECHO)
-        Serial.println("------ INVALID DATA, Recycle -----");
-#endif //(ENABLE_UART_SERIAL_ECHO)
-      }
-    }
-  } 
-
 #if (ENABLE_UART_SERIAL_ECHO)
   //for testing
   if (m_bot.newPayloadAvail) 
@@ -472,4 +439,49 @@ void uart_run(void)
 #endif //(ENABLE_UART_SERIAL_ECHO)
 
 }
+
+/*
+  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
+  routine is run between each time loop() runs, so using delay inside loop can
+  delay response. Multiple bytes of data may be available.
+*/
+void serialEvent() {
+  while (Serial.available()) {
+      jetson_union_t* tempPtr;
+      char incomingByte;
+ 
+        incomingByte = (char)Serial.read();
+        if (m_bot.serial_readByte_index == 0)
+        {
+          if (COMMON_M4_JETSON_SYNC_START_BYTE == incomingByte)
+          {
+            m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
+          }
+        }
+        else if (m_bot.serial_readByte_index < COMMON_M4_JETSON_FRAME_SIZE)
+        {
+          m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
+        }
+        else if (m_bot.serial_readByte_index == COMMON_M4_JETSON_FRAME_SIZE)
+        {
+          // check if last byte matches, if so, store, and update
+          if (m_bot.bufPtr_rxPayload->serializedArray[COMMON_M4_JETSON_FRAME_SIZE - 1] == COMMON_M4_JETSON_SYNC_END_BYTE)
+          {
+            tempPtr = m_bot.bufPtr_rxPayload;
+            m_bot.bufPtr_rxPayload = m_bot.readPtr_rxPayload;
+            m_bot.readPtr_rxPayload = tempPtr;
+            m_bot.newPayloadAvail = true;
+            m_bot.serial_readByte_index = 0;
+          }
+          else// else reset index, corrupted data confirmed
+          {
+            m_bot.serial_readByte_index = 0;
+//    #if (ENABLE_UART_SERIAL_ECHO)
+//            Serial.println("------ INVALID DATA, Recycle -----");
+//    #endif //(ENABLE_UART_SERIAL_ECHO)
+          }
+        }
+   
+  }
+} 
 #endif //(ENABLE_UART_SERIAL_COMM)
