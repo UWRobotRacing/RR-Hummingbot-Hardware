@@ -19,8 +19,8 @@
 #define ENABLE_DEBUG_LED                        (1)
 
 #define ENABLE_UART_SERIAL_COMM                 (1)
-#define ENABLE_UART_SERIAL_ECHO                 (0)
-#define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (1)
+#define ENABLE_UART_SERIAL_ECHO                 (1)
+#define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (0)
 
 #define ENTER_CALIB_MODE                        (0)
 
