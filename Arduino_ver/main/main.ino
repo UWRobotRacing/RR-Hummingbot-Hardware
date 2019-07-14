@@ -22,16 +22,17 @@
 
 #define ENTER_CALIB_MODE                0
 
-// serial comm will override debug print
-#if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
-#ifdef ENABLE_FEATURE_DEBUG_PRINT
-#undef ENABLE_FEATURE_DEBUG_PRINT
-#endif
-#define ENABLE_FEATURE_DEBUG_PRINT    0
-#endif //((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
+// // serial comm will override debug print
+// #if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
+// #ifdef ENABLE_FEATURE_DEBUG_PRINT
+// #undef ENABLE_FEATURE_DEBUG_PRINT
+// #endif
+// #define ENABLE_FEATURE_DEBUG_PRINT    0
+// #endif //((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
 
-#define TASK_RF24_LOST_CONTROLLER_TICK_MAX        (2000U) 
 #define CYCLE_DELAY                               (50U)//ms
+#define CYCLE_MS_TO_TICK(x)                       ((x)/CYCLE_DELAY)
+#define TASK_RF24_LOST_CONTROLLER_TICK_MAX        CYCLE_MS_TO_TICK(500U) //ms
 /***************************************  
  *********  Struct Define ********** 
  ***************************************/
@@ -214,7 +215,7 @@ void rf24_run(void)
       else
       {
         m_bot.rf24_error_count++;
-				// DEBUG_PRINT_ERR("Invalid Message: %d", temp);
+				DEBUG_PRINT_ERR("Invalid Message detected");
 			}
          
       if(m_bot.rf24_error_count < HUMMING_CONFIG_BOT_UNSTABLE_RF_COMM_MIN_CNTS)
@@ -231,14 +232,20 @@ void rf24_run(void)
     else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE) && 
              (m_bot.rf24_timeout_count_tick < (TASK_RF24_LOST_CONTROLLER_TICK_MAX)))
     {
+ #if (ENABLE_FEATURE_DEBUG_PRINT)
+      Serial.print("Timeout: %d");
+      Serial.println(m_bot.rf24_timeout_count_tick);
+ #endif //(ENABLE_FEATURE_DEBUG_PRINT)
       m_bot.rf24_timeout_count_tick ++;
     }
     // completely timeout, => not comm.
     else if(m_bot.rf24_timeout_count_tick == (TASK_RF24_LOST_CONTROLLER_TICK_MAX))
     {
       CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE);
+      CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE);
       DEBUG_PRINT_ERR("RF24 Lost Controller");
     }
+
 		// vTaskDelayUntil(&xLastWakeTime, TASK_RF24_RUNNING_PERIOD);  
 }
 #endif //(ENABLE_TASK_RF24)
@@ -305,6 +312,7 @@ void vc_run(void)
       // state machine
       if(remoteESTOP)
       {
+        DEBUG_PRINT_WRN("VC: Remote ESTOP, therefore apply brake");
         //keep neutral
         if(VC_STATE_NEUTRAL == VC_getVehicleControllerState())
         {
@@ -368,7 +376,8 @@ void vc_run(void)
 
   }
   /// 2. unhealthy state   
-  else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) )
+  else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) && 
+           CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_ONLINE))
   {
     // let it roll a bit, in case the connection come back within 100ms
   }
@@ -377,6 +386,7 @@ void vc_run(void)
   {
     // just braking
     //keep neutral
+    DEBUG_PRINT_ERR("VC: Controller Lost, therefore apply brake");
     if(VC_STATE_NEUTRAL == VC_getVehicleControllerState())
     {
       vc_ESC.writeMicroseconds(onyx_bldc_esc_calib.neutral.pw_us);
