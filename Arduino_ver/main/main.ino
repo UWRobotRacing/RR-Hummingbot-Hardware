@@ -12,15 +12,17 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT            0 //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT              (0) //This will enable uart debug print out
 
-#define ENABLE_TASK_RF24				        1
-#define ENABLE_TASK_VEHICLE_CONTROL    	1
-#define ENABLE_UART_SERIAL_COMM         1
-#define ENABLE_DEBUG_LED                1
-#define ENABLE_UART_SERIAL_ECHO         0
+#define ENABLE_TASK_RF24				                (1)
+#define ENABLE_TASK_VEHICLE_CONTROL    	        (1)
+#define ENABLE_DEBUG_LED                        (1)
 
-#define ENTER_CALIB_MODE                0
+#define ENABLE_UART_SERIAL_COMM                 (1)
+#define ENABLE_UART_SERIAL_ECHO                 (0)
+#define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (1)
+
+#define ENTER_CALIB_MODE                        (0)
 
 // // serial comm will override debug print
 // #if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
@@ -138,7 +140,19 @@ void loop() {
       vc_run();
     #endif //(ENABLE_TASK_VEHICLE_CONTROL)
     #if (ENABLE_UART_SERIAL_COMM)
-      uart_run();
+      #if(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
+        if(RF24_COMMON_CHECK_AUTO_FLAG (rf24_flag))
+        {
+          uart_run();
+        }
+        else
+        {
+          // make sure reset m_bot.newPayloadAvail flag
+          m_bot.newPayloadAvail = false;
+        }
+      #else
+        uart_run();
+      #endif //(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
     #endif //(ENABLE_UART_SERIAL_COMM)
   #endif //(ENTER_CALIB_MODE)
 
