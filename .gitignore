@@ -7,3 +7,5 @@ Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS_2/Hummingbot_firmware_
 Firmware/hummingbot_firmware/Hummingbot_firmware_FreeRTOS_2/script.jlink
 *.launch
 UnitTest/uart_test/venv/*
+*/.idea/*
+arduino_ver/UnitTest/venv/*
