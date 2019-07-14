@@ -19,8 +19,10 @@
 #define ENABLE_DEBUG_LED                        (1)
 
 #define ENABLE_UART_SERIAL_COMM                 (1)
-#define ENABLE_UART_SERIAL_ECHO                 (1)
+#define ENABLE_UART_SERIAL_ECHO                 (0)
 #define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (0)
+
+#define DEBUG_UART_SERIAL_COMM_FROM_ANOTHER_MEGA (0) //pair with Serial2SerialRead, and wire TX1 to RX1 of another board
 
 #define ENTER_CALIB_MODE                        (0)
 
@@ -97,7 +99,7 @@ void uart_run(void);
  ***************************************/
 void setup() {
   /* Init Serial */
-  Serial.begin(115200);
+  Serial.begin(9600);
   /* Init private data */
   memset(&m_bot, 0, sizeof(m_bot));
   // prepare empty double buffer
@@ -119,6 +121,10 @@ void setup() {
   vc_ESC.attach(HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN);
   VC_Config();
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
+
+#if (DEBUG_UART_SERIAL_COMM_FROM_ANOTHER_MEGA)
+  Serial1.begin(9600);
+#endif // (DEBUG_UART_SERIAL_COMM_FROM_ANOTHER_MEGA)
 }
 
 #if (ENTER_CALIB_MODE)
@@ -451,6 +457,9 @@ void serialEvent() {
       char incomingByte;
  
         incomingByte = (char)Serial.read();
+ #if (DEBUG_UART_SERIAL_COMM_FROM_ANOTHER_MEGA)
+      Serial1.print((char)incomingByte);
+ #endif
         if (m_bot.serial_readByte_index == 0)
         {
           if (COMMON_M4_JETSON_SYNC_START_BYTE == incomingByte)
