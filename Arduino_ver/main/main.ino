@@ -17,9 +17,11 @@
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #define ENABLE_UART_SERIAL_COMM         1
+#define ENABLE_DEBUG_LED                1
+#define ENABLE_UART_SERIAL_ECHO         1
 
 #define ENTER_CALIB_MODE                0
-#define ENABLE_UART_SERIAL_ECHO         0
+
 // serial comm will override debug print
 #if ((ENABLE_UART_SERIAL_COMM) && (ENABLE_FEATURE_DEBUG_PRINT))
 #ifdef ENABLE_FEATURE_DEBUG_PRINT
@@ -56,7 +58,7 @@ typedef struct{
   bool            newPayloadAvail;
   uint8_t serial_readByte_index;
 
-  bool            ifReversing;
+  bool            toggleBit;
 
   // main status
   HUMMING_STATUS_BIT_E status;
@@ -97,6 +99,10 @@ void setup() {
   m_bot.readPtr_rxPayload = &m_bot.rxPayload[0];
   m_bot.bufPtr_rxPayload  = &m_bot.rxPayload[1];
   m_bot.newPayloadAvail = false;
+  
+#if (ENABLE_DEBUG_LED)
+  pinMode(HUMMING_CONFIG_STEERING_BEBUG_LED_GPIO_PIN, OUTPUT);
+#endif //
   /* Init RF24 */
 #if (ENABLE_TASK_RF24)
   memcpy(m_bot.rf24_address, RF24_COMMON_ADDRESS, sizeof(char)*RF24_COMMON_ADDRESS_SIZE);
@@ -108,7 +114,6 @@ void setup() {
   vc_ESC.attach(HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN);
   VC_Config();
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-
 }
 
 #if (ENTER_CALIB_MODE)
@@ -135,6 +140,12 @@ void loop() {
       uart_run();
     #endif //(ENABLE_UART_SERIAL_COMM)
   #endif //(ENTER_CALIB_MODE)
+
+  
+#if (ENABLE_DEBUG_LED)
+  digitalWrite(HUMMING_CONFIG_STEERING_BEBUG_LED_GPIO_PIN, m_bot.toggleBit);
+  m_bot.toggleBit = !m_bot.toggleBit;
+#endif // (ENABLE_DEBUG_LED)
  delay(CYCLE_DELAY);
 }
 
@@ -311,8 +322,10 @@ void vc_run(void)
           //TODO: to be implemented, requires a coordination here!!! [TBI]
           if(m_bot.newPayloadAvail)
           {
-            outAngPW = VC_requestSteering(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
-            outSpdPW = VC_requestThrottle(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
+            reqAng = m_bot.readPtr_rxPayload->myFrame.data.jetson_ang;
+            reqSpd = m_bot.readPtr_rxPayload->myFrame.data.jetson_spd;
+            outAngPW = VC_requestSteering(reqAng);
+            outSpdPW = VC_requestThrottle(reqSpd);
             m_bot.newPayloadAvail = false;
             vc_ESC.writeMicroseconds(outSpdPW);
             vc_SERVO.writeMicroseconds(outAngPW);
@@ -384,6 +397,7 @@ void uart_run(void)
   if (Serial.available() > 0) 
   {
     incomingFrame = Serial.readString();
+//    Serial.println("incomingFrame");
     if (incomingFrame.length() == COMMON_M4_JETSON_FRAME_SIZE)
     {
       if ((COMMON_M4_JETSON_SYNC_START_BYTE == incomingFrame[0]) &&
@@ -401,21 +415,21 @@ void uart_run(void)
   } 
 
 #if (ENABLE_UART_SERIAL_ECHO)
- //for testing
- if (m_bot.newPayloadAvail) 
- {
-    Serial.println("------------");
-    for ( int i =0; i<8;i++)
-      Serial.println(char(m_bot.readPtr_rxPayload->serializedArray[i]));
-    Serial.println("------------");
-    Serial.println(m_bot.readPtr_rxPayload->myFrame.startByte);
-    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
-    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
-    Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_flag);
-    Serial.println(m_bot.readPtr_rxPayload->myFrame.endByte);
-    Serial.println("");
-    m_bot.newPayloadAvail = false;
- }
+  //for testing
+  if (m_bot.newPayloadAvail) 
+  {
+     Serial.println("------------");
+     for ( int i =0; i<8;i++)
+       Serial.println(char(m_bot.readPtr_rxPayload->serializedArray[i]));
+     Serial.println("------------");
+     Serial.println(m_bot.readPtr_rxPayload->myFrame.startByte);
+     Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_ang);
+     Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_spd);
+     Serial.println(m_bot.readPtr_rxPayload->myFrame.data.jetson_flag);
+     Serial.println(m_bot.readPtr_rxPayload->myFrame.endByte);
+     Serial.println("");
+     m_bot.newPayloadAvail = false;
+  }
 #endif //(ENABLE_UART_SERIAL_ECHO)
 
 }
