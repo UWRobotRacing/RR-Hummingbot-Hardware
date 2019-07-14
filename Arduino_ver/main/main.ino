@@ -18,7 +18,7 @@
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
 #define ENABLE_UART_SERIAL_COMM         1
 #define ENABLE_DEBUG_LED                1
-#define ENABLE_UART_SERIAL_ECHO         1
+#define ENABLE_UART_SERIAL_ECHO         0
 
 #define ENTER_CALIB_MODE                0
 
@@ -393,23 +393,38 @@ void vc_run(void)
 void uart_run(void)
 {
   jetson_union_t* tempPtr;
-  String incomingFrame;
+  char incomingByte;
   if (Serial.available() > 0) 
   {
-    incomingFrame = Serial.readString();
-//    Serial.println("incomingFrame");
-    if (incomingFrame.length() == COMMON_M4_JETSON_FRAME_SIZE)
+    incomingByte = Serial.read();
+    if (m_bot.serial_readByte_index == 0)
     {
-      if ((COMMON_M4_JETSON_SYNC_START_BYTE == incomingFrame[0]) &&
-          (COMMON_M4_JETSON_SYNC_END_BYTE == incomingFrame[COMMON_M4_JETSON_FRAME_SIZE - 1]))
+      if (COMMON_M4_JETSON_SYNC_START_BYTE == incomingByte)
       {
-        for(int i =0; i<COMMON_M4_JETSON_FRAME_SIZE;i++)
-          m_bot.bufPtr_rxPayload->serializedArray[i] = incomingFrame[i];
+        m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
+      }
+    }
+    else if (m_bot.serial_readByte_index < COMMON_M4_JETSON_FRAME_SIZE)
+    {
+      m_bot.bufPtr_rxPayload->serializedArray[m_bot.serial_readByte_index++] = incomingByte;
+    }
+    else if (m_bot.serial_readByte_index == COMMON_M4_JETSON_FRAME_SIZE)
+    {
+      // check if last byte matches, if so, store, and update
+      if (m_bot.bufPtr_rxPayload->serializedArray[COMMON_M4_JETSON_FRAME_SIZE - 1] == COMMON_M4_JETSON_SYNC_END_BYTE)
+      {
         tempPtr = m_bot.bufPtr_rxPayload;
         m_bot.bufPtr_rxPayload = m_bot.readPtr_rxPayload;
         m_bot.readPtr_rxPayload = tempPtr;
         m_bot.newPayloadAvail = true;
         m_bot.serial_readByte_index = 0;
+      }
+      else// else reset index, corrupted data confirmed
+      {
+        m_bot.serial_readByte_index = 0;
+#if (ENABLE_UART_SERIAL_ECHO)
+        Serial.println("------ INVALID DATA, Recycle -----");
+#endif //(ENABLE_UART_SERIAL_ECHO)
       }
     }
   } 
