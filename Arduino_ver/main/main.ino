@@ -12,14 +12,14 @@
 /*************************************  
  ********* Macro Preference ********** 
  *************************************/
-#define ENABLE_FEATURE_DEBUG_PRINT              (0) //This will enable uart debug print out
+#define ENABLE_FEATURE_DEBUG_PRINT              (1) //This will enable uart debug print out
 
 #define ENABLE_TASK_RF24				                (1)
 #define ENABLE_TASK_VEHICLE_CONTROL    	        (1)
 #define ENABLE_DEBUG_LED                        (1)
 
 #define ENABLE_UART_SERIAL_COMM                 (1)
-#define ENABLE_UART_SERIAL_ECHO                 (0)
+#define ENABLE_UART_SERIAL_ECHO                 (1)
 #define ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE  (1)
 
 #define ENTER_CALIB_MODE                        (0)
@@ -54,6 +54,8 @@ typedef struct{
   uint16_t  rf24_timeout_count_tick;
   uint16_t  rf24_newData_available; //like a non-blocking semaphore
 
+  bool      autoMode;
+  bool      remoteESTOP;
   // uart comm.
   jetson_union_t rxPayload[2];
   jetson_union_t* readPtr_rxPayload;
@@ -141,7 +143,7 @@ void loop() {
     #endif //(ENABLE_TASK_VEHICLE_CONTROL)
     #if (ENABLE_UART_SERIAL_COMM)
       #if(ENABLE_UART_SERIAL_COMM_ONLY_AUTO_MODE)
-        if(RF24_COMMON_CHECK_AUTO_FLAG (rf24_flag))
+        if(m_bot.autoMode)
         {
           uart_run();
         }
@@ -267,8 +269,6 @@ void rf24_run(void)
 #if (ENABLE_TASK_VEHICLE_CONTROL)
 void vc_run(void)
 {
-  bool remoteESTOP = false;
-  bool autoMode    = false;
   uint16_t  rf24_newdataAvailable = 0;
   uint16_t  rf24_speed = 0;
   uint16_t  rf24_steer = 0;
@@ -296,9 +296,9 @@ void vc_run(void)
     {
       // ------- PARSING ------- //
       // determine flags & update status flag
-      remoteESTOP = RF24_COMMON_CHECK_ESTOP_FLAG(rf24_flag);
-      autoMode = RF24_COMMON_CHECK_AUTO_FLAG (rf24_flag);
-      if(remoteESTOP)
+      m_bot.remoteESTOP = RF24_COMMON_CHECK_ESTOP_FLAG(rf24_flag);
+      m_bot.autoMode = RF24_COMMON_CHECK_AUTO_FLAG (rf24_flag);
+      if(m_bot.remoteESTOP)
       {
         SET_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
       }
@@ -307,7 +307,7 @@ void vc_run(void)
         CLEAR_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP);
       }
       
-      if(autoMode)
+      if(m_bot.autoMode)
       {
         SET_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE);
       }
@@ -324,7 +324,7 @@ void vc_run(void)
 #endif //(ENABLE_FEATURE_DEBUG_PRINT)
       // DEBUG_PRINT_INFO("VC: [ ESTOP: %b | AUTO: %b ]", CHECK_STATUS_BIT(HUMMING_STATUS_BIT_REMOTE_ESTOP), CHECK_STATUS_BIT(HUMMING_STATUS_BIT_AUTO_MODE));
       // state machine
-      if(remoteESTOP)
+      if(m_bot.remoteESTOP)
       {
         DEBUG_PRINT_WRN("VC: Remote ESTOP, therefore apply brake");
         //keep neutral
@@ -339,7 +339,7 @@ void vc_run(void)
       }
       else
       {
-        if(autoMode)
+        if(m_bot.autoMode)
         {
           //TODO: to be implemented, requires a coordination here!!! [TBI]
           if(m_bot.newPayloadAvail)
