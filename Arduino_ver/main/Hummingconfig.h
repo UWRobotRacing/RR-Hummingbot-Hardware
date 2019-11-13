@@ -19,6 +19,7 @@ MEGA 2560:
 /*************************************
  ****** Servo Config Preference ******
  *************************************/
+#define HUMMING_CONFIG_STEERING_BEBUG_LED_GPIO_PIN  (40U)
 #define HUMMING_CONFIG_STEERING_SERVO_GPIO_PIN      (4U)
 #define HUMMING_CONFIG_THROTTLE_ESC_GPIO_PIN        (5U)
 #define HUMMING_CONFIG_RF24_CE          	          (7U)

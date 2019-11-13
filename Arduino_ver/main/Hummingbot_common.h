@@ -4,6 +4,31 @@
 /*************************************  
  ********* Macro Helpers ********** 
  *************************************/
+/* uart communication commons */
+typedef struct
+{
+   int16_t jetson_ang;
+   int16_t  jetson_spd;
+   uint16_t jetson_flag;
+}jetson_data_t;
+
+typedef struct
+{
+   uint8_t        startByte;
+   jetson_data_t  data;
+   uint8_t        endByte;
+}jetson_packet_t;
+
+typedef union
+{
+  jetson_packet_t myFrame;
+  uint8_t         serializedArray[8];
+}jetson_union_t;
+
+#define COMMON_M4_JETSON_SYNC_START_BYTE  ('a')
+#define COMMON_M4_JETSON_SYNC_END_BYTE    ('n')
+#define COMMON_M4_JETSON_FRAME_SIZE       (sizeof(jetson_union_t))
+
 /* set status bit */
 #define SET_STATUS_BIT(flag)         (m_bot.status |=(1U<<(flag)))
 #define CLEAR_STATUS_BIT(flag)       (m_bot.status &=~(1U<<(flag)))
