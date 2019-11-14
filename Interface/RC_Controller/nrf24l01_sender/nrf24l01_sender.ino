@@ -107,8 +107,8 @@ void loop() {
   // every 4ms  - JOYSTICK Input 
   if ((currentMillis - prevMillis)%4) {
       // ------ ADC Sampling & low pass-----
-      uint16_t steer_raw_input = analogRead(A1);
-      uint16_t spd_raw_input = analogRead(A0);
+      uint16_t steer_raw_input = analogRead(A3)+200;
+      uint16_t spd_raw_input = analogRead(A6)+200;
       // Low pass filter
       // CONTROLLER - STEER
       steer_raw_input &= 0xFFF;
