@@ -45,6 +45,7 @@
 #include "nrf24l01/RF24_common.h"
 #include "nrf24l01/RF24.h"
 #include "vehicleController/vehicleController.h"
+#include "JetsonUart/JetsonUart.h"
 #include "Hummingconfig.h"
 
 #include "fsl_debug_console.h"
@@ -71,7 +72,14 @@
 
 #define ENABLE_TASK_RF24				        1
 #define ENABLE_TASK_VEHICLE_CONTROL    	1
+#define ENABLE_TASK_JETSON_UART         1
 
+#if (ENABLE_TASK_JETSON_UART) // if uart transmission, be sure to turn off debug mode
+#ifdef ENABLE_FEATURE_DEBUG_PRINT
+#undef ENABLE_FEATURE_DEBUG_PRINT
+#endif
+#define ENABLE_FEATURE_DEBUG_PRINT 0
+#endif //(ENABLE_TASK_JETSON_UART)
 /*************************************  
  ********* Calibbration Helper ********** 
  *************************************/
@@ -156,10 +164,12 @@
  ***********************************/
 /* Task Priority */
 #define TASK_RF24_PRIORITY 							 			(configMAX_PRIORITIES - 1)
-#define ENABLE_TASK_VEHICLE_CONTROL_PRIORITY 	(configMAX_PRIORITIES - 2)
+#define TASK_VEHICLE_CONTROL_PRIORITY 	      (configMAX_PRIORITIES - 2)
+#define TASK_JETSON_UART_PRIORITY 	          (configMAX_PRIORITIES - 3)
 /* Task Frequency */ //TODO: TBD
 #define TASK_RF24_RUNNING_PERIOD                  (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 #define TASK_VEHICLE_CONTROL_RUNNING_PERIOD       (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
+#define TASK_JETSON_UART_PERIOD                   (HELPER_TASK_FREQUENCY_HZ(10)) //Hz
 
 /***********************************
  ********* Macro Helpers **********
@@ -189,17 +199,14 @@ typedef struct{
   uint16_t          vc_newData_available; //like a non-blocking semaphore
   SemaphoreHandle_t vc_data_lock;
 
+  // uart command
+  jetson_buf_t      uart_jetson;
+  bool              uart_avail;
+  SemaphoreHandle_t uart_data_lock;
+
   // main status
   HUMMING_STATUS_BIT_E status;
 }Hummingbot_firmware_FreeRTOS_2_data_S;
-
-typedef struct
-{
-	uint16_t jetson_ang;
-	int16_t	jetson_spd;
-	uint16_t jetson_flag;
-	uint16_t jetson_pad;
-}jetson_data;
 
 /*************************************
  ********* Inline Definitions **********
@@ -236,6 +243,47 @@ Hummingbot_firmware_FreeRTOS_2_data_S m_bot;
 /**************************************  
  ********* Private Functions ********** 
  *************************************/
+#if (ENABLE_TASK_JETSON_UART)
+static void task_uart_receive(void *pvParameters)
+{
+  JU_begin();
+#if (JETSPN_ENABLE_SYNC_FIRST)
+  JU_prepSync();
+#else
+  JU_prepXfer();
+#endif //(JETSPN_ENABLE_SYNC_FIRST)
+
+  while(1) {
+#if (!JETSON_UART_H_TEST_CASE)
+
+#if(JETSPN_ENABLE_SYNC_FIRST)
+    if(JU_isSynced())
+    {
+      JU_doXfer();
+    }
+    else if(JU_trySync())
+    {
+      JU_prepXfer();
+      xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+      m_bot.uart_avail = JU_readXfer(&m_bot.uart_jetson);
+      xSemaphoreGive(m_bot.uart_data_lock);
+    }
+#else
+    JU_doXfer();
+    xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+    m_bot.uart_avail = JU_readXfer(&m_bot.uart_jetson);
+    xSemaphoreGive(m_bot.uart_data_lock);
+#endif
+
+#else
+    JU_prepTesfer();
+    JU_doTesfer();
+#endif
+    vTaskDelay(TASK_JETSON_UART_PERIOD);
+  }
+}
+#endif //(ENABLE_TASK_JETSON_UART)
+
 #if (ENABLE_TASK_RF24)
 static void task_rf24(void *pvParameters)
 {
@@ -334,8 +382,6 @@ static void task_vehicleControl(void *pvParameters)
   uint8_t   rf24_flag  = 0;
   angle_deg_t       reqAng = 0;
   speed_cm_per_s_t  reqSpd = 0;
-  pulse_us_t        ang_pw_us = 0;
-  pulse_us_t        spd_pw_us = 0;
 #endif // (CALIB_PRINT_VC_SERVO)
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
@@ -439,11 +485,22 @@ static void task_vehicleControl(void *pvParameters)
           if(autoMode)
           {
             VC_doBraking(0);
-            //TODO: to be implemented, requires a coordination here!!! [TBI]
+            
+            xSemaphoreTake(m_bot.uart_data_lock, HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK);
+            reqAng = m_bot.uart_jetson.jetson_ang; //angle_deg_t
+            reqSpd = m_bot.uart_jetson.jetson_spd; //speed_cm_per_s_t
+            xSemaphoreGive(m_bot.uart_data_lock);
+
+            if(m_bot.uart_avail)
+            {
+              //TODO: implement e brake?
+              VC_requestSteering(reqAng);
+              VC_requestThrottle(reqSpd);
+            }
+
             if(reqAng>=0)
             {
               DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
-
             }
             else
             {
@@ -452,11 +509,8 @@ static void task_vehicleControl(void *pvParameters)
           }
           else
           {
-            /// - remote controller mode !!! TODO: coordination TBI
-
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
-            // ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
-            // spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
+
             if(reqAng>=0)
             {
             	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
@@ -529,6 +583,7 @@ int main(void) {
 	/* Init RTOS related*/
   m_bot.rf24_data_lock = xSemaphoreCreateMutex();
   m_bot.vc_data_lock   = xSemaphoreCreateMutex();
+  m_bot.uart_data_lock = xSemaphoreCreateMutex();
 	/* Init rf24 */
 #if (ENABLE_TASK_RF24)
 	m_bot.rf24_ce.port = RF24_COMMON_DEFAULT_CE_PORT;
@@ -538,7 +593,9 @@ int main(void) {
 #if (ENABLE_TASK_VEHICLE_CONTROL)
 	VC_Config(); // NOTE: please config directly within the vehicle control
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-
+#if (ENABLE_TASK_JETSON_UART)
+  JU_init();
+#endif
 
 	/*---- CONFIG --------------------------------------------------------*/
 	 DEBUG_PRINT_INFO(" ****** Hummingboard Config ... ******");
@@ -584,19 +641,24 @@ int main(void) {
 #if (ENABLE_TASK_RF24)
 	if (xTaskCreate(task_rf24, "task_rf24", configMINIMAL_STACK_SIZE + 10, NULL, TASK_RF24_PRIORITY, NULL) != pdPASS)
 	{
-	  DEBUG_PRINT_ERR("Task creation failed!.");
+	  DEBUG_PRINT_ERR("RF24 Task creation failed!.");
 		while (1);
 	}
 #endif
 #if (ENABLE_TASK_VEHICLE_CONTROL)
-	if (xTaskCreate(task_vehicleControl, "task_vehicleControl", configMINIMAL_STACK_SIZE + 10, NULL, ENABLE_TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
+	if (xTaskCreate(task_vehicleControl, "task_vehicleControl", configMINIMAL_STACK_SIZE + 10, NULL, TASK_VEHICLE_CONTROL_PRIORITY, NULL) != pdPASS)
 	  {
-	    DEBUG_PRINT_ERR("Task creation failed!.\r\n");
+	    DEBUG_PRINT_ERR("VC Task creation failed!.\r\n");
 	    while (1);
 	  }
 #endif //(ENABLE_TASK_VEHICLE_CONTROL)
-
-
+#if (ENABLE_TASK_JETSON_UART)
+	if (xTaskCreate(task_uart_receive, "task_uart_receive", configMINIMAL_STACK_SIZE + 10, NULL, TASK_JETSON_UART_PRIORITY, NULL) != pdPASS)
+	{
+		DEBUG_PRINT_ERR("UART Task creation failed!.\r\n");
+		while (1);
+	}
+#endif //(ENABLE_TASK_JETSON_UART)
 	/*---- TASK SCHEDULAR START --------------------------------------------------------*/
   DEBUG_PRINT_INFO(" ****** Hummingboard Running ******");
   DEBUG_PRINT_INFO(" ****** ******************* ******");

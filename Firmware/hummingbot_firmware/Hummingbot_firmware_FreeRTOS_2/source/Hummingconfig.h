@@ -16,4 +16,5 @@
 #define HUMMING_CONFIG_BOT_LOST_CONTROLLER_TIMEOUT_MS       (500) //ms
 #define HUMMING_CONFIG_BOT_UNSTABLE_RF_COMM_MIN_CNTS        (10)  // continuous 10 counts will be regaed as unstable transmission
 #define HUMMING_CONFIG_BOT_RF24_SEMAPHORE_LOCK_MAX_TICK     (10)  //max 100 ticks
+#define HUMMING_CONFIG_BOT_UART_SEMAPHORE_LOCK_MAX_TICK     (10)  //max 100 ticks
 #endif //(HUMMING_CONFIG_H_)
