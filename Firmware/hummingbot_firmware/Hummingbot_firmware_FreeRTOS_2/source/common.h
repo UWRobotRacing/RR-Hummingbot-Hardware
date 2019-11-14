@@ -10,6 +10,8 @@
 
 #include "fsl_gpio.h"
 #include "fsl_lpspi_freertos.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /*************************************
  ********* Macro Definitions **********
@@ -17,6 +19,7 @@
 #define SAME_GPIO(x, y)     (((x).port==(y).port) && ((x).pin==(y).pin))
 #define LOW                 (0)
 #define HIGH                (1)
+
 /*************************************
  ********* Struct Definitions ********
  *************************************/
@@ -30,6 +33,15 @@ typedef struct{
     lpspi_master_config_t spi0_master_config;
     lpspi_transfer_t      spi0_transfer;
 }lpspi_t;
+
+// data structure
+typedef struct
+{
+ uint16_t  jetson_ang;
+ int16_t   jetson_spd;
+ uint16_t  jetson_flag;
+ uint16_t  jetson_pad;
+}jetson_buf_t;
 
 /*************************************
  ********* ENUM Definitions **********
