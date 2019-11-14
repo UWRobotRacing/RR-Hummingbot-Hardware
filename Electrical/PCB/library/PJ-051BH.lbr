@@ -162,9 +162,9 @@
 </connects>
 <technologies>
 <technology name="">
+<attribute name="STANDARD" value="Manufacturer Recommendations"/>
 <attribute name="PARTREV" value="1.03"/>
 <attribute name="MANUFACTURER" value="CUI"/>
-<attribute name="STANDARD" value="Manufacturer Recommendations"/>
 </technology>
 </technologies>
 </device>
