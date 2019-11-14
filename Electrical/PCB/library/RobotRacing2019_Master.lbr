@@ -627,7 +627,7 @@ Source: http://www.analog.com/UploadedFiles/Data_Sheets/346131962AD8067_a.pdf</d
 <rectangle x1="0.7112" y1="-1.4954" x2="1.1684" y2="-0.9112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.4954" x2="-0.7112" y2="-0.9112" layer="51"/>
 </package>
-<package name="SOT23" urn="urn:adsk.eagle:footprint:20709/1">
+<package name="SOT23" urn="urn:adsk.eagle:footprint:20709/1" locally_modified="yes">
 <description>&lt;b&gt;SMALL OUTLINE TRANSISTOR&lt;/b&gt;&lt;p&gt;
 reflow soldering</description>
 <wire x1="-1.973" y1="1.983" x2="1.973" y2="1.983" width="0.0508" layer="39"/>
@@ -647,6 +647,11 @@ reflow soldering</description>
 <rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 <rectangle x1="-0.5001" y1="-0.3" x2="0.5001" y2="0.3" layer="35"/>
+<wire x1="0.3048" y1="-0.66" x2="-0.3048" y2="-0.66" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="-0.127" x2="-1.422" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="0.66" x2="1.422" y2="-0.127" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="0.66" x2="-0.762" y2="0.66" width="0.1524" layer="21"/>
+<wire x1="0.762" y1="0.66" x2="1.422" y2="0.66" width="0.1524" layer="21"/>
 </package>
 <package name="QFN24-3X3">
 <description>&lt;h3&gt;24-Pin QFN -  3.0 x 3.0 mm - No center pad&lt;/h3&gt;
@@ -1771,7 +1776,7 @@ Used 20% larger pads</description>
 <rectangle x1="-2.75" y1="-3.45" x2="-1.85" y2="-1.9" layer="51"/>
 <rectangle x1="-0.45" y1="-3.45" x2="0.45" y2="-1.9" layer="51"/>
 <rectangle x1="1.85" y1="-3.45" x2="2.75" y2="-1.9" layer="51"/>
-<rectangle x1="-1.55" y1="1.9" x2="1.55" y2="3.45" layer="51"/>
+<rectangle x1="-1.55" y1="1.9" x2="1.55" y2="3.45" layer="51"/
 </package>
 </packages>
 <packages3d>
@@ -1792,6 +1797,13 @@ Used 20% larger pads</description>
 type U15</description>
 <packageinstances>
 <packageinstance name="U15CHOKE"/>
+</packageinstances>
+</package3d>
+<package3d name="M9040P" urn="urn:adsk.eagle:package:27676/1" type="box">
+<description>TOGGLE SWITCH
+Marquardt</description>
+<packageinstances>
+<packageinstance name="M9040P"/>
 </packageinstances>
 </package3d>
 </packages3d>
@@ -2159,40 +2171,34 @@ type U15</description>
 <pin name="2" x="0" y="-7.62" visible="off" length="short" direction="pas" swaplevel="1" rot="R90"/>
 </symbol>
 <symbol name="VDD">
-<text x="-1.524" y="1.016" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="-2.54" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="-1.27" x2="0" y2="0" width="0.254" layer="94"/>
 <wire x1="0" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94"/>
+<pin name="+VDD" x="0" y="-2.54" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="+5V">
-<text x="-1.524" y="3.556" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94"/>
+<pin name="+5V" x="0" y="0" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="+3V3">
-<text x="-1.524" y="3.556" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94"/>
+<pin name="+3V3" x="0" y="0" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="+VUSB">
-<text x="-1.524" y="3.556" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94"/>
+<pin name="+VUSB" x="0" y="0" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="+AVDD">
-<text x="-1.524" y="3.556" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94"/>
+<pin name="+AVDD" x="0" y="0" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="+VREF_H">
-<text x="-1.524" y="3.556" size="1.27" layer="96">&gt;VALUE</text>
-<pin name="VDD" x="0" y="0" visible="off" length="short" direction="sup" rot="R90"/>
 <wire x1="-1.27" y1="1.27" x2="0" y2="2.54" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="1.27" y2="1.27" width="0.254" layer="94"/>
+<pin name="+VREF_H" x="0" y="0" length="short" direction="sup" rot="R90"/>
 </symbol>
 <symbol name="CHOKE">
 <wire x1="-3.048" y1="2.794" x2="5.588" y2="2.794" width="0.254" layer="94"/>

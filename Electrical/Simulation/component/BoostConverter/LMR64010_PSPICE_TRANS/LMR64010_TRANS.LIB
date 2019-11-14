@@ -1,0 +1,141 @@
+*$
+* LMR64010
+*****************************************************************************
+* (C) Copyright 2014 Texas Instruments Incorporated. All rights reserved.
+*****************************************************************************
+** This model is designed as an aid for customers of Texas Instruments.
+** TI and its licensors and suppliers make no warranties, either expressed
+** or implied, with respect to this model, including the warranties of
+** merchantability or fitness for a particular purpose.  The model is
+** provided solely on an "as is" basis.  The entire risk as to its quality
+** and performance is with the customer
+*****************************************************************************
+*
+* This model is subject to change without notice. Texas Instruments
+* Incorporated is not responsible for updating this model.
+*
+*****************************************************************************
+*
+** Released by: WEBENCH Design Center, Texas Instruments Inc.
+* Part: LMR64010
+* Date: 14OCT2014
+* Model Type: TRANSIENT
+* Simulator: PSPICE
+* Simulator Version: 16.2.0_p001
+* EVM Order Number: AN-2183 LMR62014/LMR64010
+* EVM Users Guide: SNVA500A – September 2011 – Revised April 2013
+* Datasheet: SNVS736B – SEPTEMBER 2011 – REVISED APRIL 2013
+*
+* Model Version: Final 1.00
+*
+*****************************************************************************
+*
+* Updates:
+*
+* Final 1.00
+* Release to WeB
+*
+*****************************************************************************
+.SUBCKT LMR64010_TRANS  VIN SHDN_N SW FB GND 
+E_BStartup BG1 Gnd value = { IF(V(SHDN_N) > 1.5 & V(Vin) > 1.23 , 1.23 , 0)}
+Rref BG1 BG 5
+Cref BG Gnd 72n
+V1 Ref5v 0 DC=5
+VMAX_DUTY MAXDUTY 0 PULSE 5 0 0 .001U .001U 581.25E-9 625E-9
+EMAX_DUTY 7p 0 value = { IF(V(MAXDUTY) > 1 | V(7) > 1 , 5 , 0)}
+R2 SHDN_N Gnd 100meg
+X1 Clk_ILIMIT 7p  Q QB SRLATCHSHP_BASIC_GEN
+E_B6 10 Gnd value = { IF(I(VRSENSE) > 1.5 , 5 , 0)}
+VRSENSE SW 12 0
+R8 Vsense Gnd 50m
+R101 10 101 1
+C101 101 Gnd 1n
+E_ILIMIT_1 CUR_LIMIT_n1 0 value = { IF(V(101) > 2.5, 5 , 0)}
+RILIMIT CUR_LIMIT_n1 CUR_LIMIT_n1_d 10m
+D_D1ILIMIT CUR_LIMIT_n1_d CUR_LIMIT_n2 D_D_Ilimit
+CILIMIT CUR_LIMIT_n2 0 1n
+SW2  CUR_LIMIT_n2 0 MAXDUTY 0  S_VSWITCH_2
+.MODEL S_VSWITCH_2 VSWITCH (RON=500M ROFF=1G VON=400M VOFF=300M)
+E_buff CUR_LIMIT_n3 0 value = { IF(V(CUR_LIMIT_n2) > 1.25 , 5 , 0)}
+E_CLK_ILIMIT Clk_ILIMIT 0 value = { IF(V(CUR_LIMIT_n3) > 1.25 , 0 , IF(V(Clk_Clk) > 1.25,5,0))}
+.MODEL D_D_Ilimit D( IS=1e-12 TT=10p Rs=0.005 N=.01 )
+E_BR 7 Gnd value = { IF(V(Compout) > 2.5 , 5 , IF( V(101) > 2.5 , 5 , 0))}
+X3 VSum verx Compoutp COMP_BASIC_GEN
+Rcompout Compoutp Compoutp2 1
+CCompout Compoutp2 0 1n
+ECompout Compout 0 VALUE={IF(V(Compoutp2)>2.5,5,0)}
+G_Bg 0 Vc1 value = {V(Vdiff)}
+Rm Vc1 0 1Meg
+Cm Vc1 0 270p
+C3 Vc1 3 1.75n
+R5 3 0 1500k
+Dclp Vc1 clp Dclamp
+Vclp clp 0 1.4
+.model Dclamp D (IS=1f N=0.1 TT=10p RS=0.05)
+E4 verx 0 Vc1 0 1
+Dminlim 0 Vc1 _DMOD
+.MODEL _DMOD D BV=3 IBV=1n N=0.01
+E3 19 0 BG FB {100u*250/300}
+EA1 Vdiff  0 VALUE { LIMIT(V(19),-300u,300u)}	;code_model_here
+Esense vsence_scale 0 VALUE={V(Vsense)*48m*250}
+X10 vsence_scale Ramp VSum SUM2
+VCH Clk_Clk Gnd PULSE 0 5 0 .001U .001U 3.125E-9 6.25E-7
+VRH Ramp Gnd PULSE 0 {3000u*250} 0 500N 30N 10N 625N
+E_BD 14p 0 value = { IF(V(Q) > 2.5 & V(SHDN_N) > 1.5 , 5 , 0)}
+R14p 14p 14pp 1
+C14p 14pp 0 1n
+SW1   12 VSENSE 14pp 0  S_VSWITCH_1
+D_SW1 VSENSE 12 D_ideal
+.MODEL D_Ideal D 
+* (IS=1f N=1m RS=1m)
+.MODEL S_VSWITCH_1 VSWITCH (RON=500m ROFF=1G VON=400M VOFF=300M)
+.ENDS LMR64010_TRANS
+*$
+.SUBCKT SUM2  1   2   3
+E_B1 3 0 value = { V(1) + V(2)}
+.ENDS
+*$
+.SUBCKT SRLATCHSHP_BASIC_GEN S R Q QB PARAMS: VDD=5 VSS=0.1 VTHRESH=2.5
+GQ 0 Qint VALUE = {IF(V(S) > {VTHRESH},5,IF(V(R)>{VTHRESH},-5, 0))}
+CQint Qint 0 1n
+RQint Qint 0 1000MEG
+D_D10 Qint MY5 D_D1
+V1 MY5 0 {VDD}
+D_D11 MYVSS Qint D_D1
+V2 MYVSS 0 {VSS}
+EQ Qqq 0 Qint 0 1
+X3 Qqq Qqqd1 BUF_BASIC_GEN PARAMS: VDD={VDD} VSS={VSS} VTHRESH={VTHRESH}
+RQq Qqqd1 Q 1
+EQb Qbr 0 VALUE = {IF( V(Q) > {VTHRESH}, {VSS},{VDD})}
+RQb Qbr QB 1
+Cdummy1 Q 0 1n
+Cdummy2 QB 0 1n
+.IC V(Qint) {VSS}
+.MODEL D_D1 D( IS=1e-15 TT=10p Rs=0.05 N=.1 )
+.ENDS SRLATCHSHP_BASIC_GEN
+*$
+.SUBCKT BUF_BASIC_GEN A  Y PARAMS: VDD=5 VSS=0 VTHRESH=2.5
+E_ABMGATE    YINT 0 VALUE {{IF(V(A) > {VTHRESH} ,
++ {VDD},{VSS})}}
+RINT YINT Y 1
+CINT Y 0 1n
+.ENDS BUF_BASIC_GEN
+*$
+.SUBCKT COMP_BASIC_GEN INP INM Y PARAMS: VDD=5 VSS=0 VTHRESH=2.5	
+E_ABM Yint 0 VALUE {IF (V(INP) >
++ V(INM), {VDD},{VSS})}
+R1 Yint Y 1
+C1 Y 0 1n
+.ENDS COMP_BASIC_GEN
+*$
+.SUBCKT DIODE 1 2
+d1 1 2 LM2731_33_BOOST_BLOCK_D1_WB_DIODE
+.ENDS
+*$
+.MODEL LM2731_33_BOOST_BLOCK_D1_WB_DIODE d  
+*$
+.SUBCKT LDCR IN OUT PARAMS:  L=1u DCR=0.01
+L	IN 1  {L} 
+RDCR	1 OUT {DCR}
+.ENDS LDCR
+*$
