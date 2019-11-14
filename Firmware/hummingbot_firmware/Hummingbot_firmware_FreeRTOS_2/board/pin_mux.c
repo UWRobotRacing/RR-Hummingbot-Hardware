@@ -98,7 +98,6 @@ BOARD_InitPins:
   - {pin_num: '63', peripheral: FTM0, signal: 'CH, 5', pin_signal: ADC2_SE3/PTB17/FTM0_CH5/LPSPI1_PCS3}
   - {pin_num: '64', peripheral: FTM0, signal: 'CH, 4', pin_signal: ADC1_SE15/PTB16/FTM0_CH4/LPSPI1_SOUT}
   - {pin_num: '65', peripheral: FTM0, signal: 'CH, 3', pin_signal: ADC1_SE14/PTB15/FTM0_CH3/LPSPI1_SIN}
-  - {pin_num: '67', peripheral: FTM0, signal: 'CH, 1', pin_signal: ADC1_SE8/ADC2_SE8/PTB13/FTM0_CH1/FTM3_FLT1}
   - {pin_num: '69', peripheral: ADC1, signal: 'SE, 6', pin_signal: ADC1_SE6/ACMP1_IN6/PTD4/FTM0_FLT3/FTM3_FLT3}
   - {pin_num: '70', peripheral: ADC1, signal: 'SE, 3', pin_signal: ADC1_SE3/PTD3/FTM3_CH5/LPSPI1_PCS0/FXIO_D5/TRGMUX_IN4/NMI_b}
   - {pin_num: '71', peripheral: ADC1, signal: 'SE, 2', pin_signal: ADC1_SE2/PTD2/FTM3_CH4/LPSPI1_SOUT/FXIO_D4/TRGMUX_IN5}
@@ -141,6 +140,7 @@ BOARD_InitPins:
   - {pin_num: '62', peripheral: GPIOA, signal: 'GPIO, 17', pin_signal: PTA17/FTM0_CH6/FTM3_FLT0/EWM_OUT_b}
   - {pin_num: '68', peripheral: GPIOB, signal: 'GPIO, 12', pin_signal: ADC1_SE7/PTB12/FTM0_CH0/FTM3_FLT2}
   - {pin_num: '66', peripheral: GPIOB, signal: 'GPIO, 14', pin_signal: ADC1_SE9/ADC2_SE9/PTB14/FTM0_CH2/LPSPI1_SCK}
+  - {pin_num: '67', peripheral: FTM0, signal: 'CH, 1', pin_signal: ADC1_SE8/ADC2_SE8/PTB13/FTM0_CH1/FTM3_FLT1}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */

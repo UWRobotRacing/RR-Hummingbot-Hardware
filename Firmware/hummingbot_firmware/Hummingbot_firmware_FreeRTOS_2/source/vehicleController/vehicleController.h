@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define ENABLE_MOTOR_FEEDBACK       (1)
+#define ENABLE_HACKY_TICK           (0)
 /***********************************
  ********* Macro Definition **********
  ***********************************/
@@ -63,6 +65,11 @@ bool VC_powerOff(VC_channnelName_E controller);
 bool VC_do_FreeWheeling(VC_channnelName_E controller);
 bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t throttleAxis, angle_deg_t* out_convertedAng, speed_cm_per_s_t* out_convertedSpd);
 pulse_us_t VC_getCurrentPulseWidth(VC_channnelName_E controller);
+#if (ENABLE_MOTOR_FEEDBACK)
+    bool VC_getEncoderTimerValues(uint32_t* captureVal);
+    bool VC_getNewEncoderValues(uint32_t* captureVal);
+    uint32_t VC_getMotorSpd(void);
+#endif //(ENABLE_MOTOR_FEEDBACK)
 
 /* NOTE: PREFERRABLY: DO NOT USE RAW for main code, they are only meant for testing and calibration */ 
 bool VC_requestThrottle_raw(pulse_us_t pw_us); // will be filtered by logic

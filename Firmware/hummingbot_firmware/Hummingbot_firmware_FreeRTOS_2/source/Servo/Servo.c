@@ -62,6 +62,8 @@ typedef struct{
     bool                configed;
     uint8_t             size;
     SERVO_pwm_data_S    pwms[SERVO_MAX_NUM_SERVO];
+    uint32_t            timerTick;
+    uint32_t            prevtimerTick;
 } SERVO_data_S;
 
 /*******************************************************************************
@@ -86,6 +88,24 @@ void SERVO_onDestroy(void)
 {
     m_servos.configs = NULL;
 }
+
+uint32_t SERVO_TIMER_getCurrentTimeElapsed(void)
+{
+   uint64_t current_time = m_servos.timerTick;
+   uint32_t delta_time = current_time;
+   if(current_time > m_servos.prevtimerTick)
+   {
+        delta_time -= m_servos.prevtimerTick;
+        m_servos.prevtimerTick = current_time;
+   }
+   else
+   {
+        delta_time += m_servos.prevtimerTick;
+        m_servos.prevtimerTick = current_time;
+   }
+   delta_time *= SERVO_COMMON_FTM_PWM_PERIOD_US;
+   return (delta_time/1000U); //return ms elapsed
+} 
 
 bool SERVO_init(const SERVO_ServoConfig_S* configs, uint8_t size)
 {   
@@ -206,6 +226,7 @@ void SERVO_FTM_HANDLER(void)
     /* Clear interrupt flag.*/
     FTM_ClearStatusFlags(SERVO_FTM_BASEADDR, kFTM_TimeOverflowFlag);
     m_servos.ftmIsrFlag = true;
+    m_servos.timerTick ++;
     // run through TWO servo,
     /*NOTE:
      *  Do not use loop, it will not work,

@@ -334,10 +334,9 @@ static void task_vehicleControl(void *pvParameters)
   uint16_t  rf24_speed = 0;
   uint16_t  rf24_steer = 0;
   uint8_t   rf24_flag  = 0;
+   uint32_t  vc_enc_vals = 0;
   angle_deg_t       reqAng = 0;
   speed_cm_per_s_t  reqSpd = 0;
-  pulse_us_t        ang_pw_us = 0;
-  pulse_us_t        spd_pw_us = 0;
 #endif // (CALIB_PRINT_VC_SERVO)
 	DEBUG_PRINT_INFO(" [TASK] Vehicle Control Begin ...");
 	// Initialize the xLastWakeTime variable with the current time.
@@ -457,8 +456,6 @@ static void task_vehicleControl(void *pvParameters)
             /// - remote controller mode !!! TODO: coordination TBI
 
             VC_joystick_control(rf24_steer, rf24_speed, &reqAng, &reqSpd);
-            // ang_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_STEERING);
-            // spd_pw_us = VC_getCurrentPulseWidth(VC_CHANNEL_NAME_THROTTLE);
             if(reqAng>=0)
             {
             	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| %d deg]", reqSpd, reqAng);
@@ -466,7 +463,6 @@ static void task_vehicleControl(void *pvParameters)
             else
             {
             	DEBUG_PRINT_INFO("VC: [SPD|STR] [ %d cm/s| -%d deg]", reqSpd, reqAng);
-
             }
 
             // store these values, NOTE: might be useful for later: closed feedback control loop, jetson, so on
@@ -479,10 +475,9 @@ static void task_vehicleControl(void *pvParameters)
               m_bot.vc_newData_available = 0; // reset
             }
             //xSemaphoreGive(m_bot.vc_data_lock);
-          } 
+          }
         }
       }
-
     }
     /// 2. unhealthy state   
     else if( CHECK_STATUS_BIT(HUMMING_STATUS_BIT_RF24_COMM_STABLE) )
@@ -497,7 +492,10 @@ static void task_vehicleControl(void *pvParameters)
        VC_doBraking(0);
     }
     #endif //(CALIB_PRINT_VC_SERVO)
-
+#if (ENABLE_MOTOR_FEEDBACK)
+     vc_enc_vals = VC_getMotorSpd();
+     DEBUG_PRINT_WRN("VC: ENC [ %d turn]", vc_enc_vals);
+#endif //(ENABLE_MOTOR_FEEDBACK)
     DEBUG_PRINT_INFO("Vehicle Control Running ...");
 		vTaskDelayUntil(&xLastWakeTime, TASK_RF24_RUNNING_PERIOD);
 	}

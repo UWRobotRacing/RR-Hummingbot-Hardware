@@ -37,5 +37,6 @@ bool SERVO_powerOff(uint8_t index); //stop sending command
 bool SERVO_requestStart(uint8_t index);
 bool SERVO_write_us(uint8_t index, uint16_t pulseWidth_us);
 bool SERVO_getNotifiedByNewTick(void);
+uint32_t SERVO_TIMER_getCurrentTimeElapsed(void);
 
 #endif // (SERVO_H_)

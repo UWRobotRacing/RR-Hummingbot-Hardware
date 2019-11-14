@@ -18,6 +18,29 @@
 #include "../Servo/Servo.h"
 #include "Hummingconfig.h"
 #include "common.h"
+#include "fsl_ftm.h"
+
+/*******************************************************************************
+ * PREFERENCE
+ ******************************************************************************/
+#if (ENABLE_MOTOR_FEEDBACK)
+  #define BOARD_FTM_BASEADDR                (FTM1)
+  /* FTM channel used for input capture */
+  #define BOARD_FTM_INPUT_CAPTURE_CHANNEL   (kFTM_Chnl_7)
+  /* Interrupt number and interrupt handler for the FTM instance used */
+  #define FTM_INTERRUPT_NUMBER              (FTM1_IRQn)
+  #define FTM_INPUT_CAPTURE_HANDLER         (FTM1_IRQHandler)
+  /* Interrupt to enable and flag to read; depends on the FTM channel pair used */
+  #define FTM_CHANNEL_INTERRUPT_ENABLE      (kFTM_Chnl7InterruptEnable)
+  #define FTM_CHANNEL_FLAG                  (kFTM_Chnl7Flag)
+  /* Get source clock for FTM driver */
+  #define FTM_SOURCE_CLOCK CLOCK_GetFreq    (kCLOCK_CoreSysClk)
+  
+  #define MIN_TICK_TO_BREAK              (60) //ms
+  #define MIN_NUM_OF_TIMEOUT_TO_RUN      (10) //consecutive timeout
+  #define BREAK_DURATION              (1) //100ms
+  #define RETHROTTLE_PROTECTION       (10) //100ms = 1s
+#endif   
 
 /*******************************************************************************
  * Definitions
@@ -26,6 +49,7 @@
 #define CLEAR_ERR_FLAG(err)       (m_vc.errorFlags &=~(1U<<err))
 #define UPDATE_STATE(newState)    ((m_vc.state) = (newState))
 #define VC_OK                     ((m_vc.state < VC_STATE_FAULT)&&(m_vc.state > VC_STATE_INITED))
+
 /*******************************************************************************
  * typedef
  ******************************************************************************/
@@ -77,6 +101,18 @@ typedef struct{
     pulse_us_t      max_pw_us;
 } VC_throttleCalibration_S;
 
+// Motor Feedback
+#if (ENABLE_MOTOR_FEEDBACK)
+ typedef struct{
+  bool          ftmIsrFlag;
+  ftm_config_t  ftmInfo;
+  uint32_t      count;
+  uint32_t      time_ms;
+  uint32_t      timeout_count;
+  uint32_t      turn_per_second;
+ } VC_encoder_t;
+#endif         
+
 typedef struct{
     SERVO_ServoConfig_S         deviceConfigs[VC_CHANNEL_NAME_COUNT];
     const VC_steerCalibration_S*       steering_config;
@@ -92,7 +128,14 @@ typedef struct{
     angle_deg_t                 current_steering;
     bool                        isCurrentTrackingValsInvalid; //if so, current_x will no longer be valid, will force to retrack upon request() functions
     VC_state_E                  state;   
-    uint16_t                    errorFlags;                
+    uint16_t                    errorFlags;     
+    // Motor Feedback
+#if (ENABLE_MOTOR_FEEDBACK)
+    VC_encoder_t                hallSensor;
+    uint32_t                    prev_hallSensor_tick;
+    uint32_t                    loop_tick;
+    bool                        hacky_break;
+#endif
 } VehicleController_data_S;
 
 /*******************************************************************************
@@ -176,7 +219,11 @@ static const VC_rf24_joystick_configs_S joystick_calib = {
 /*******************************************************************************
  * private function prototypes
  ******************************************************************************/
-
+#if ENABLE_MOTOR_FEEDBACK
+  static void initEncoders(void);
+  static void configEncoders(void);
+  void FTM_INPUT_CAPTURE_HANDLER(void);
+#endif
 
 /*******************************************************************************
  * public function
@@ -218,6 +265,11 @@ void VC_Config(void)
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].minPulseWidth_us =	m_vc.throttle_config->min_pw_us; //make sure is 0, or you wont be able to stop with `write_us`
     m_vc.deviceConfigs[VC_CHANNEL_NAME_THROTTLE].maxPulseWidth_us =	m_vc.throttle_config->max_pw_us;
     
+    // Configure encoder interrupt
+   #if (ENABLE_MOTOR_FEEDBACK)
+     configEncoders();
+   #endif //(ENABLE_MOTOR_FEEDBACK)
+
     UPDATE_STATE(VC_STATE_CONFIGED);
 }
 
@@ -226,6 +278,9 @@ bool VC_Init(void)
     if(VC_STATE_CONFIGED == m_vc.state)
     {
       SERVO_init(m_vc.deviceConfigs, VC_CHANNEL_NAME_COUNT);
+ #if (ENABLE_MOTOR_FEEDBACK)
+       initEncoders();
+ #endif //(ENABLE_MOTOR_FEEDBACK)
       UPDATE_STATE(VC_STATE_INITED);
     }
     return (VC_STATE_INITED == m_vc.state);
@@ -245,6 +300,36 @@ bool VC_Begin(void)
     }
     return (VC_STATE_IDLE == m_vc.state);
 }
+
+#if (ENABLE_MOTOR_FEEDBACK)
+  bool VC_getEncoderTimerValues(uint32_t* captureVal)
+  {
+    bool ret = false;
+    if(m_vc.hallSensor.ftmIsrFlag)
+    {
+      *captureVal = BOARD_FTM_BASEADDR->CONTROLS[BOARD_FTM_INPUT_CAPTURE_CHANNEL].CnV;
+      m_vc.hallSensor.ftmIsrFlag = false;
+      ret = true;
+    }
+    return ret;
+  }
+
+  bool VC_getNewEncoderValues(uint32_t* captureVal)
+  {
+    bool isNewValue = false;
+    isNewValue = m_vc.hallSensor.ftmIsrFlag;
+    if(isNewValue)
+    {
+      m_vc.hallSensor.ftmIsrFlag = false;
+    }
+    *captureVal = (m_vc.hallSensor.count);
+    return (isNewValue);
+  }
+  uint32_t VC_getMotorSpd(void)
+  {
+    return m_vc.hallSensor.turn_per_second;
+  }
+#endif //(ENABLE_MOTOR_FEEDBACK)
 
 /* VC_getCurrentPulseWidth
  * @about return the actual pwm pulse output for given controller
@@ -567,6 +652,8 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
   rf24_joystick_tik_t delta = 0;
   angle_deg_t         steeringAng_req = 0;
   speed_cm_per_s_t    throttleSpd_req = 0;
+  // uint32_t hallSensor_timeout_tick = 0;
+
   /// - steering mapping
   delta = steeringAxis - m_vc.joystick_config->steeringNeutral.val;
   steeringAng_req = delta*m_vc.joystick_config->steeringDeadband.angle_deg/m_vc.joystick_config->steeringDeadband.val;
@@ -600,6 +687,32 @@ bool VC_joystick_control(rf24_joystick_tik_t steeringAxis, rf24_joystick_tik_t t
     {
       // do nothing
     }
+
+    /// hacky self-looped feedback
+#if (ENABLE_MOTOR_FEEDBACK && ENABLE_HACKY_TICK)
+    if(m_vc.hacky_break)
+    {
+      m_vc.loop_tick ++;
+      if(m_vc.loop_tick < BREAK_DURATION)
+      {
+        throttleSpd_req = m_vc.joystick_config->throttleBraking.speed_cm_per_s;
+      }
+      else if(m_vc.loop_tick < (BREAK_DURATION + RETHROTTLE_PROTECTION))
+      {
+        m_vc.hacky_break = false; // turn off hacky break
+      }
+    }
+    else
+    {
+      hallSensor_timeout_tick = m_vc.hallSensor.timeout_count;
+      if (hallSensor_timeout_tick > MIN_NUM_OF_TIMEOUT_TO_RUN)
+      {
+        m_vc.hacky_break = true;
+        m_vc.loop_tick = 0;
+      }
+    }
+#endif // (ENABLE_MOTOR_FEEDBACK && ENABLE_HACKY_TICK)
+
   }
   else if (throttleAxis < m_vc.joystick_config->throttleBraking.val)
   {
@@ -631,3 +744,51 @@ uint16_t VC_getErrorFlags(void)
 /*******************************************************************************
  * private function
  ******************************************************************************/
+#if (ENABLE_MOTOR_FEEDBACK)
+static void configEncoders(void)
+{
+  m_vc.hallSensor.ftmIsrFlag = false;
+  FTM_GetDefaultConfig(&m_vc.hallSensor.ftmInfo);
+}
+
+static void initEncoders(void)
+{
+  FTM_GetDefaultConfig(&m_vc.hallSensor.ftmInfo);
+  /* Initialize FTM module */
+  FTM_Init(BOARD_FTM_BASEADDR, &m_vc.hallSensor.ftmInfo);
+  /* Setup dual-edge capture on a FTM channel pair */
+  FTM_SetupInputCapture(BOARD_FTM_BASEADDR, BOARD_FTM_INPUT_CAPTURE_CHANNEL, kFTM_FallingEdge, 0);
+  /* Set the timer to be in free-running mode */
+  BOARD_FTM_BASEADDR->MOD = 0xFFFF;
+  /* Enable channel interrupt when the second edge is detected */
+  FTM_EnableInterrupts(BOARD_FTM_BASEADDR, FTM_CHANNEL_INTERRUPT_ENABLE);
+  /* Enable at the NVIC */
+  EnableIRQ(FTM_INTERRUPT_NUMBER);
+  FTM_StartTimer(BOARD_FTM_BASEADDR, kFTM_SystemClock);
+}
+
+void FTM_INPUT_CAPTURE_HANDLER(void)
+{
+    m_vc.hallSensor.count ++;
+    m_vc.hallSensor.time_ms = SERVO_TIMER_getCurrentTimeElapsed();
+    uint32_t tps = 1000/m_vc.hallSensor.time_ms;
+    m_vc.hallSensor.turn_per_second = (m_vc.hallSensor.turn_per_second*9)/10 + tps/10;
+    if(m_vc.hallSensor.time_ms > MIN_TICK_TO_BREAK)
+    {
+      m_vc.hallSensor.timeout_count ++;
+    }
+    else
+    {
+      m_vc.hallSensor.timeout_count = 0;
+    }
+
+    if ((FTM_GetStatusFlags(BOARD_FTM_BASEADDR) & FTM_CHANNEL_FLAG) == FTM_CHANNEL_FLAG)
+    {
+        /* Clear interrupt flag.*/
+        FTM_ClearStatusFlags(BOARD_FTM_BASEADDR, FTM_CHANNEL_FLAG);
+    }
+    m_vc.hallSensor.ftmIsrFlag = true;
+    __DSB();
+}
+#endif //(ENABLE_MOTOR_FEEDBACK)
+
